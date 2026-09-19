@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FaceAuth — Face Unlock for Mac</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --bg-strong: #ffffff;
+        --card: #ffffff;
+        --card-border: rgba(0,0,0,0.06);
+        --text: #111111;
+        --muted: #5f6368;
+        --blue: #0080ff;
+        --blue-soft: rgba(0,128,255,0.08);
+        --dark: #0f1115;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+        line-height: 1.5;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      img {
+        max-width: 100%;
+        display: block;
+      }
+
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: rgba(255,255,255,0.96);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+      }
+
+      .nav-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        height: 68px;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo {
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      .nav-actions {
+        margin-left: auto;
+      }
+
+      .nav-button,
+      .button-primary,
+      .button-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 999px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+
+      .nav-button {
+        background: #000;
+        color: #fff;
+        padding: 8px 16px;
+        font-size: 0.86rem;
+        font-weight: 600;
+        border: 1px solid rgba(0,0,0,0.08);
+      }
+
+      .nav-button:hover,
+      .button-primary:hover {
+        background: var(--blue);
+        transform: translateY(-1px);
+      }
+
+      .button-icon {
+        width: 15px;
+        height: 15px;
+        display: inline-block;
+        flex-shrink: 0;
+        vertical-align: middle;
+        color: currentColor;
+      }
+
+      .nav-button .button-icon,
+      .button-primary .button-icon {
+        width: 14px;
+        height: 14px;
+        color: #ffffff;
+        transform: translateY(-1px);
+      }
+
+      .hero-apple-icon {
+        width: 1.025em;
+        height: 1.025em;
+        margin-right: 0.05em;
+        display: inline-block;
+        vertical-align: -0.18em;
+        object-fit: contain;
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .hero {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 96px 20px 32px;
+        text-align: center;
+      }
+
+      .hero-logo-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 18px;
+      }
+
+      .hero-logo {
+        width: 86px;
+        height: 86px;
+        object-fit: contain;
+        display: block;
+      }
+
+      .eyebrow {
+        color: var(--blue);
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        margin-top: 18px;
+      }
+
+      h1 {
+        font-size: clamp(3.2rem, 7vw, 6rem);
+        line-height: 0.96;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+        width: min(100%, 980px);
+        margin: 0 auto;
+      }
+
+      .hero-subtitle {
+        max-width: 700px;
+        margin: 26px auto 0;
+        color: var(--muted);
+        font-size: clamp(1.1rem, 2vw, 1.5rem);
+        line-height: 1.45;
+        letter-spacing: -0.02em;
+      }
+
+      .hero-actions {
+        display: flex;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 32px;
+        flex-wrap: wrap;
+      }
+
+      .button-primary {
+        background: #000;
+        color: #fff;
+        padding: 14px 24px;
+        font-weight: 600;
+        border: 1px solid rgba(0,0,0,0.08);
+      }
+
+      .button-secondary {
+        background: rgba(255,255,255,0.6);
+        color: var(--text);
+        padding: 14px 24px;
+        font-weight: 600;
+        border: 1px solid var(--card-border);
+      }
+
+      .button-secondary:hover {
+        border-color: rgba(0,128,255,0.25);
+        background: rgba(0,128,255,0.04);
+      }
+
+      .scroll-intro {
+        max-width: 1100px;
+        margin: 54px auto 0;
+        padding: 0 20px;
+      }
+
+      .scroll-intro-box {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 24px;
+        align-items: stretch;
+      }
+
+      .scroll-intro-copy {
+        grid-column: 1 / -1;
+        width: 100%;
+        max-width: none;
+        scroll-margin-top: 84px;
+        font-size: clamp(2.1rem, 4.5vw, 3.25rem);
+        line-height: 1.06;
+        letter-spacing: -0.055em;
+        font-weight: 700;
+        color: #0b1320;
+      }
+
+      .scroll-intro-column {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .feature-panel {
+        background: #f0f4f9;
+        border-radius: 32px;
+        padding: 32px;
+        display: flex;
+        align-items: center;
+        min-height: 260px;
+      }
+
+      .feature-panel-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: center;
+        width: 100%;
+      }
+
+      .feature-panel-grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .feature-panel-grid.three:not(.single) {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        align-items: center;
+      }
+
+      .feature-panel-grid.three:not(.single) .feature-item {
+        flex: 1 1 0;
+        align-items: center;
+        text-align: center;
+      }
+
+      .feature-panel-grid.three .feature-item {
+        align-items: stretch;
+        justify-content: flex-start;
+        text-align: left;
+      }
+
+      .feature-panel-grid.three.single .feature-item {
+        width: 100%;
+        grid-column: 1 / -1;
+      }
+
+      .feature-panel-grid.three .feature-item strong {
+        width: 100%;
+        font-size: 1.4rem;
+        line-height: 1.35;
+      }
+
+      .feature-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #0b1320;
+      }
+
+      .feature-item strong {
+        font-size: 1.15rem;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+      }
+
+      .face-tile {
+        width: 124px;
+        height: 124px;
+        border-radius: 30px;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+      }
+
+      .face-tile svg {
+        width: 80px;
+        height: 80px;
+        color: #3b82f6;
+      }
+
+      .expanded-video {
+        width: 124px;
+        height: 124px;
+        border-radius: 30px;
+        object-fit: cover;
+        display: block;
+        background: #000;
+        margin-bottom: 12px;
+      }
+
+      .minimal-stack {
+        height: 124px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-bottom: 12px;
+      }
+
+      .minimal-capsule {
+        width: 128px;
+        height: 32px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .minimal-capsule svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .minimal-capsule .check {
+        width: 16px;
+        height: 16px;
+        border: 1px solid #3b82f6;
+        border-radius: 50%;
+        color: #3b82f6;
+      }
+
+      .unlock-video,
+      .unsuccessful-unlock-video {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        object-fit: contain;
+        display: block;
+        flex: 0 0 20px;
+      }
+
+      .simple-icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 12px;
+        color: #000;
+      }
+
+      .feature-panel-grid.three .simple-icon {
+        width: 52px;
+        height: 52px;
+        margin-bottom: 16px;
+      }
+
+      .face-id-image {
+        align-self: center;
+      }
+
+      .face-id-panel .feature-item {
+        align-items: center;
+        text-align: center;
+      }
+
+      .face-id-panel .feature-item strong {
+        text-align: center;
+      }
+
+      .liveness-icon {
+        width: 74.88px !important;
+        height: 74.88px !important;
+      }
+
+      .iphone-wallpaper {
+        position: relative;
+        overflow: hidden;
+        min-height: 500px;
+        padding: 32px;
+        border-radius: 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: #fff;
+        background: linear-gradient(135deg, #09131d 0%, #17324d 30%, #30698f 60%, #63a4c5 85%, #b2d7e8 100%);
+      }
+
+      .lock-screen-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+        display: block;
+      }
+
+      .lock-copy {
+        position: absolute;
+        left: 32px;
+        right: 32px;
+        bottom: 32px;
+        z-index: 1;
+        padding-left: 8px;
+      }
+
+      .lock-copy h3 {
+        font-size: 1.5rem;
+        letter-spacing: -0.03em;
+        margin-bottom: 4px;
+        -webkit-text-stroke: 0.35px #000000;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.95);
+      }
+
+      .lock-copy p {
+        max-width: 320px;
+        color: #ffffff;
+        font-size: 0.95rem;
+        line-height: 1.35;
+        -webkit-text-stroke: 0.25px #000000;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.95);
+      }
+
+      .app-feature-grid {
+        max-width: 1100px;
+        margin: 24px auto 0;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+        gap: 24px;
+      }
+
+      .app-feature-card {
+        min-height: 420px;
+        border-radius: 36px;
+        padding: 32px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .unlock-flow {
+        max-width: 1100px;
+        margin: 54px auto 0;
+        padding: 0 20px;
+      }
+
+      .unlock-flow h2 {
+        max-width: 620px;
+        font-size: clamp(2.1rem, 4.5vw, 3.25rem);
+        line-height: 1.06;
+        letter-spacing: -0.055em;
+      }
+
+      .unlock-flow-track {
+        display: flex;
+        gap: 16px;
+        margin-top: 24px;
+        padding: 4px 2px 18px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: thin;
+      }
+
+      .unlock-flow-card {
+        flex: 0 0 300px;
+        min-height: 250px;
+        padding: 28px;
+        border: 1px solid var(--card-border);
+        border-radius: 32px;
+        background: #f0f4f9;
+        scroll-snap-align: start;
+      }
+
+      .unlock-flow-number {
+        color: var(--blue);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .unlock-flow-card h3 {
+        margin-top: 34px;
+        font-size: 1.35rem;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+      }
+
+      .unlock-flow-card p {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 0.94rem;
+        line-height: 1.5;
+      }
+
+      .how-it-works {
+        margin-top: 54px;
+      }
+
+      .app-feature-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .app-feature-label,
+      .app-feature-description {
+        position: absolute;
+        z-index: 1;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        pointer-events: none;
+      }
+
+      .app-feature-label {
+        top: 50%;
+        left: 32px;
+        transform: translateY(-50%);
+        color: #fff;
+        font-size: clamp(1.7rem, 3vw, 2.2rem);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+        font-weight: 700;
+      }
+
+      .app-feature-description {
+        right: 28px;
+        bottom: 26px;
+        left: 28px;
+        max-width: 430px;
+        color: #fff;
+        font-size: 0.82rem;
+        line-height: 1.4;
+      }
+
+      .native-app-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: #fff;
+        background: linear-gradient(135deg, #06111a 0%, #0d2338 35%, #184460 70%, #2f7193 100%);
+      }
+
+      .native-app-card::before {
+        content: "";
+        position: absolute;
+        width: 150%;
+        height: 150%;
+        top: -35%;
+        left: -35%;
+        background: repeating-radial-gradient(circle at 75% 25%, rgba(5,15,26,0.95) 0 22px, rgba(14,38,58,0.9) 28px, rgba(28,72,102,0.82) 44px, rgba(68,142,180,0.82) 60px, rgba(10,26,42,0.95) 78px);
+        transform: rotate(-28deg) scale(1.05);
+        opacity: 0.7;
+      }
+
+      .native-app-title {
+        position: relative;
+        z-index: 1;
+        width: 28%;
+        flex: 0 0 28%;
+        font-size: clamp(1.7rem, 3vw, 2.2rem);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+      }
+
+      .settings-window {
+        position: relative;
+        z-index: 1;
+        width: 72%;
+        height: 350px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.14);
+        border-radius: 16px;
+        background: rgba(22,28,36,0.86);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.45);
+        backdrop-filter: blur(20px);
+      }
+
+      .settings-titlebar {
+        height: 36px;
+        padding: 0 14px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .traffic-lights {
+        display: flex;
+        gap: 8px;
+      }
+
+      .traffic-lights span {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+      }
+
+      .traffic-lights span:nth-child(1) { background: #ff5f56; }
+      .traffic-lights span:nth-child(2) { background: #ffbd2e; }
+      .traffic-lights span:nth-child(3) { background: #27c93f; }
+
+      .settings-body {
+        display: grid;
+        grid-template-columns: 112px 1fr;
+        height: calc(100% - 36px);
+        color: rgba(255,255,255,0.78);
+        font-size: 0.65rem;
+      }
+
+      .settings-sidebar {
+        padding: 10px 8px;
+        background: rgba(18,22,29,0.68);
+        border-right: 1px solid rgba(255,255,255,0.08);
+      }
+
+      .settings-sidebar div {
+        padding: 7px 8px;
+        border-radius: 7px;
+      }
+
+      .settings-sidebar .active {
+        color: #fff;
+        background: rgba(255,255,255,0.12);
+      }
+
+      .settings-sidebar .label {
+        padding-top: 16px;
+        color: rgba(255,255,255,0.35);
+        font-size: 0.52rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .settings-content {
+        padding: 16px;
+      }
+
+      .settings-content h4 {
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.92);
+        font-size: 0.8rem;
+      }
+
+      .settings-row {
+        padding: 16px 0 4px;
+        color: rgba(255,255,255,0.8);
+      }
+
+      .settings-options {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .settings-option {
+        min-height: 58px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        text-align: center;
+        color: rgba(255,255,255,0.72);
+      }
+
+      .settings-option.active {
+        border: 2px solid #2b82f6;
+        color: #fff;
+      }
+
+      .identities-card {
+        display: flex;
+        align-items: center;
+        background: #edf2f7;
+        color: #0c131d;
+      }
+
+      .identities-copy {
+        width: 48%;
+        padding-right: 18px;
+      }
+
+      .identities-copy h3 {
+        font-size: clamp(1.8rem, 3vw, 2.3rem);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+        margin-bottom: 16px;
+      }
+
+      .identities-copy p {
+        color: #808a9d;
+        font-size: 0.78rem;
+        line-height: 1.4;
+        margin-top: 10px;
+      }
+
+      .identity-stack {
+        width: 52%;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .identities-image {
+        width: 72%;
+        max-height: 346px;
+        display: block;
+        object-fit: contain;
+        object-position: center right;
+        align-self: center;
+        border-radius: 22px;
+      }
+
+      .identity-item {
+        padding: 14px;
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 22px;
+        background: #1f242d;
+        color: #fff;
+        box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+      }
+
+      .identity-item.dimmed {
+        opacity: 0.6;
+      }
+
+      .identity-name {
+        display: inline-flex;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: #303642;
+        color: rgba(255,255,255,0.9);
+        font-size: 0.7rem;
+      }
+
+      .quality-label {
+        margin-top: 10px;
+        color: rgba(255,255,255,0.4);
+        font-size: 0.6rem;
+      }
+
+      .quality-bars {
+        display: flex;
+        gap: 3px;
+        margin-top: 7px;
+      }
+
+      .quality-bars span {
+        width: 3px;
+        height: 16px;
+        border-radius: 999px;
+        background: #4ade80;
+      }
+
+      .quality-bars span:nth-child(-n+2) { background: #f87171; }
+      .quality-bars span:nth-child(n+3):nth-child(-n+4) { background: #fb923c; }
+      .quality-bars span:nth-child(n+5):nth-child(-n+6) { background: #facc15; }
+      .quality-bars span:nth-child(7) { background: #a3e635; }
+
+      .features-section,
+      .security-section,
+      .download-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 96px 20px 0;
+      }
+
+      .section-label {
+        color: var(--blue);
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        margin-bottom: 12px;
+      }
+
+      h2 {
+        font-size: clamp(2.5rem, 6vw, 4.3rem);
+        line-height: 1.02;
+        letter-spacing: -0.055em;
+      }
+
+      .section-copy {
+        margin-top: 18px;
+        max-width: 650px;
+        font-size: 1.2rem;
+        color: var(--muted);
+      }
+
+      .feature-grid {
+        margin-top: 48px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap: 18px;
+      }
+
+      .card {
+        background: linear-gradient(180deg, #ffffff 0%, #f7f7f9 100%);
+        border: 1px solid var(--card-border);
+        border-radius: 28px;
+        padding: 30px;
+        min-height: 280px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 16px;
+        background: rgba(0,128,255,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        margin-bottom: 18px;
+      }
+
+      .card h3 {
+        font-size: 1.8rem;
+        letter-spacing: -0.04em;
+        margin-bottom: 10px;
+      }
+
+      .card p {
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.6;
+      }
+
+      .security-wrap {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 40px;
+        align-items: center;
+      }
+
+      .security-visual {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 360px;
+        background: radial-gradient(circle, rgba(0,128,255,0.18), rgba(0,128,255,0.03) 45%, transparent 70%);
+        border-radius: 40px;
+      }
+
+      .security-ring {
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 80px rgba(0,128,255,0.18);
+      }
+
+      .lock {
+        font-size: 4rem;
+      }
+
+      .download-section {
+        text-align: center;
+        padding-bottom: 120px;
+      }
+
+      .download-section h2 {
+        font-size: clamp(2.6rem, 6vw, 4.8rem);
+      }
+
+      .download-section p {
+        max-width: 620px;
+        margin: 18px auto 30px;
+        color: var(--muted);
+        font-size: 1.2rem;
+      }
+
+      .requirements-section {
+        max-width: 1100px;
+        margin: 80px auto 120px;
+        padding: 0 20px;
+      }
+
+      .requirements-section h2 {
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1.05;
+      }
+
+      .requirements-section p {
+        max-width: 620px;
+        margin-top: 16px;
+        color: var(--muted);
+      }
+
+      .requirements-section h3 {
+        margin-top: 28px;
+        font-size: 1.35rem;
+      }
+
+      .requirements-block {
+        width: 100%;
+        max-width: 518px;
+        margin-top: 28px;
+        padding: 28px 32px;
+        border-radius: 24px;
+        background: #f0f4f9;
+      }
+
+      .requirements-block h3 {
+        margin-top: 0;
+      }
+
+      .requirements-section ul {
+        max-width: 620px;
+        margin: 12px 0 0 20px;
+        color: var(--muted);
+      }
+
+      .requirements-section li {
+        padding: 3px 0;
+      }
+
+      .final-cta {
+        max-width: 1100px;
+        margin: 0 auto 96px;
+        padding: 0 20px;
+      }
+
+      .final-cta h2 {
+        max-width: 620px;
+        font-size: clamp(2.1rem, 4.5vw, 3.25rem);
+        line-height: 1.06;
+      }
+
+      .final-cta p {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .final-cta .button-primary {
+        margin-top: 24px;
+      }
+
+      footer {
+        border-top: 1px solid rgba(0,0,0,0.08);
+        padding: 26px 20px 34px;
+      }
+
+      .footer-inner {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .footer-brand {
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .footer-title {
+        margin-top: -12px;
+      }
+
+      .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .footer-links a:hover {
+        color: var(--text);
+      }
+
+      .footer-copyright {
+        color: #8a929d;
+        font-size: 0.78rem;
+      }
+
+      @media (max-width: 760px) {
+        .feature-grid,
+        .security-wrap,
+        .app-feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .nav-inner {
+          padding: 0 14px;
+        }
+
+        .hero {
+          padding-top: 64px;
+        }
+
+        .hero-actions {
+          flex-direction: column;
+          width: 220px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .button-primary,
+        .button-secondary,
+        .nav-button {
+          width: 100%;
+        }
+
+        .scroll-intro-box {
+          grid-template-columns: 1fr;
+        }
+
+        .scroll-intro-copy {
+          grid-column: auto;
+        }
+
+        .iphone-wallpaper {
+          min-height: 500px;
+        }
+
+        .feature-panel {
+          padding: 24px 18px;
+        }
+
+        .app-feature-card {
+          min-height: 380px;
+          padding: 24px 18px;
+        }
+
+        .settings-window {
+          height: 300px;
+        }
+
+        .identities-copy {
+          width: 46%;
+        }
+
+        .identity-stack {
+          width: 54%;
+        }
+
+        .footer-inner {
+          flex-direction: column;
+        }
+      }
+
+      .security-note {
+        max-width: 620px;
+        margin-top: 12px;
+        color: #7f8998;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-inner">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <img src="2026-09-17_21-14-08.png" alt="FaceAuth logo" style="width:26px;height:26px;display:block;object-fit:contain;" />
+          <a href="#" class="logo">FaceAuth</a>
+        </div>
+        <div class="nav-actions">
+          <a href="#download" class="nav-button">
+            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" />
+            </svg>
+            Download
+          </a>
+        </div>
+      </div>
+    </nav>
+
+
+    
+    <main>
+      <section class="hero">
+        <div class="hero-logo-wrap">
+          <img src="2026-09-17_21-14-08.png" alt="FaceAuth logo" class="hero-logo" />
+        </div>
+        <h1>Your face.<br />Your<img src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" class="hero-apple-icon" alt="Apple logo" />Mac.</h1>
+        <div class="eyebrow">Face ID for Mac</div>
+        <p class="hero-subtitle">A simple, private way to unlock your Mac using your face. Built to feel like it belongs on macOS.</p>
+
+        <div class="hero-actions">
+          <a href="#download" class="button-primary">
+            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" />
+            </svg>
+            Download
+          </a>
+          <a href="#features" class="button-secondary">Learn more</a>
+          <a href="#requirements" class="button-secondary">Software Requirements</a>
+        </div>
+
+      </section>
+
+<section class="scroll-intro" aria-label="FaceAuth experience overview">
+        <div class="scroll-intro-box">
+          <div id="features" class="scroll-intro-copy">The world's first Face ID for Mac</div>
+
+          <div class="scroll-intro-column">
+
+            <div class="feature-panel face-id-panel">
+              <div class="feature-panel-grid three single">
+              
+                <div class="feature-item">
+                  <img class="simple-icon face-id-image" src="ChatGPT Image Sep 18, 2026, 09_20_22 AM.png" alt="" />
+                  <strong>Before Apple brought Face ID to Mac, we imagined what it could be.<br />We built a seamless way to unlock your Mac with just a look.</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="scroll-intro-column">
+            <div class="feature-panel face-id-panel">
+              <div class="feature-panel-grid three single">
+                <div class="feature-item">
+                  <img class="simple-icon face-id-image" src="image copy 5.png" alt="" />
+                  <strong>FaceAuth is designed to recognize you and unlock your Mac in about the same time as Touch ID. Just look at your screen, and you're ready to get back to what you were doing.</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+        </div>
+      </section>
+
+      <section class="scroll-intro" aria-label="FaceAuth experience overview">
+        <div class="scroll-intro-box">
+          <div class="scroll-intro-copy">With the convenience<br />and design of your iPhone</div>
+
+          <div class="scroll-intro-column">
+            <div class="feature-panel">
+              <div class="feature-panel-grid">
+                <div class="feature-item">
+                  <video class="expanded-video" autoplay muted playsinline preload="auto" aria-label="FaceAuth expanded animation" src="idleanimation.mp4"></video>
+                  <strong>Expanded</strong>
+                </div>
+
+                <div class="feature-item">
+                  <div class="minimal-stack">
+                    <div class="minimal-capsule">
+                      <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z" /></svg>
+                      <video class="unlock-video" autoplay muted playsinline preload="auto" aria-label="FaceAuth unlock animation" src="unlockanimation.mp4"></video>
+                    </div>
+                    <div class="minimal-capsule">
+                      <svg viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M12 2a5 5 0 00-5 5v3H6a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2v-8a2 2 0 00-2-2h-1V7a5 5 0 00-5-5zm3 8H9V7a3 3 0 016 0v3z" /></svg>
+                      <video class="unsuccessful-unlock-video" autoplay muted playsinline preload="auto" aria-label="FaceAuth unsuccessful unlock animation" src="unsuccessfulunlockanimation.mp4"></video>
+                    </div>
+                  </div>
+                  <strong>Minimal</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="feature-panel">
+              <div class="feature-panel-grid three">
+                <div class="feature-item">
+                  <svg class="simple-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M2 8c4-3 8 3 12 0s8 3 8 0" /><path d="M2 12c4-3 8 3 12 0s8 3 8 0" /><path d="M2 16c4-3 8 3 12 0s8 3 8 0" /></svg>
+                  <strong>Haptic feedback</strong>
+                </div>
+                <div class="feature-item">
+                  <svg class="simple-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+                  <strong>Beautiful animations</strong>
+                </div>
+                <div class="feature-item">
+                  <svg class="simple-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2v11h3v9l7-12h-4l4-8z" /></svg>
+                  <strong>Instant unlocks</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="iphone-wallpaper">
+            <img class="lock-screen-image" src="Screenshot 2026-09-17 at 9.56.56 PM.png" alt="FaceAuth lock screen ready preview" />
+            <div class="lock-copy">
+              <h3>Lock screen ready</h3>
+              <p>Works fluidly on your lock screen with full dynamic island interactions</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-feature-grid" aria-label="FaceAuth app features">
+        <article class="app-feature-card native-app-card">
+          <img class="app-feature-image" src="Screenshot 2026-09-17 at 10.07.28 PM.png" alt="FaceAuth native app settings" />
+          <h2 class="app-feature-label">Native<br />App</h2>
+        </article>
+
+        <article class="app-feature-card identities-card">
+          <div class="identities-copy">
+            <h3>Identities</h3>
+            <p>Enroll separate identities to use Face ID with multiple people, accessories (ex. glasses), facial expressions, or new lighting environments.</p>
+            <p>Each enrolled face can be individually switched off from recognition without deleting it.</p>
+          </div>
+          <img class="identities-image" src="Screenshot 2026-09-17 at 10.07.59 PM.png" alt="FaceAuth identities settings" />
+        </article>
+      </section>
+
+      <section class="unlock-flow" aria-label="A more natural way to unlock">
+        <h2>A more natural way to unlock.</h2>
+        <div class="unlock-flow-track">
+          <article class="unlock-flow-card">
+            <div class="unlock-flow-number">01</div>
+            <h3>Just look.</h3>
+            <p>FaceAuth recognizes you through your Mac's camera and starts the unlock process automatically.</p>
+          </article>
+          <article class="unlock-flow-card">
+            <div class="unlock-flow-number">02</div>
+            <h3>Fast enough to feel instant.</h3>
+            <p>Designed to recognize you and unlock your Mac in about the same time as Touch ID.</p>
+          </article>
+          <article class="unlock-flow-card">
+            <div class="unlock-flow-number">03</div>
+            <h3>Your face stays yours.</h3>
+            <p>FaceAuth is designed to keep face-recognition processing close to your Mac, rather than relying on the cloud.</p>
+          </article>
+          <article class="unlock-flow-card">
+            <div class="unlock-flow-number">04</div>
+            <h3>More than one face.</h3>
+            <p>Enroll multiple identities and choose which ones FaceAuth should recognize.</p>
+          </article>
+          <article class="unlock-flow-card">
+            <div class="unlock-flow-number">05</div>
+            <h3>When it doesn't recognize you.</h3>
+            <p>No problem. FaceAuth doesn't replace your password. You can always unlock your Mac the usual way.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="unlock-flow how-it-works" aria-label="How it works">
+        <h2>How it works</h2>
+        
+        <div class="unlock-flow-track">
+          <article class="unlock-flow-card">
+            <div class="unlock-flow-number">01</div>
+            <h3>Look</h3>
+            <p>FaceAuth sees you through your camera.</p>
+          </article>
+          <article class="unlock-flow-card">
+            <div class="unlock-flow-number">02</div>
+            <h3>Recognize</h3>
+            <p>Your face is matched against an enrolled identity.</p>
+          </article>
+          <article class="unlock-flow-card">
+            <div class="unlock-flow-number">03</div>
+            <h3>Unlock</h3>
+            <p>You're ready to use your Mac.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="scroll-intro" aria-label="FaceAuth convenience and design features">
+        <div class="scroll-intro-box">
+          <div class="scroll-intro-copy">Your face. Your Mac. Your privacy.</div>
+
+          <div class="scroll-intro-column">
+            
+
+            <div class="feature-panel">
+              <div class="feature-panel-grid three">
+                
+                <div class="feature-item">
+                  <img class="simple-icon" src="image copy 2.png" alt="" />
+                  <strong>Security starts with you</strong>
+                  <p class="security-note">FaceAuth processes your face securely on your Mac, keeping recognition close to your device.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="scroll-intro-column">
+            
+
+            <div class="feature-panel">
+              <div class="feature-panel-grid three">
+                
+                <div class="feature-item">
+                  <img class="simple-icon" src="image copy 3.png" alt="" />
+                  <strong>Private by design</strong>
+                  <p class="security-note">Your face doesn't need to leave your Mac. FaceAuth is designed to keep your personal information where it belongs — with you.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="scroll-intro-column">
+            
+
+            <div class="feature-panel">
+              <div class="feature-panel-grid three">
+                
+                <div class="feature-item">
+                  <img class="simple-icon liveness-icon" src="ChatGPT Image Sep 18, 2026, 11_13_54 AM.png" alt="" />
+                  <strong>Liveness Detection</strong>
+                  <p class="security-note">FaceAuth checks that you're actually there — helping distinguish a real person from a photo or video before unlocking your Mac.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="scroll-intro-column">
+            
+
+            <div class="feature-panel">
+              <div class="feature-panel-grid three">
+                
+                <div class="feature-item">
+                  <img class="simple-icon liveness-icon" src="ChatGpt Image Sep 18, 2026, 11_41_33 AM.png" alt="" />
+                  <strong>Local Processing</strong>
+                  <p class="security-note">FaceAuth is designed to process face recognition locally, keeping your biometric information close to you instead of sending it to the cloud.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+          
+        </div>
+
+
+        
+      </section>
+
+      <section id="requirements" class="requirements-section" aria-label="Software Requirements">
+        <h2>Software Requirements</h2>
+        <div class="requirements-block">
+          <h3>System requirements</h3>
+          <ul>
+            <li><strong>macOS 15 Sequoia or later</strong></li>
+            <li><strong>Apple silicon or Intel Mac</strong></li>
+            <li><strong>Built-in or external camera</strong></li>
+            <li><strong>FaceAuth app installed</strong></li>
+
+            <li><strong>Not available for Windows. FaceAuth is built exclusively for Mac.</strong></li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="requirements" class="requirements-section" aria-label="Software Requirements">
+        <h2>Is it safe?</h2>
+        <div class="requirements-block">
+          <ul>
+            
+            <li><strong>When you first open FaceAuth, macOS may display a security warning saying it cannot verify the app or check it for malicious software. This can happen when an app hasn't been notarized by Apple. FaceAuth is independently developed and is not distributed by Apple. The warning does not, by itself, mean that FaceAuth contains malware or a virus.</strong></li>
+
+            <li><strong>Only download FaceAuth from the official FaceAuth website.</strong></li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="download" class="final-cta" aria-label="Download FaceAuth">
+        <h2>Ready to unlock with a look?</h2>
+        <p>Download FaceAuth for Mac</p>
+        <a href="#download" class="button-primary">
+          <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" />
+          </svg>
+          Download
+        </a>
+      </section>
+    </main>
+    <footer>
+      <div class="footer-inner">
+        <strong class="footer-brand">FaceAuth</strong>
+        <div class="footer-title">Face ID for Mac</div>
+        <div class="footer-links">
+          <a href="privacy.html">Privacy Policy</a>
+          <span aria-hidden="true">·</span>
+          <a href="eula.html">EULA</a>
+          <span aria-hidden="true">·</span>
+          <a href="support.html">Support</a>
+          
+        </div>
+        <div class="footer-copyright">&copy; 2026 FaceAuth. All rights reserved.</div>
+      </div>
+    </footer>
+    <script>
+      const expandedVideo = document.querySelector('.expanded-video');
+
+      expandedVideo.addEventListener('ended', () => {
+        window.setTimeout(() => {
+          expandedVideo.currentTime = 0;
+          expandedVideo.play();
+        }, 2500);
+      });
+
+      const unlockVideo = document.querySelector('.unlock-video');
+
+      unlockVideo.addEventListener('ended', () => {
+        window.setTimeout(() => {
+          unlockVideo.currentTime = 0;
+          unlockVideo.play();
+        }, 2500);
+      });
+
+      const unsuccessfulUnlockVideo = document.querySelector('.unsuccessful-unlock-video');
+
+      unsuccessfulUnlockVideo.addEventListener('ended', () => {
+        window.setTimeout(() => {
+          unsuccessfulUnlockVideo.currentTime = 0;
+          unsuccessfulUnlockVideo.play();
+        }, 2500);
+      });
+    </script>
+  </body>
+</html>
