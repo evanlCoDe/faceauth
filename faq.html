@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ - FaceAuth</title>
+    <style>
+      :root { --text: #111; --muted: #5f6368; --blue: #0080ff; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body { color: var(--text); font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; line-height: 1.5; }
+      a { color: inherit; text-decoration: none; }
+      nav { position: sticky; top: 0; z-index: 2; background: rgba(255,255,255,0.96); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(0,0,0,0.06); }
+      .nav-inner, .page, .footer-inner { max-width: 1100px; margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+      .nav-inner { height: 68px; display: flex; align-items: center; justify-content: space-between; }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand img { width: 26px; height: 26px; object-fit: contain; }
+      .logo { font-size: 17px; font-weight: 600; }
+      .download { padding: 8px 16px; border-radius: 999px; background: #000; color: #fff; font-size: 0.86rem; font-weight: 600; }
+      .download svg { width: 14px; height: 14px; color: #fff; flex-shrink: 0; }
+      .page { min-height: calc(100vh - 180px); padding-top: 110px; padding-bottom: 110px; }
+      .eyebrow { color: var(--blue); font-weight: 600; }
+      h1 { margin-top: 12px; font-size: clamp(2.8rem, 7vw, 5.5rem); line-height: 0.98; letter-spacing: -0.04em; }
+      .copy { max-width: 620px; margin-top: 24px; color: var(--muted); font-size: 1.15rem; }
+      .faq-content { max-width: 760px; margin-top: 42px; color: var(--muted); }
+      .faq-content h2 { margin-top: 48px; color: var(--text); font-size: 1.45rem; }
+      .faq-content h2:first-child { margin-top: 0; }
+      .faq-content h3 { margin-top: 28px; color: var(--text); font-size: 1.05rem; }
+      .faq-content p { margin-top: 8px; }
+      .faq-content blockquote { margin: 12px 0 0; padding-left: 18px; border-left: 3px solid #dce3eb; }
+      .faq-content ul { margin: 8px 0 0 22px; }
+      .faq-content li { padding: 2px 0; }
+      footer { border-top: 1px solid rgba(0,0,0,0.08); padding: 26px 20px 34px; }
+      .footer-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; color: var(--muted); font-size: 0.84rem; }
+      .footer-brand { color: var(--text); font-size: 1rem; font-weight: 700; }
+      .footer-title { margin-top: -12px; }
+      .footer-links { display: flex; flex-wrap: wrap; gap: 8px; }
+      .footer-links a:hover { color: var(--text); }
+      .footer-copyright { color: #8a929d; font-size: 0.78rem; }
+      @media (max-width: 760px) { .page { padding-top: 72px; } }
+    </style>
+  </head>
+  <body>
+    <nav><div class="nav-inner"><div class="brand"><img src="2026-09-17_21-14-08.png" alt="FaceAuth logo" /><a href="index.html" class="logo">FaceAuth</a></div><a href="index.html#download" class="download"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" /></svg>Download</a></div></nav>
+    <main class="page">
+      <div class="eyebrow">FaceAuth</div>
+      <h1>Frequently Asked Questions</h1>
+      <p class="copy">Answers about FaceAuth, privacy, security, compatibility, and everyday use.</p>
+      <article class="faq-content">
+        <h2>General</h2>
+        <h3>What is FaceAuth?</h3>
+        <p>FaceAuth is a macOS app that lets you unlock your Mac using facial recognition instead of entering your password every time.</p>
+        <h3>How does FaceAuth work?</h3>
+        <p>FaceAuth uses your Mac's camera to recognize your face and authenticate you. When your face is recognized, FaceAuth can unlock your Mac.</p>
+        <h3>Does FaceAuth work like Face ID?</h3>
+        <p>FaceAuth is inspired by the convenience of Face ID, but it is an independently developed software solution that uses your Mac's camera.</p>
+        <h3>Why doesn't my Mac already have Face ID?</h3>
+        <p>Most Macs currently use Touch ID or a password for biometric authentication. FaceAuth provides a face-based alternative through software.</p>
+
+        <h2>Privacy &amp; Offline</h2>
+        <h3>Does FaceAuth work offline?</h3>
+        <p>Yes, if your implementation performs facial recognition locally. FaceAuth does not need an internet connection to recognize your face.</p>
+        <h3>Does FaceAuth send my face to the cloud?</h3>
+        <p>No, if your implementation keeps facial recognition and face data entirely on the Mac.</p>
+        <h3>Is my face uploaded to a server?</h3>
+        <p>No. Your facial data should remain on your Mac and not be uploaded to a remote server.</p>
+        <h3>Does FaceAuth collect my face data?</h3>
+        <p>FaceAuth is designed to process facial information locally rather than collecting it on a remote server.</p>
+        <h3>Can FaceAuth work without Wi-Fi?</h3>
+        <p>Yes. Once installed and configured, FaceAuth can operate without Wi-Fi if recognition is performed locally.</p>
+        <h3>Does FaceAuth need an internet connection?</h3>
+        <p>No. Internet access is not required for normal face recognition and unlocking.</p>
+        <h3>Does FaceAuth track me?</h3>
+        <p>No. FaceAuth is not designed to track your location or activity.</p>
+        <h3>Does FaceAuth contain analytics?</h3>
+        <blockquote>No. FaceAuth does not include analytics that track your usage.</blockquote>
+        <h3>Can I delete my facial data?</h3>
+        <p>Yes. You should be able to remove your saved FaceAuth identity from the app.</p>
+
+        <h2>Security</h2>
+        <h3>Is FaceAuth safe?</h3>
+        <p>FaceAuth is designed with privacy and local processing in mind. However, no authentication system should be described as completely risk-free.</p>
+        <h3>Can someone unlock my Mac with a photo of me?</h3>
+        <p>FaceAuth should use liveness detection to help distinguish a real person from a static image. The exact level of protection depends on your implementation.</p>
+        <h3>What is liveness detection?</h3>
+        <p>Liveness detection helps determine whether the camera is seeing a real person rather than a static representation.</p>
+        <h3>Is FaceAuth as secure as Apple's Face ID?</h3>
+        <blockquote>FaceAuth is an independently developed face-authentication system and should not be considered equivalent to Apple's Face ID hardware security.</blockquote>
+        <h3>Does FaceAuth replace my password?</h3>
+        <p>No. Your Mac password remains available as a fallback.</p>
+        <h3>Can I still use Touch ID?</h3>
+        <p>If your implementation allows it, yes. FaceAuth can coexist with your Mac's existing authentication methods.</p>
+        <h3>What happens if FaceAuth doesn't recognize me?</h3>
+        <p>You can use your normal Mac password or another available authentication method.</p>
+        <h3>What happens if the camera can't see my face?</h3>
+        <p>FaceAuth won't attempt to authenticate you until it can properly see your face. Your normal authentication method remains available.</p>
+
+        <h2>Camera</h2>
+        <h3>Does FaceAuth need a special camera?</h3>
+        <p>No. FaceAuth is designed to work with a compatible Mac camera.</p>
+        <h3>Does FaceAuth work with an external webcam?</h3>
+        <p>If your implementation supports external cameras, yes.</p>
+        <h3>Does FaceAuth use my camera all the time?</h3>
+        <p>FaceAuth uses the camera according to the permissions and recognition behavior configured in your installation.</p>
+        <h3>Can FaceAuth access my camera without permission?</h3>
+        <p>macOS controls camera permissions. FaceAuth cannot simply bypass macOS's camera permission system.</p>
+        <h3>What happens if I deny camera access?</h3>
+        <p>FaceAuth won't be able to perform facial recognition until camera access is granted.</p>
+
+        <h2>Multiple People</h2>
+        <h3>Can multiple people use FaceAuth?</h3>
+        <p>If your Identities feature supports multiple users, yes.</p>
+        <h3>Can I remove an identity?</h3>
+        <p>Yes, if your app provides identity management.</p>
+        <h3>Can I temporarily disable an identity?</h3>
+        <p>If your current Identities system supports it, yes.</p>
+        <h3>Can two people use the same Mac with FaceAuth?</h3>
+        <p>Yes, if multiple identities are supported by your implementation.</p>
+        <h3>Can FaceAuth recognize me in different lighting?</h3>
+        <p>FaceAuth is designed to handle normal changes in lighting, but recognition can still be affected by very poor lighting or camera conditions.</p>
+        <h3>Does FaceAuth work if I wear glasses?</h3>
+        <p>It should handle normal appearance changes such as glasses if your recognition model supports them.</p>
+
+        <h2>macOS &amp; Compatibility</h2>
+        <h3>Which Macs support FaceAuth?</h3>
+        <ul><li>macOS 15 Sequoia or later</li><li>Apple silicon or Intel Mac</li><li>Built-in or compatible external camera</li></ul>
+        <h3>Does FaceAuth work on MacBook Air?</h3>
+        <p>Yes, assuming the Mac meets the listed requirements.</p>
+        <h3>Does FaceAuth work on MacBook Pro?</h3>
+        <p>Yes, assuming the Mac meets the listed requirements.</p>
+        <h3>Does FaceAuth work on iMac?</h3>
+        <p>If your camera and macOS version meet the requirements, yes.</p>
+        <h3>Does FaceAuth work on Mac mini?</h3>
+        <p>A compatible external camera would be required.</p>
+        <h3>Does FaceAuth work on Intel Macs?</h3>
+        <p>If your current version supports Intel, yes.</p>
+        <h3>Does FaceAuth work on Apple silicon Macs?</h3>
+        <p>Yes.</p>
+        <h3>Does FaceAuth work on Windows?</h3>
+        <p>No. FaceAuth is designed exclusively for Mac.</p>
+        <h3>Does FaceAuth work on Linux?</h3>
+        <p>No. FaceAuth is currently designed exclusively for macOS.</p>
+
+        <h2>Setup</h2>
+        <h3>How do I set up FaceAuth?</h3>
+        <p>Install FaceAuth, grant the required macOS permissions, create your FaceAuth identity, and complete the setup process.</p>
+        <h3>Do I need to create an account?</h3>
+        <p>No, unless your installation includes an account system.</p>
+        <h3>Do I need an Apple ID?</h3>
+        <p>No, unless your implementation specifically requires one.</p>
+        <h3>Does FaceAuth run when I start my Mac?</h3>
+        <p>FaceAuth runs according to the launch and login settings configured for your installation.</p>
+        <h3>Does FaceAuth run in the background?</h3>
+        <p>If it does, it uses the permissions required by its background recognition behavior.</p>
+        <h3>Can I uninstall FaceAuth?</h3>
+        <p>Yes. Your normal Mac authentication should remain available.</p>
+
+        <h2>Performance</h2>
+        <h3>Does FaceAuth drain my battery?</h3>
+        <p>Face recognition requires some processing, but FaceAuth is designed to minimize unnecessary resource usage.</p>
+        <h3>Does FaceAuth make my Mac hot?</h3>
+        <p>FaceAuth is designed to keep processing lightweight, though resource usage can vary depending on the Mac and recognition activity.</p>
+        <h3>Does FaceAuth slow down my Mac?</h3>
+        <p>It is designed to run efficiently alongside normal macOS use.</p>
+        <h3>Does FaceAuth constantly use the camera?</h3>
+        <p>Camera use depends on the recognition behavior configured in your installation.</p>
+
+        <h2>Installation</h2>
+        <h3>Why does macOS show a warning when I open FaceAuth?</h3>
+        <p>If the app is distributed outside the Mac App Store and isn't notarized, macOS may display a warning before allowing it to open.</p>
+        <h3>Is the macOS warning a virus warning?</h3>
+        <p>A macOS Gatekeeper warning does not by itself establish that an app contains malware. It indicates that macOS has concerns about the app's verification or distribution status.</p>
+        <h3>Why isn't FaceAuth on the Mac App Store?</h3>
+        <p>FaceAuth's current distribution method is described on the official FaceAuth website.</p>
+        <h3>Where should I download FaceAuth?</h3>
+        <p>Only download FaceAuth from the official FaceAuth website or another distribution source you control.</p>
+        <h3>Will macOS block FaceAuth?</h3>
+        <p>This depends on how the app is signed, notarized, and distributed.</p>
+
+        <h2>Password &amp; Recovery</h2>
+        <h3>What if FaceAuth stops working?</h3>
+        <p>Your normal Mac authentication method remains available as a fallback.</p>
+        <h3>What if my camera stops working?</h3>
+        <p>You can use your Mac's normal authentication method.</p>
+        <h3>What if I change my appearance?</h3>
+        <p>Face recognition performance can vary with significant changes in appearance, lighting, or camera conditions.</p>
+        <h3>What if FaceAuth doesn't recognize me?</h3>
+        <p>Use your normal Mac authentication method and check the camera conditions or FaceAuth settings.</p>
+        <h3>Can I completely remove FaceAuth and go back to normal?</h3>
+        <p>Yes, uninstalling FaceAuth should return you to your Mac's standard authentication experience.</p>
+
+        <h2>Is it safe?</h2>
+        <p>When you first open FaceAuth, macOS may display a security warning saying it cannot verify the app or check it for malicious software. This can happen when an app hasn't been notarized by Apple. FaceAuth is independently developed and is not distributed by Apple. The warning does not, by itself, mean that FaceAuth contains malware or a virus.</p>
+        <p><strong>Only download FaceAuth from the official FaceAuth website.</strong></p>
+      </article>
+    </main>
+    <footer><div class="footer-inner"><strong class="footer-brand">FaceAuth</strong><div class="footer-title">Face ID for Mac</div><div class="footer-links"><a href="privacy.html">Privacy Policy</a><span>&middot;</span><a href="eula.html">EULA</a><span>&middot;</span><a href="faq.html">FAQ</a><span>&middot;</span><a href="support.html">Support</a></div><div class="footer-copyright">&copy; 2026 FaceAuth. All rights reserved.</div></div></footer>
+  </body>
+</html>

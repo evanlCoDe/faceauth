@@ -49,20 +49,37 @@
         position: sticky;
         top: 0;
         z-index: 20;
-        background: rgba(255,255,255,0.96);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-bottom: 1px solid rgba(0,0,0,0.06);
+        padding: 10px 20px;
+        background: transparent;
+        border: 0;
       }
 
       .nav-inner {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
         max-width: 1200px;
         margin: 0 auto;
-        height: 68px;
-        padding: 0 28px;
+        height: 52px;
+        padding: 0 22px;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 18px;
+        background: rgba(255,255,255,0.72);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+        backdrop-filter: saturate(180%) blur(20px);
+        -webkit-backdrop-filter: saturate(180%) blur(20px);
+      }
+
+      .nav-inner::before {
+        display: none;
+      }
+
+      .nav-inner > * {
+        position: relative;
+        z-index: 1;
       }
 
       .logo {
@@ -72,7 +89,21 @@
       }
 
       .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 24px;
         margin-left: auto;
+      }
+
+      .nav-faq {
+        color: #8a929d;
+        font-size: 0.86rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+      }
+
+      .nav-faq:hover {
+        color: var(--text);
       }
 
       .nav-button,
@@ -490,8 +521,13 @@
         margin-top: 24px;
         padding: 4px 2px 18px;
         overflow-x: auto;
+        border-radius: 32px;
         scroll-snap-type: x mandatory;
-        scrollbar-width: thin;
+        scrollbar-width: none;
+      }
+
+      .unlock-flow-track::-webkit-scrollbar {
+        display: none;
       }
 
       .unlock-flow-card {
@@ -980,6 +1016,104 @@
         margin-top: 24px;
       }
 
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(15,17,21,0.28);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+      }
+
+      .modal-overlay.is-open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .beta-modal {
+        width: min(100%, 480px);
+        padding: 34px;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 28px;
+        background: rgba(255,255,255,0.88);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        box-shadow: 0 24px 70px rgba(0,0,0,0.18);
+        transform: translateY(8px) scale(0.98);
+        transition: transform 0.2s ease;
+      }
+
+      .modal-overlay.is-open .beta-modal {
+        transform: translateY(0) scale(1);
+      }
+
+      .beta-modal h2 {
+        font-size: clamp(1.7rem, 4vw, 2.2rem);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+      }
+
+      .beta-modal p {
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
+      .beta-modal-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .beta-modal-actions button {
+        min-height: 44px;
+        padding: 11px 18px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .beta-download {
+        background: #000;
+        color: #fff;
+      }
+
+      .beta-download:hover {
+        background: var(--blue);
+      }
+
+      .beta-back {
+        border-color: transparent !important;
+        background: transparent;
+        color: var(--muted);
+        font-weight: 500 !important;
+      }
+
+      .beta-back:hover {
+        background: rgba(0,0,0,0.04);
+        color: var(--text);
+      }
+
+      @media (max-width: 520px) {
+        .beta-modal {
+          padding: 26px;
+        }
+
+        .beta-modal-actions,
+        .beta-modal-actions button {
+          width: 100%;
+        }
+      }
+
       footer {
         border-top: 1px solid rgba(0,0,0,0.08);
         padding: 26px 20px 34px;
@@ -1029,7 +1163,12 @@
         }
 
         .nav-inner {
-          padding: 0 14px;
+          height: 56px;
+          padding: 0 16px;
+        }
+
+        nav {
+          padding: 8px 12px;
         }
 
         .hero {
@@ -1104,7 +1243,8 @@
           <a href="#" class="logo">FaceAuth</a>
         </div>
         <div class="nav-actions">
-          <a href="#download" class="nav-button">
+          <a href="faq.html" class="nav-faq">FAQ</a>
+          <a href="#" class="nav-button download-action">
             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" />
             </svg>
@@ -1126,14 +1266,13 @@
         <p class="hero-subtitle">A simple, private way to unlock your Mac using your face. Built to feel like it belongs on macOS.</p>
 
         <div class="hero-actions">
-          <a href="#download" class="button-primary">
+          <a href="#" class="button-primary download-action">
             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" />
             </svg>
             Download
           </a>
           <a href="#features" class="button-secondary">Learn more</a>
-          <a href="#requirements" class="button-secondary">Software Requirements</a>
         </div>
 
       </section>
@@ -1273,27 +1412,7 @@
         </div>
       </section>
 
-      <section class="unlock-flow how-it-works" aria-label="How it works">
-        <h2>How it works</h2>
-        
-        <div class="unlock-flow-track">
-          <article class="unlock-flow-card">
-            <div class="unlock-flow-number">01</div>
-            <h3>Look</h3>
-            <p>FaceAuth sees you through your camera.</p>
-          </article>
-          <article class="unlock-flow-card">
-            <div class="unlock-flow-number">02</div>
-            <h3>Recognize</h3>
-            <p>Your face is matched against an enrolled identity.</p>
-          </article>
-          <article class="unlock-flow-card">
-            <div class="unlock-flow-number">03</div>
-            <h3>Unlock</h3>
-            <p>You're ready to use your Mac.</p>
-          </article>
-        </div>
-      </section>
+      
 
       <section class="scroll-intro" aria-label="FaceAuth convenience and design features">
         <div class="scroll-intro-box">
@@ -1399,7 +1518,7 @@
       <section id="download" class="final-cta" aria-label="Download FaceAuth">
         <h2>Ready to unlock with a look?</h2>
         <p>Download FaceAuth for Mac</p>
-        <a href="#download" class="button-primary">
+        <a href="#" class="button-primary download-action">
           <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" />
           </svg>
@@ -1416,14 +1535,54 @@
           <span aria-hidden="true">·</span>
           <a href="eula.html">EULA</a>
           <span aria-hidden="true">·</span>
+          <a href="faq.html">FAQ</a>
+          <span aria-hidden="true">·</span>
           <a href="support.html">Support</a>
           
         </div>
         <div class="footer-copyright">&copy; 2026 FaceAuth. All rights reserved.</div>
       </div>
     </footer>
+    <div class="modal-overlay" id="beta-modal-overlay" aria-hidden="true">
+      <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-modal-title">
+        <h2 id="beta-modal-title">FaceAuth is currently in beta.</h2>
+        <p>You may encounter bugs or unexpected behavior while using FaceAuth, as some features are still being developed and refined.</p>
+        <p>Your Mac's normal password remains available as a fallback at all times.</p>
+        <div class="beta-modal-actions">
+          <button class="beta-back" type="button">Go Back</button>
+          <button class="beta-download" type="button">Download Beta</button>
+          
+        </div>
+      </section>
+    </div>
     <script>
       const expandedVideo = document.querySelector('.expanded-video');
+
+      const betaModalOverlay = document.querySelector('#beta-modal-overlay');
+      const betaBackButton = document.querySelector('.beta-back');
+
+      const closeBetaModal = () => {
+        betaModalOverlay.classList.remove('is-open');
+        betaModalOverlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      };
+
+      document.querySelectorAll('.download-action').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          betaModalOverlay.classList.add('is-open');
+          betaModalOverlay.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+        });
+      });
+
+      betaBackButton.addEventListener('click', closeBetaModal);
+      betaModalOverlay.addEventListener('click', (event) => {
+        if (event.target === betaModalOverlay) closeBetaModal();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeBetaModal();
+      });
 
       expandedVideo.addEventListener('ended', () => {
         window.setTimeout(() => {
