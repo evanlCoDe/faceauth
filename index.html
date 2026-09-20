@@ -1697,7 +1697,7 @@
           <span class="hero-commercial-corner top-right" aria-hidden="true"></span>
           <span class="hero-commercial-corner bottom-left" aria-hidden="true"></span>
           <span class="hero-commercial-corner bottom-right" aria-hidden="true"></span>
-          <video class="hero-commercial" id="hero-commercial" muted playsinline preload="metadata" aria-label="FaceAuth product commercial" src="faceauth vid final(1).mp4"></video>
+          <video class="hero-commercial" id="hero-commercial" muted playsinline preload="metadata" aria-label="FaceAuth product commercial" src="faceauth-demo.mp4"></video>
         </div>
 
       </section>
@@ -1897,7 +1897,7 @@
               <div class="feature-panel-grid three">
                 
                 <div class="feature-item">
-                  <img class="simple-icon liveness-icon" src="ChatGpt Image Sep 18, 2026, 11_41_33 AM.png" alt="" />
+                  <img class="simple-icon liveness-icon" src="ChatGPT Image Sep 18, 2026, 11_41_33 AM.png" alt="" />
                   <strong>Local Processing</strong>
                   <p class="security-note">FaceAuth is designed to process face recognition locally, keeping your biometric information close to you instead of sending it to the cloud.</p>
                 </div>
@@ -2007,11 +2007,12 @@
       let commercialWaiting = false;
       let commercialReplayTimer = 0;
       let commercialVisible = false;
+      let commercialVisibilityMeasured = false;
       let commercialReplayRemaining = 5000;
       let commercialReplayDeadline = 0;
 
       const playCommercial = () => {
-        if (!commercialVisible || commercialWaiting) return;
+        if (!commercialVisibilityMeasured || !commercialVisible || commercialWaiting) return;
         heroCommercial.play().catch(() => {
           commercialStarted = false;
           console.warn('FaceAuth commercial playback was rejected.');
@@ -2044,6 +2045,7 @@
       });
 
       const commercialVisibilityObserver = new IntersectionObserver(([entry]) => {
+        commercialVisibilityMeasured = true;
         commercialVisible = entry.isIntersecting && entry.intersectionRatio >= 0.6;
         if (!commercialVisible) {
           heroCommercial.pause();
