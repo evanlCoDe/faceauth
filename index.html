@@ -35,6 +35,86 @@
         overflow-x: hidden;
       }
 
+      body.intro-active > nav,
+      body.intro-active > main,
+      body.intro-active > footer {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.85s ease, visibility 0s linear 0.85s;
+      }
+
+      body.intro-active {
+        overflow-y: hidden;
+      }
+
+      body.intro-active.intro-reveal > nav,
+      body.intro-active.intro-reveal > main,
+      body.intro-active.intro-reveal > footer {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.85s ease, visibility 0s linear 0s;
+      }
+
+      body.intro-active .hero {
+        opacity: 0;
+        transform: scale(0.985);
+        transition: opacity 0.9s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      body.intro-active.intro-reveal .hero {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .intro-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.85s ease, visibility 0s linear 0s;
+      }
+
+      .intro-screen.is-finishing {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.85s ease, visibility 0s linear 0.85s;
+      }
+
+      .intro-video {
+        width: min(56vw, 320px);
+        height: auto;
+        max-height: 78vh;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+        display: block;
+        transform: scale(0.94);
+        opacity: 0;
+        animation: intro-video-entrance 0.85s ease forwards;
+        transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      @keyframes intro-video-entrance {
+        from {
+          opacity: 0;
+          transform: scale(0.94);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .intro-screen.is-finishing .intro-video {
+        opacity: 0;
+        transform: scale(0.94);
+      }
+
       a {
         color: inherit;
         text-decoration: none;
@@ -65,12 +145,12 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border: 1px solid rgba(0,0,0,0.07);
+        border: 1px solid rgba(0,0,0,0.06);
         border-radius: 18px;
-        background: rgba(255,255,255,0.10);
-        box-shadow: 0 6px 18px rgba(0,0,0,0.018);
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 1px 6px rgba(0,0,0,0.02);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
       }
 
       .nav-inner::before {
@@ -124,7 +204,7 @@
         padding: 8px 16px;
         font-size: 0.86rem;
         font-weight: 600;
-        border: 1px solid rgba(0,0,0,0.08);
+        border: 1px solid transparent;
       }
 
       .nav-button:hover,
@@ -214,6 +294,68 @@
         gap: 14px;
         margin-top: 32px;
         flex-wrap: wrap;
+      }
+
+      .hero-commercial {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        display: block;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 22px;
+        background: #f7f7f9;
+      }
+
+      .hero-commercial-frame {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 2208 / 1232;
+        margin: 52px auto 0;
+        overflow: hidden;
+        border-radius: 22px;
+      }
+
+      .hero-commercial-corner {
+        position: absolute;
+        z-index: 1;
+        width: 30px;
+        height: 30px;
+        border: 1.5px solid var(--blue);
+        opacity: 0.52;
+        pointer-events: none;
+      }
+
+      .hero-commercial-corner.top-left {
+        top: 0;
+        left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        border-radius: 22px 0 0 0;
+      }
+
+      .hero-commercial-corner.top-right {
+        top: 0;
+        right: 0;
+        border-left: 0;
+        border-bottom: 0;
+        border-radius: 0 22px 0 0;
+      }
+
+      .hero-commercial-corner.bottom-left {
+        bottom: 0;
+        left: 0;
+        border-right: 0;
+        border-top: 0;
+        border-radius: 0 0 0 22px;
+      }
+
+      .hero-commercial-corner.bottom-right {
+        right: 0;
+        bottom: 0;
+        border-left: 0;
+        border-top: 0;
+        border-radius: 0 0 22px 0;
       }
 
       .button-primary {
@@ -1058,6 +1200,18 @@
         letter-spacing: -0.04em;
       }
 
+      .beta-modal-state {
+        transition: opacity 0.22s ease, transform 0.22s ease;
+      }
+
+      .beta-modal-state.is-hidden {
+        position: absolute;
+        inset: 34px;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(6px);
+      }
+
       .beta-modal p {
         margin-top: 16px;
         color: var(--muted);
@@ -1233,9 +1387,272 @@
         font-size: 0.9rem;
         line-height: 1.5;
       }
+
+      .assistant-widget {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+        transition: opacity 0.25s ease, visibility 0.25s ease, bottom 0.14s ease-out;
+        will-change: bottom;
+      }
+
+      body.intro-active .assistant-widget {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .assistant-panel {
+        position: relative;
+        width: min(390px, calc(100vw - 32px));
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.94);
+        box-shadow: 0 18px 48px rgba(0,0,0,0.14);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        opacity: 0;
+        visibility: hidden;
+        overflow: hidden;
+        transform: translateY(4px);
+        transition: opacity 0.46s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.46s, transform 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .assistant-close {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        z-index: 3;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #8a929d;
+        font: inherit;
+        font-size: 18px;
+        font-weight: 400;
+        line-height: 1;
+        cursor: pointer;
+        transition: color 0.2s ease, opacity 0.2s ease;
+      }
+
+      .assistant-close:hover,
+      .assistant-close:focus-visible {
+        color: var(--text);
+        opacity: 0.8;
+      }
+
+      .assistant-widget.is-open .assistant-panel {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        transition-delay: 0s;
+      }
+
+      .assistant-widget.is-closing .assistant-panel {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(4px);
+      }
+
+      .assistant-panel-content {
+        position: relative;
+        padding: 18px;
+      }
+
+      .assistant-panel h2 {
+        font-size: 1.15rem;
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+      }
+
+      .assistant-panel > p {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .assistant-messages {
+        max-height: 250px;
+        margin-top: 16px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+      }
+
+      .assistant-messages:empty {
+        display: none;
+      }
+
+      .assistant-message {
+        display: flex;
+        margin-top: 8px;
+        animation: assistant-message-in 0.2s ease both;
+      }
+
+      .assistant-message:first-child {
+        margin-top: 0;
+      }
+
+      .assistant-message.user {
+        justify-content: flex-end;
+      }
+
+      .assistant-message.ai {
+        justify-content: flex-start;
+      }
+
+      .assistant-bubble {
+        max-width: 84%;
+        padding: 8px 11px;
+        border-radius: 15px;
+        font-size: 0.84rem;
+        line-height: 1.4;
+      }
+
+      .assistant-message.user .assistant-bubble {
+        border-bottom-right-radius: 5px;
+        background: var(--blue);
+        color: #fff;
+      }
+
+      .assistant-message.ai .assistant-bubble {
+        border: 1px solid rgba(0,0,0,0.06);
+        border-bottom-left-radius: 5px;
+        background: #f1f3f5;
+        color: var(--text);
+      }
+
+      @keyframes assistant-message-in {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .assistant-form {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .assistant-input {
+        min-width: 0;
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid rgba(0,0,0,0.12);
+        border-radius: 12px;
+        outline: none;
+        color: var(--text);
+        background: rgba(255,255,255,0.75);
+        font: inherit;
+        font-size: 0.86rem;
+      }
+
+      .assistant-input:focus {
+        border-color: rgba(0,128,255,0.5);
+        box-shadow: 0 0 0 3px rgba(0,128,255,0.08);
+      }
+
+      .assistant-send {
+        flex: 0 0 auto;
+        padding: 10px 13px;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 12px;
+        background: var(--blue);
+        color: #fff;
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease;
+      }
+
+      .assistant-send:hover,
+      .assistant-send:focus-visible {
+        background: var(--blue);
+      }
+
+      .assistant-send:active {
+        transform: scale(0.97);
+      }
+
+      .assistant-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 14px;
+      }
+
+      .assistant-suggestion {
+        padding: 6px 9px;
+        border: 1px solid rgba(0,0,0,0.09);
+        border-radius: 999px;
+        background: rgba(255,255,255,0.7);
+        color: var(--muted);
+        font: inherit;
+        font-size: 0.72rem;
+        cursor: pointer;
+        transition: border-color 0.2s ease, color 0.2s ease;
+      }
+
+      .assistant-suggestion:hover,
+      .assistant-suggestion:focus-visible {
+        border-color: rgba(0,128,255,0.35);
+        color: var(--text);
+      }
+
+      .assistant-toggle {
+        padding: 12px 17px;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 999px;
+        background: #000;
+        color: #fff;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.16);
+        font: inherit;
+        font-size: 0.86rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .assistant-toggle:hover,
+      .assistant-toggle:focus-visible {
+        background: var(--blue);
+        box-shadow: 0 10px 26px rgba(0,128,255,0.2);
+        transform: translateY(-1px);
+      }
+
+      .assistant-toggle:active {
+        transform: translateY(0) scale(0.98);
+      }
+
+      @media (max-width: 520px) {
+        .assistant-widget {
+          right: 16px;
+          bottom: 16px;
+        }
+
+        .assistant-panel-content {
+          padding: 17px;
+        }
+      }
     </style>
   </head>
-  <body>
+  <body class="intro-active">
+    <div class="intro-screen" id="intro-screen" aria-label="Loading FaceAuth">
+      <video class="intro-video" id="intro-video" autoplay muted playsinline preload="auto" aria-hidden="true" src="face id loading web.mp4"></video>
+    </div>
     <nav>
       <div class="nav-inner">
         <div style="display:flex; align-items:center; gap:12px;">
@@ -1273,6 +1690,14 @@
             Download
           </a>
           <a href="#features" class="button-secondary">Learn more</a>
+        </div>
+
+        <div class="hero-commercial-frame">
+          <span class="hero-commercial-corner top-left" aria-hidden="true"></span>
+          <span class="hero-commercial-corner top-right" aria-hidden="true"></span>
+          <span class="hero-commercial-corner bottom-left" aria-hidden="true"></span>
+          <span class="hero-commercial-corner bottom-right" aria-hidden="true"></span>
+          <video class="hero-commercial" id="hero-commercial" muted playsinline preload="metadata" aria-label="FaceAuth product commercial" src="faceauth vid final(1).mp4"></video>
         </div>
 
       </section>
@@ -1535,25 +1960,182 @@
     </footer>
     <div class="modal-overlay" id="beta-modal-overlay" aria-hidden="true">
       <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-modal-title">
-        <h2 id="beta-modal-title">FaceAuth is currently in beta.</h2>
-        <p>You may encounter bugs or unexpected behavior while using FaceAuth, as some features are still being developed and refined.</p>
-        <p>Your Mac's normal password remains available as a fallback at all times.</p>
-        <div class="beta-modal-actions">
-          <button class="beta-back" type="button">Go Back</button>
-          <button class="beta-download" type="button">Download Beta</button>
-          
+        <div class="beta-modal-state" id="beta-modal-available-state">
+          <h2 id="beta-modal-title">FaceAuth is currently in beta.</h2>
+          <p>You may encounter bugs or unexpected behavior while using FaceAuth, as some features are still being developed and refined.</p>
+          <p>Your Mac's normal password remains available as a fallback at all times.</p>
+          <div class="beta-modal-actions">
+            <button class="beta-back" type="button">Go Back</button>
+            <button class="beta-download" type="button" onclick="event.preventDefault(); document.querySelector('#beta-modal-available-state').classList.add('is-hidden'); document.querySelector('#beta-modal-unavailable-state').classList.remove('is-hidden'); document.querySelector('#beta-modal-available-state').setAttribute('aria-hidden', 'true'); document.querySelector('#beta-modal-unavailable-state').setAttribute('aria-hidden', 'false');">Download Beta</button>
+          </div>
+        </div>
+        <div class="beta-modal-state is-hidden" id="beta-modal-unavailable-state" aria-hidden="true">
+          <h2>The beta isn't available yet.</h2>
+          <p>FaceAuth is still being prepared for release. The beta will be available here when it's ready.</p>
+          <div class="beta-modal-actions">
+            <button class="beta-unavailable-back" type="button">Go Back</button>
+          </div>
         </div>
       </section>
     </div>
+    <aside class="assistant-widget" id="assistant-widget">
+      <section class="assistant-panel" id="assistant-panel" aria-labelledby="assistant-title" aria-hidden="true">
+        <button class="assistant-close" id="assistant-close" type="button" aria-label="Close Ask FaceAuth AI" onclick="const widget = this.closest('.assistant-widget'); const panel = this.closest('.assistant-panel'); widget.classList.remove('is-open', 'is-closing'); panel.style.display = 'none'; panel.setAttribute('aria-hidden', 'true'); widget.querySelector('#assistant-toggle').setAttribute('aria-expanded', 'false');">&times;</button>
+        <div class="assistant-panel-content">
+          <h2 id="assistant-title">✦ Ask FaceAuth AI</h2>
+          <p>Questions about FaceAuth?</p>
+          <div class="assistant-messages" id="assistant-messages" role="log" aria-live="polite">
+            <div class="assistant-suggestions" aria-label="Suggested questions">
+              <button class="assistant-suggestion" type="button">Does it work offline?</button>
+              <button class="assistant-suggestion" type="button">Is my face data private?</button>
+              <button class="assistant-suggestion" type="button">Which Macs are supported?</button>
+            </div>
+          </div>
+          <form class="assistant-form" id="assistant-form">
+            <input class="assistant-input" id="assistant-input" type="text" placeholder="Ask a question..." autocomplete="off" />
+            <button class="assistant-send" type="submit">Send</button>
+          </form>
+        </div>
+      </section>
+      <button class="assistant-toggle" id="assistant-toggle" type="button" aria-expanded="false" aria-controls="assistant-panel">✦ Ask FaceAuth AI</button>
+    </aside>
     <script>
+      const introScreen = document.querySelector('#intro-screen');
+      const introVideo = document.querySelector('#intro-video');
+      const heroCommercial = document.querySelector('#hero-commercial');
+      let commercialStarted = false;
+      let commercialWaiting = false;
+      let commercialReplayTimer = 0;
+      let commercialVisible = false;
+      let commercialReplayRemaining = 5000;
+      let commercialReplayDeadline = 0;
+
+      const playCommercial = () => {
+        if (!commercialVisible || commercialWaiting) return;
+        heroCommercial.play().catch(() => {
+          commercialStarted = false;
+          console.warn('FaceAuth commercial playback was rejected.');
+        });
+      };
+
+      const startCommercial = () => {
+        if (commercialStarted) return;
+        commercialStarted = true;
+        playCommercial();
+      };
+
+      const scheduleCommercialReplay = () => {
+        window.clearTimeout(commercialReplayTimer);
+        if (!commercialVisible) return;
+        commercialReplayDeadline = performance.now() + commercialReplayRemaining;
+        commercialReplayTimer = window.setTimeout(() => {
+          commercialReplayTimer = 0;
+          commercialReplayRemaining = 5000;
+          commercialWaiting = false;
+          heroCommercial.currentTime = 0;
+          playCommercial();
+        }, commercialReplayRemaining);
+      };
+
+      heroCommercial.addEventListener('ended', () => {
+        commercialWaiting = true;
+        commercialReplayRemaining = 5000;
+        scheduleCommercialReplay();
+      });
+
+      const commercialVisibilityObserver = new IntersectionObserver(([entry]) => {
+        commercialVisible = entry.isIntersecting && entry.intersectionRatio >= 0.6;
+        if (!commercialVisible) {
+          heroCommercial.pause();
+          if (commercialWaiting) {
+            if (commercialReplayDeadline) {
+              commercialReplayRemaining = Math.max(0, commercialReplayDeadline - performance.now());
+            }
+            window.clearTimeout(commercialReplayTimer);
+            commercialReplayTimer = 0;
+          }
+          return;
+        }
+
+        if (commercialWaiting) {
+          scheduleCommercialReplay();
+        } else if (commercialStarted) {
+          playCommercial();
+        } else {
+          startCommercial();
+        }
+      }, { threshold: 0.6 });
+
+      commercialVisibilityObserver.observe(heroCommercial);
+
+      let introFinished = false;
+      let introTransitionFinished = false;
+      const navigationEntry = performance.getEntriesByType('navigation')[0];
+      const returningFromSitePage = new URLSearchParams(window.location.search).get('returning') === '1';
+      const introShouldPlay = !returningFromSitePage || navigationEntry?.type === 'reload';
+
+      const removeIntro = () => {
+        if (!introTransitionFinished || !introVideo.ended) return;
+        introScreen.remove();
+      };
+
+      const finishIntro = () => {
+        if (introFinished) return;
+        introFinished = true;
+        document.body.classList.add('intro-reveal');
+        introScreen.classList.add('is-finishing');
+        introScreen.addEventListener('transitionend', () => {
+          introTransitionFinished = true;
+          document.body.classList.remove('intro-active');
+          removeIntro();
+        }, { once: true });
+      };
+
+      if (introShouldPlay) {
+        document.addEventListener('wheel', (event) => {
+          if (!introFinished && event.deltaY > 0) finishIntro();
+        }, { passive: true });
+
+        introVideo.addEventListener('timeupdate', () => {
+          if (introVideo.duration && introVideo.currentTime >= introVideo.duration - 1) {
+            finishIntro();
+          }
+        });
+        introVideo.addEventListener('ended', () => {
+          finishIntro();
+          removeIntro();
+        }, { once: true });
+        introVideo.play().catch(finishIntro);
+      } else {
+        introFinished = true;
+        introTransitionFinished = true;
+        introScreen.remove();
+        document.body.classList.remove('intro-active');
+      }
+
       const expandedVideo = document.querySelector('.expanded-video');
 
       const betaModalOverlay = document.querySelector('#beta-modal-overlay');
       const betaBackButton = document.querySelector('.beta-back');
+      const betaDownloadButton = document.querySelector('.beta-download');
+      const betaAvailableState = document.querySelector('#beta-modal-available-state');
+      const betaUnavailableState = document.querySelector('#beta-modal-unavailable-state');
+      const betaUnavailableBackButton = document.querySelector('.beta-unavailable-back');
+
+      const showBetaUnavailableState = () => {
+        betaAvailableState.classList.add('is-hidden');
+        betaUnavailableState.classList.remove('is-hidden');
+        betaUnavailableState.setAttribute('aria-hidden', 'false');
+        betaAvailableState.setAttribute('aria-hidden', 'true');
+      };
 
       const closeBetaModal = () => {
         betaModalOverlay.classList.remove('is-open');
         betaModalOverlay.setAttribute('aria-hidden', 'true');
+        betaAvailableState.classList.remove('is-hidden');
+        betaUnavailableState.classList.add('is-hidden');
+        betaAvailableState.setAttribute('aria-hidden', 'false');
+        betaUnavailableState.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
       };
 
@@ -1567,11 +2149,244 @@
       });
 
       betaBackButton.addEventListener('click', closeBetaModal);
+      betaDownloadButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        showBetaUnavailableState();
+      });
+      betaUnavailableBackButton.addEventListener('click', () => {
+        const isHomepage = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('/index.html');
+        if (isHomepage) {
+          closeBetaModal();
+          return;
+        }
+        window.location.href = 'index.html';
+      });
       betaModalOverlay.addEventListener('click', (event) => {
         if (event.target === betaModalOverlay) closeBetaModal();
       });
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') closeBetaModal();
+      });
+
+      const assistantWidget = document.querySelector('#assistant-widget');
+      const assistantToggle = document.querySelector('#assistant-toggle');
+      const assistantClose = document.querySelector('#assistant-close');
+      const assistantPanel = document.querySelector('#assistant-panel');
+      const assistantForm = document.querySelector('#assistant-form');
+      const assistantInput = document.querySelector('#assistant-input');
+      const assistantMessages = document.querySelector('#assistant-messages');
+      const assistantFooter = document.querySelector('footer');
+      const assistantDefaultBottom = 22;
+      const assistantFooterGap = 28;
+      let assistantFooterFrame = 0;
+
+      const updateAssistantFooterSpacing = () => {
+        if (!assistantFooter) return;
+        const footerTop = assistantFooter.getBoundingClientRect().top;
+        const requiredBottom = Math.max(assistantDefaultBottom, window.innerHeight - footerTop + assistantFooterGap);
+        assistantWidget.style.bottom = `${requiredBottom}px`;
+      };
+
+      const scheduleAssistantFooterSpacing = () => {
+        if (assistantFooterFrame) return;
+        assistantFooterFrame = requestAnimationFrame(() => {
+          assistantFooterFrame = 0;
+          updateAssistantFooterSpacing();
+        });
+      };
+
+      window.addEventListener('scroll', scheduleAssistantFooterSpacing, { passive: true });
+      window.addEventListener('resize', scheduleAssistantFooterSpacing);
+      updateAssistantFooterSpacing();
+
+      const assistantFaq = [];
+      const assistantFaqFallback = "I don't have an answer for that yet. Try asking about FaceAuth's features, privacy, compatibility, or setup.";
+      const assistantFillerWords = new Set('what is are do does can will how why my i it the a an to for of on in with your this that and need still'.split(' '));
+      const assistantGenericConcepts = new Set(['faceauth', 'mac', 'work', 'use', 'does', 'face', 'camera']);
+      const assistantConceptAliases = {
+        wifi: 'offline', internet: 'offline', online: 'offline', cloud: 'cloud',
+        dark: 'lighting', light: 'lighting', lighting: 'lighting', webcam: 'external-camera',
+        camera: 'camera', external: 'external-camera', password: 'password', passcode: 'password',
+        software: 'requirements', requirement: 'requirements', requirements: 'requirements',
+        supported: 'compatibility', support: 'compatibility', compatible: 'compatibility',
+        recognize: 'recognition', recognition: 'recognition', unlock: 'unlock',
+        private: 'privacy', privacy: 'privacy', data: 'data', facial: 'facial-data',
+        face: 'facial-data', server: 'server', upload: 'server', uploaded: 'server',
+        apple: 'apple-silicon', silicon: 'apple-silicon', intel: 'intel',
+        glasses: 'glasses', identity: 'identity', identities: 'identity',
+        account: 'account', setup: 'setup', install: 'setup', permission: 'permission',
+        permissions: 'permission', battery: 'battery', hot: 'heat', slow: 'performance',
+        analytics: 'analytics', track: 'tracking', liveness: 'liveness', photo: 'liveness',
+        touch: 'touch-id', id: 'touch-id', windows: 'windows', linux: 'linux',
+        macbook: 'macbook', air: 'macbook-air', pro: 'macbook-pro', imac: 'imac', mini: 'mac-mini',
+        delete: 'uninstall', uninstall: 'uninstall', remove: 'uninstall', two: 'multiple',
+        people: 'multiple', multiple: 'multiple'
+      };
+
+      const normalizeQuestion = (question) => question.toLowerCase()
+        .replace(/wi[\s-]*fi/g, 'wifi')
+        .replace(/web[\s-]*cam/g, 'webcam')
+        .replace(/face[\s-]*auth/g, 'faceauth')
+        .replace(/\blite\b/g, 'light')
+        .replace(/[^a-z0-9\s]/g, ' ');
+
+      const assistantEditDistance = (left, right) => {
+        const distances = Array.from({ length: right.length + 1 }, (_, index) => index);
+        for (let leftIndex = 1; leftIndex <= left.length; leftIndex += 1) {
+          let previous = distances[0];
+          distances[0] = leftIndex;
+          for (let rightIndex = 1; rightIndex <= right.length; rightIndex += 1) {
+            const current = distances[rightIndex];
+            distances[rightIndex] = left[leftIndex - 1] === right[rightIndex - 1]
+              ? previous
+              : Math.min(previous + 1, distances[rightIndex - 1] + 1, distances[rightIndex] + 1);
+            previous = current;
+          }
+        }
+        return distances[right.length];
+      };
+
+      const assistantConceptForWord = (word) => {
+        const singular = word.endsWith('s') && word.length > 4 ? word.slice(0, -1) : word;
+        if (assistantConceptAliases[singular]) return assistantConceptAliases[singular];
+        if (singular.length < 4) return singular;
+
+        const maximumDistance = Math.max(1, Math.floor(singular.length / 4));
+        const closeAlias = Object.keys(assistantConceptAliases).find((alias) => (
+          Math.abs(alias.length - singular.length) <= maximumDistance
+          && assistantEditDistance(singular, alias) <= maximumDistance
+        ));
+        return closeAlias ? assistantConceptAliases[closeAlias] : singular;
+      };
+
+      const questionConcepts = (question) => {
+        const normalizedQuestion = normalizeQuestion(question).replace(/\bset\s+up\b/g, 'setup');
+        const concepts = new Set(normalizedQuestion.split(/\s+/).filter((word) => word && !assistantFillerWords.has(word)).map(assistantConceptForWord));
+
+        if (/\bfeatures?\b|\bpurpose\b|\bwhat\s+(?:does|can)\b|\bwhat\s+is\s+(?:this|it|faceauth)\b/.test(normalizedQuestion)) concepts.add('purpose');
+        if (/\bhow\b.*\b(?:work|recogniz|unlock)\w*/.test(normalizedQuestion)) concepts.add('recognition');
+        if (/\b(?:dark|low\s+light|lighting)\b/.test(normalizedQuestion)) concepts.add('lighting');
+        if (/\b(?:what|which)\s+macs?\b|\bmacs?\b.*\bneed\b/.test(normalizedQuestion)) concepts.add('compatibility');
+        if (/\bneed\b.*\b(?:wifi|internet|offline)\b/.test(normalizedQuestion)) concepts.add('internet-required');
+        if (/\b(?:doesn?[' ]?t|cannot|can not|wont|won't|not)\s+recogniz\w*/.test(normalizedQuestion)) concepts.add('not-recognized');
+        if (/\b(?:delete|remove|uninstall)\b/.test(normalizedQuestion)) concepts.add('uninstall');
+        if (concepts.has('offline') && /\bneed\b/.test(normalizedQuestion)) concepts.add('internet-required');
+
+        return concepts;
+      };
+
+      const parseAssistantFaq = (document) => {
+        document.querySelectorAll('.faq-content h3').forEach((questionElement) => {
+          const answerElement = questionElement.nextElementSibling;
+          if (!answerElement || !/^(P|BLOCKQUOTE|UL)$/.test(answerElement.tagName)) return;
+          const answer = answerElement.tagName === 'UL'
+            ? Array.from(answerElement.querySelectorAll('li')).map((item) => item.textContent.trim()).join('; ')
+            : answerElement.textContent.trim().replace(/\s+/g, ' ');
+          assistantFaq.push({
+            question: questionElement.textContent.trim(),
+            concepts: questionConcepts(questionElement.textContent),
+            answer
+          });
+        });
+      };
+
+      const assistantFaqSource = document.createElement('iframe');
+      const assistantFaqReady = new Promise((resolve) => {
+        assistantFaqSource.addEventListener('load', () => {
+          parseAssistantFaq(assistantFaqSource.contentDocument);
+          resolve();
+        }, { once: true });
+      });
+      assistantFaqSource.hidden = true;
+      assistantFaqSource.src = 'faq.html';
+      document.body.appendChild(assistantFaqSource);
+
+      const answerQuestion = (question) => {
+        const concepts = questionConcepts(question);
+        let bestMatch = null;
+        let bestScore = 0;
+
+        assistantFaq.forEach((faq) => {
+          let score = 0;
+          concepts.forEach((concept) => {
+            let conceptScore = 0;
+            faq.concepts.forEach((faqConcept) => {
+              if (concept === faqConcept) {
+                conceptScore = Math.max(conceptScore, assistantGenericConcepts.has(concept) ? 0.5 : 2);
+                return;
+              }
+              if (assistantGenericConcepts.has(concept) || assistantGenericConcepts.has(faqConcept)) return;
+              if (concept.length < 4 || faqConcept.length < 4) return;
+              const maximumDistance = Math.max(1, Math.floor(Math.max(concept.length, faqConcept.length) / 4));
+              if (Math.abs(concept.length - faqConcept.length) <= maximumDistance && assistantEditDistance(concept, faqConcept) <= maximumDistance) {
+                conceptScore = Math.max(conceptScore, 2);
+              }
+            });
+            score += conceptScore;
+          });
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = faq;
+          }
+        });
+
+        return bestMatch && bestScore >= 2 ? bestMatch.answer : assistantFaqFallback;
+      };
+
+      const addAssistantMessage = (message, sender) => {
+        const messageElement = document.createElement('div');
+        const bubbleElement = document.createElement('div');
+        messageElement.className = `assistant-message ${sender}`;
+        bubbleElement.className = 'assistant-bubble';
+        bubbleElement.textContent = message;
+        messageElement.appendChild(bubbleElement);
+        assistantMessages.appendChild(messageElement);
+        assistantMessages.scrollTop = assistantMessages.scrollHeight;
+      };
+
+      const submitAssistantQuestion = (question) => {
+        const trimmedQuestion = question.trim();
+        if (!trimmedQuestion) return;
+        addAssistantMessage(trimmedQuestion, 'user');
+        assistantInput.value = '';
+        assistantFaqReady.then(() => addAssistantMessage(answerQuestion(trimmedQuestion), 'ai'));
+      };
+
+      const closeAssistant = (event) => {
+        event?.preventDefault();
+        event?.stopPropagation();
+        assistantWidget.classList.remove('is-open', 'is-closing');
+        assistantPanel.style.display = 'none';
+        assistantToggle.setAttribute('aria-expanded', 'false');
+        assistantPanel.setAttribute('aria-hidden', 'true');
+      };
+
+      assistantToggle.addEventListener('click', () => {
+        if (assistantWidget.classList.contains('is-open')) {
+          closeAssistant();
+          return;
+        }
+        assistantWidget.classList.remove('is-closing');
+        assistantWidget.classList.add('is-open');
+        assistantPanel.style.display = 'block';
+        assistantToggle.setAttribute('aria-expanded', 'true');
+        assistantPanel.setAttribute('aria-hidden', 'false');
+        assistantInput.focus();
+      });
+
+      assistantClose.addEventListener('click', closeAssistant);
+      assistantClose.addEventListener('pointerdown', closeAssistant);
+
+      assistantForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        submitAssistantQuestion(assistantInput.value);
+      });
+
+      document.querySelectorAll('.assistant-suggestion').forEach((suggestion) => {
+        suggestion.addEventListener('click', () => {
+          assistantInput.value = suggestion.textContent;
+          submitAssistantQuestion(suggestion.textContent);
+        });
       });
 
       expandedVideo.addEventListener('ended', () => {
