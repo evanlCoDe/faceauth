@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FaceAuth — Face Unlock for Mac</title>
+    <title>FaceAuth — Face ID for Mac</title>
+    <link rel="icon" type="image/png" href="faceauth-favicon.png">
     <style>
       :root {
         --bg: #ffffff;
@@ -1219,6 +1220,68 @@
         line-height: 1.55;
       }
 
+      .beta-waitlist-form {
+        display: grid;
+        gap: 14px;
+        margin-top: 24px;
+      }
+
+      .beta-waitlist-field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .beta-waitlist-field label {
+        color: var(--text);
+        font-size: 0.86rem;
+        font-weight: 600;
+      }
+
+      .beta-waitlist-field input,
+      .beta-waitlist-field textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid rgba(0,0,0,0.12);
+        border-radius: 12px;
+        background: rgba(255,255,255,0.7);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .beta-waitlist-field textarea {
+        min-height: 78px;
+        resize: vertical;
+      }
+
+      .beta-waitlist-field input:focus,
+      .beta-waitlist-field textarea:focus {
+        border-color: rgba(0,128,255,0.45);
+        box-shadow: 0 0 0 3px rgba(0,128,255,0.08);
+      }
+
+      .beta-waitlist-field input[aria-invalid="true"] {
+        border-color: rgba(190,55,55,0.55);
+      }
+
+      .beta-waitlist-error {
+        margin-top: 12px;
+        color: #c62828;
+        font-size: 0.8rem;
+      }
+
+      #beta-waitlist-form-state {
+        max-height: calc(100vh - 52px);
+        overflow-y: auto;
+      }
+
+      .beta-waitlist-form button[type="submit"][disabled] {
+        cursor: wait;
+        opacity: 0.7;
+      }
+
       .beta-modal-actions {
         display: flex;
         flex-wrap: wrap;
@@ -1246,7 +1309,7 @@
       }
 
       .beta-back {
-        border-color: transparent !important;
+        border-color: rgba(0,0,0,0.1) !important;
         background: transparent;
         color: var(--muted);
         font-weight: 500 !important;
@@ -1689,7 +1752,7 @@
             </svg>
             Download
           </a>
-          <a href="#features" class="button-secondary">Learn more</a>
+          <a href="#" class="button-secondary" data-waitlist-trigger onclick="event.preventDefault()">Download Beta</a>
         </div>
 
         <div class="hero-commercial-frame">
@@ -1960,20 +2023,65 @@
     </footer>
     <div class="modal-overlay" id="beta-modal-overlay" aria-hidden="true">
       <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-modal-title">
-        <div class="beta-modal-state" id="beta-modal-available-state">
-          <h2 id="beta-modal-title">FaceAuth is currently in beta.</h2>
-          <p>You may encounter bugs or unexpected behavior while using FaceAuth, as some features are still being developed and refined.</p>
-          <p>Your Mac's normal password remains available as a fallback at all times.</p>
+        <div class="beta-modal-state" id="official-download-unavailable-state">
+          <h2 id="beta-modal-title">FaceAuth isn't available yet.</h2>
+          <p>The official release is still being prepared. Check back soon for the official download.</p>
           <div class="beta-modal-actions">
             <button class="beta-back" type="button">Go Back</button>
-            <button class="beta-download" type="button" onclick="event.preventDefault(); document.querySelector('#beta-modal-available-state').classList.add('is-hidden'); document.querySelector('#beta-modal-unavailable-state').classList.remove('is-hidden'); document.querySelector('#beta-modal-available-state').setAttribute('aria-hidden', 'true'); document.querySelector('#beta-modal-unavailable-state').setAttribute('aria-hidden', 'false');">Download Beta</button>
           </div>
         </div>
-        <div class="beta-modal-state is-hidden" id="beta-modal-unavailable-state" aria-hidden="true">
-          <h2>The beta isn't available yet.</h2>
-          <p>FaceAuth is still being prepared for release. The beta will be available here when it's ready.</p>
+      </section>
+    </div>
+    <div class="modal-overlay" id="beta-waitlist-overlay" aria-hidden="true">
+      <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-waitlist-title">
+        <div class="beta-modal-state" id="beta-waitlist-intro-state">
+          <h2 id="beta-waitlist-title">FaceAuth Beta isn't available yet.</h2>
+          <p>We're still preparing the beta. Join the waitlist to be notified when it's ready.</p>
           <div class="beta-modal-actions">
-            <button class="beta-unavailable-back" type="button">Go Back</button>
+            <button class="beta-back beta-waitlist-close" type="button">Go Back</button>
+            <button class="beta-download beta-waitlist-start" type="button">Join the Waitlist</button>
+          </div>
+        </div>
+        <div class="beta-modal-state is-hidden" id="beta-waitlist-form-state" aria-hidden="true">
+          <h2 id="beta-waitlist-form-title">Join the FaceAuth Beta Waitlist</h2>
+          <p>Be notified when the FaceAuth beta is ready.</p>
+          <form class="beta-waitlist-form" id="beta-waitlist-form" novalidate>
+            <div class="beta-waitlist-field">
+              <label for="waitlist-first-name">First name <span aria-hidden="true">*</span></label>
+              <input id="waitlist-first-name" name="firstName" type="text" autocomplete="given-name" required />
+            </div>
+            <div class="beta-waitlist-field">
+              <label for="waitlist-middle-name">Middle name</label>
+              <input id="waitlist-middle-name" name="middleName" type="text" autocomplete="additional-name" />
+            </div>
+            <div class="beta-waitlist-field">
+              <label for="waitlist-last-name">Last name <span aria-hidden="true">*</span></label>
+              <input id="waitlist-last-name" name="lastName" type="text" autocomplete="family-name" required />
+            </div>
+            <div class="beta-waitlist-field">
+              <label for="waitlist-email">Email <span aria-hidden="true">*</span></label>
+              <input id="waitlist-email" name="email" type="email" autocomplete="email" required />
+            </div>
+            <div class="beta-waitlist-field">
+              <label for="waitlist-phone">Phone number</label>
+              <input id="waitlist-phone" name="phone" type="tel" autocomplete="tel" />
+            </div>
+            <div class="beta-waitlist-field">
+              <label for="waitlist-comments">Additional comments</label>
+              <textarea id="waitlist-comments" name="comments"></textarea>
+            </div>
+            <p class="beta-waitlist-error" id="beta-waitlist-error" role="alert" hidden></p>
+            <div class="beta-modal-actions">
+              <button class="beta-back beta-waitlist-form-back" type="button">Go Back</button>
+              <button class="beta-download" type="submit">Join the Waitlist</button>
+            </div>
+          </form>
+        </div>
+        <div class="beta-modal-state is-hidden" id="beta-waitlist-confirmation-state" aria-hidden="true">
+          <h2 id="beta-waitlist-confirmation-title">You're on the list.</h2>
+          <p>We'll let you know when the FaceAuth beta is ready.</p>
+          <div class="beta-modal-actions">
+            <button class="beta-download beta-waitlist-done" type="button">Done</button>
           </div>
         </div>
       </section>
@@ -2119,25 +2227,10 @@
 
       const betaModalOverlay = document.querySelector('#beta-modal-overlay');
       const betaBackButton = document.querySelector('.beta-back');
-      const betaDownloadButton = document.querySelector('.beta-download');
-      const betaAvailableState = document.querySelector('#beta-modal-available-state');
-      const betaUnavailableState = document.querySelector('#beta-modal-unavailable-state');
-      const betaUnavailableBackButton = document.querySelector('.beta-unavailable-back');
-
-      const showBetaUnavailableState = () => {
-        betaAvailableState.classList.add('is-hidden');
-        betaUnavailableState.classList.remove('is-hidden');
-        betaUnavailableState.setAttribute('aria-hidden', 'false');
-        betaAvailableState.setAttribute('aria-hidden', 'true');
-      };
 
       const closeBetaModal = () => {
         betaModalOverlay.classList.remove('is-open');
         betaModalOverlay.setAttribute('aria-hidden', 'true');
-        betaAvailableState.classList.remove('is-hidden');
-        betaUnavailableState.classList.add('is-hidden');
-        betaAvailableState.setAttribute('aria-hidden', 'false');
-        betaUnavailableState.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
       };
 
@@ -2151,23 +2244,127 @@
       });
 
       betaBackButton.addEventListener('click', closeBetaModal);
-      betaDownloadButton.addEventListener('click', (event) => {
-        event.preventDefault();
-        showBetaUnavailableState();
-      });
-      betaUnavailableBackButton.addEventListener('click', () => {
-        const isHomepage = window.location.pathname.endsWith('/') || window.location.pathname.endsWith('/index.html');
-        if (isHomepage) {
-          closeBetaModal();
-          return;
-        }
-        window.location.href = 'index.html';
-      });
       betaModalOverlay.addEventListener('click', (event) => {
         if (event.target === betaModalOverlay) closeBetaModal();
       });
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') closeBetaModal();
+        if (event.key !== 'Escape') return;
+        if (betaWaitlistOverlay.classList.contains('is-open')) {
+          closeBetaWaitlist();
+          return;
+        }
+        closeBetaModal();
+      });
+
+      const betaWaitlistOverlay = document.querySelector('#beta-waitlist-overlay');
+      const betaWaitlistModal = betaWaitlistOverlay.querySelector('.beta-modal');
+      const betaWaitlistIntroState = document.querySelector('#beta-waitlist-intro-state');
+      const betaWaitlistFormState = document.querySelector('#beta-waitlist-form-state');
+      const betaWaitlistConfirmationState = document.querySelector('#beta-waitlist-confirmation-state');
+      const betaWaitlistCloseButton = document.querySelector('.beta-waitlist-close');
+      const betaWaitlistStartButton = document.querySelector('.beta-waitlist-start');
+      const betaWaitlistFormBackButton = document.querySelector('.beta-waitlist-form-back');
+      const betaWaitlistDoneButton = document.querySelector('.beta-waitlist-done');
+      const betaWaitlistForm = document.querySelector('#beta-waitlist-form');
+      const betaWaitlistError = document.querySelector('#beta-waitlist-error');
+      const betaWaitlistSubmitButton = betaWaitlistForm.querySelector('button[type="submit"]');
+      const betaWaitlistRequiredFields = [
+        document.querySelector('#waitlist-first-name'),
+        document.querySelector('#waitlist-last-name'),
+        document.querySelector('#waitlist-email')
+      ];
+      const betaWaitlistEndpoint = 'https://script.google.com/macros/s/AKfycbx4gs9m3mRL-rZYNlCHx9EN8Dt4Alb8P-95Bhxs5jRA9lUqxDMQ-FESBe8_ZiJToihi/exec';
+
+      const showBetaWaitlistIntro = () => {
+        betaWaitlistIntroState.classList.remove('is-hidden');
+        betaWaitlistFormState.classList.add('is-hidden');
+        betaWaitlistConfirmationState.classList.add('is-hidden');
+        betaWaitlistIntroState.setAttribute('aria-hidden', 'false');
+        betaWaitlistFormState.setAttribute('aria-hidden', 'true');
+        betaWaitlistConfirmationState.setAttribute('aria-hidden', 'true');
+        betaWaitlistModal.setAttribute('aria-labelledby', 'beta-waitlist-title');
+        betaWaitlistError.hidden = true;
+      };
+
+      const closeBetaWaitlist = () => {
+        betaWaitlistOverlay.classList.remove('is-open');
+        betaWaitlistOverlay.setAttribute('aria-hidden', 'true');
+        showBetaWaitlistIntro();
+        document.body.style.overflow = '';
+      };
+
+      const showBetaWaitlistForm = () => {
+        betaWaitlistIntroState.classList.add('is-hidden');
+        betaWaitlistFormState.classList.remove('is-hidden');
+        betaWaitlistConfirmationState.classList.add('is-hidden');
+        betaWaitlistIntroState.setAttribute('aria-hidden', 'true');
+        betaWaitlistFormState.setAttribute('aria-hidden', 'false');
+        betaWaitlistConfirmationState.setAttribute('aria-hidden', 'true');
+        betaWaitlistModal.setAttribute('aria-labelledby', 'beta-waitlist-form-title');
+        betaWaitlistForm.querySelector('input').focus();
+      };
+
+      const showBetaWaitlistConfirmation = () => {
+        betaWaitlistIntroState.classList.add('is-hidden');
+        betaWaitlistFormState.classList.add('is-hidden');
+        betaWaitlistConfirmationState.classList.remove('is-hidden');
+        betaWaitlistIntroState.setAttribute('aria-hidden', 'true');
+        betaWaitlistFormState.setAttribute('aria-hidden', 'true');
+        betaWaitlistConfirmationState.setAttribute('aria-hidden', 'false');
+        betaWaitlistModal.setAttribute('aria-labelledby', 'beta-waitlist-confirmation-title');
+        betaWaitlistDoneButton.focus();
+      };
+
+      document.querySelectorAll('[data-waitlist-trigger]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          betaWaitlistOverlay.classList.add('is-open');
+          betaWaitlistOverlay.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+        });
+      });
+
+      betaWaitlistCloseButton.addEventListener('click', closeBetaWaitlist);
+      betaWaitlistStartButton.addEventListener('click', showBetaWaitlistForm);
+      betaWaitlistFormBackButton.addEventListener('click', showBetaWaitlistIntro);
+      betaWaitlistForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const hasMissingRequiredField = betaWaitlistRequiredFields.some((field) => {
+          const isMissing = !field.value.trim();
+          field.setAttribute('aria-invalid', String(isMissing));
+          return isMissing;
+        });
+
+        if (hasMissingRequiredField) {
+          betaWaitlistError.textContent = 'Please complete this required field.';
+          betaWaitlistError.hidden = false;
+          betaWaitlistRequiredFields.find((field) => field.getAttribute('aria-invalid') === 'true')?.focus();
+          return;
+        }
+
+        betaWaitlistError.hidden = true;
+        betaWaitlistSubmitButton.disabled = true;
+        try {
+          const formData = new FormData(betaWaitlistForm);
+          const response = await fetch(betaWaitlistEndpoint, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(Object.fromEntries(formData.entries()))
+          });
+          if (!response) throw new Error('Waitlist request did not complete');
+          showBetaWaitlistConfirmation();
+        } catch (error) {
+          betaWaitlistError.textContent = 'We couldn\'t submit your details. Please try again.';
+          betaWaitlistError.hidden = false;
+          console.error('FaceAuth waitlist submission failed.', error);
+        } finally {
+          betaWaitlistSubmitButton.disabled = false;
+        }
+      });
+      betaWaitlistDoneButton.addEventListener('click', closeBetaWaitlist);
+      betaWaitlistOverlay.addEventListener('click', (event) => {
+        if (event.target === betaWaitlistOverlay) closeBetaWaitlist();
       });
 
       const assistantWidget = document.querySelector('#assistant-widget');
