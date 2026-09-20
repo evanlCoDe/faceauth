@@ -36,86 +36,6 @@
         overflow-x: hidden;
       }
 
-      body.intro-active > nav,
-      body.intro-active > main,
-      body.intro-active > footer {
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.85s ease, visibility 0s linear 0.85s;
-      }
-
-      body.intro-active {
-        overflow-y: hidden;
-      }
-
-      body.intro-active.intro-reveal > nav,
-      body.intro-active.intro-reveal > main,
-      body.intro-active.intro-reveal > footer {
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.85s ease, visibility 0s linear 0s;
-      }
-
-      body.intro-active .hero {
-        opacity: 0;
-        transform: scale(0.985);
-        transition: opacity 0.9s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-
-      body.intro-active.intro-reveal .hero {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      .intro-screen {
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #fff;
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.85s ease, visibility 0s linear 0s;
-      }
-
-      .intro-screen.is-finishing {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.85s ease, visibility 0s linear 0.85s;
-      }
-
-      .intro-video {
-        width: min(56vw, 320px);
-        height: auto;
-        max-height: 78vh;
-        aspect-ratio: 4 / 5;
-        object-fit: cover;
-        display: block;
-        transform: scale(0.94);
-        opacity: 0;
-        animation: intro-video-entrance 0.85s ease forwards;
-        transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-
-      @keyframes intro-video-entrance {
-        from {
-          opacity: 0;
-          transform: scale(0.94);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      .intro-screen.is-finishing .intro-video {
-        opacity: 0;
-        transform: scale(0.94);
-      }
-
       a {
         color: inherit;
         text-decoration: none;
@@ -185,6 +105,71 @@
 
       .nav-faq:hover {
         color: var(--text);
+      }
+
+      .language-selector {
+        position: relative;
+      }
+
+      .language-toggle {
+        border: 0;
+        background: transparent;
+        color: #8a929d;
+        padding: 0;
+        font: inherit;
+        font-size: 0.86rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color 0.2s ease;
+      }
+
+      .language-toggle:hover,
+      .language-toggle[aria-expanded="true"] {
+        color: var(--text);
+      }
+
+      .language-menu {
+        position: absolute;
+        top: calc(100% + 12px);
+        left: 50%;
+        z-index: 30;
+        min-width: 148px;
+        padding: 6px;
+        border: 1px solid rgba(0,0,0,0.07);
+        border-radius: 14px;
+        background: rgba(255,255,255,0.82);
+        box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(-50%, -6px);
+        transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+      }
+
+      .language-selector.is-open .language-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, 0);
+      }
+
+      .language-option {
+        display: block;
+        width: 100%;
+        padding: 7px 10px;
+        border: 0;
+        border-radius: 9px;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        font-size: 0.82rem;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .language-option:hover,
+      .language-option.is-selected {
+        background: rgba(0,128,255,0.08);
       }
 
       .nav-button,
@@ -1464,12 +1449,6 @@
         will-change: bottom;
       }
 
-      body.intro-active .assistant-widget {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-      }
-
       .assistant-panel {
         position: relative;
         width: min(390px, calc(100vw - 32px));
@@ -1712,10 +1691,7 @@
       }
     </style>
   </head>
-  <body class="intro-active">
-    <div class="intro-screen" id="intro-screen" aria-label="Loading FaceAuth">
-      <video class="intro-video" id="intro-video" autoplay muted playsinline preload="auto" aria-hidden="true" src="face id loading web.mp4"></video>
-    </div>
+  <body>
     <nav>
       <div class="nav-inner">
         <div style="display:flex; align-items:center; gap:12px;">
@@ -1723,6 +1699,21 @@
           <a href="#" class="logo">FaceAuth</a>
         </div>
         <div class="nav-actions">
+          <div class="language-selector">
+            <button class="language-toggle" type="button" aria-expanded="false" aria-haspopup="listbox">English</button>
+            <div class="language-menu" role="listbox" aria-label="Language">
+              <button class="language-option is-selected" type="button" role="option" aria-selected="true" data-language="en">English</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="zh-CN">简体中文</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="zh-TW">繁體中文</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="es">Español</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="hi">हिन्दी</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="fr">Français</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="pt">Português</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="ru">Русский</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="ja">日本語</button>
+              <button class="language-option" type="button" role="option" aria-selected="false" data-language="ko">한국어</button>
+            </div>
+          </div>
           <a href="faq.html" class="nav-faq">FAQ</a>
           <a href="#" class="nav-button download-action">
             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -2108,8 +2099,6 @@
       <button class="assistant-toggle" id="assistant-toggle" type="button" aria-expanded="false" aria-controls="assistant-panel">✦ Ask FaceAuth AI</button>
     </aside>
     <script>
-      const introScreen = document.querySelector('#intro-screen');
-      const introVideo = document.querySelector('#intro-video');
       const heroCommercial = document.querySelector('#hero-commercial');
       let commercialStarted = false;
       let commercialWaiting = false;
@@ -2177,51 +2166,6 @@
       }, { threshold: 0.6 });
 
       commercialVisibilityObserver.observe(heroCommercial);
-
-      let introFinished = false;
-      let introTransitionFinished = false;
-      const navigationEntry = performance.getEntriesByType('navigation')[0];
-      const returningFromSitePage = new URLSearchParams(window.location.search).get('returning') === '1';
-      const introShouldPlay = !returningFromSitePage || navigationEntry?.type === 'reload';
-
-      const removeIntro = () => {
-        if (!introTransitionFinished || !introVideo.ended) return;
-        introScreen.remove();
-      };
-
-      const finishIntro = () => {
-        if (introFinished) return;
-        introFinished = true;
-        document.body.classList.add('intro-reveal');
-        introScreen.classList.add('is-finishing');
-        introScreen.addEventListener('transitionend', () => {
-          introTransitionFinished = true;
-          document.body.classList.remove('intro-active');
-          removeIntro();
-        }, { once: true });
-      };
-
-      if (introShouldPlay) {
-        document.addEventListener('wheel', (event) => {
-          if (!introFinished && event.deltaY > 0) finishIntro();
-        }, { passive: true });
-
-        introVideo.addEventListener('timeupdate', () => {
-          if (introVideo.duration && introVideo.currentTime >= introVideo.duration - 1) {
-            finishIntro();
-          }
-        });
-        introVideo.addEventListener('ended', () => {
-          finishIntro();
-          removeIntro();
-        }, { once: true });
-        introVideo.play().catch(finishIntro);
-      } else {
-        introFinished = true;
-        introTransitionFinished = true;
-        introScreen.remove();
-        document.body.classList.remove('intro-active');
-      }
 
       const expandedVideo = document.querySelector('.expanded-video');
 
@@ -2613,5 +2557,6 @@
         }, 2500);
       });
     </script>
+    <script src="language-selector.js"></script>
   </body>
 </html>
