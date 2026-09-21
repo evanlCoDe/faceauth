@@ -165,6 +165,22 @@
     return translated.replace(/\u0000(\d+)\u0000/g, (_, index) => protectedTerms[Number(index)]);
   };
   const translate = (source) => catalog[source]?.[selectedLanguage] || translateWords(source);
+  const installSelectorStyles = () => {
+    if (document.getElementById('faceauth-language-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'faceauth-language-styles';
+    style.textContent = `
+      .nav-inner:has(.language-selector) { overflow: visible !important; }
+      .language-selector { position: relative; }
+      .language-toggle { border: 0; background: transparent; color: #8a929d; padding: 0; font: inherit; font-size: 0.86rem; font-weight: 500; cursor: pointer; transition: color 0.2s ease; }
+      .language-toggle:hover, .language-toggle[aria-expanded="true"] { color: var(--text); }
+      .language-menu { position: absolute; top: calc(100% + 12px); left: 50%; z-index: 30; display: block; min-width: 148px; padding: 6px; border: 1px solid rgba(0,0,0,0.07); border-radius: 14px; background: rgba(255,255,255,0.82); box-shadow: 0 10px 28px rgba(0,0,0,0.08); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0; visibility: hidden; transform: translate(-50%, -6px); transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; }
+      .language-selector.is-open .language-menu { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+      .language-option { display: block; width: 100%; padding: 7px 10px; border: 0; border-radius: 9px; background: transparent; color: var(--text); font: inherit; font-size: 0.82rem; line-height: 1.4; text-align: left; white-space: nowrap; cursor: pointer; }
+      .language-option:hover, .language-option.is-selected { background: rgba(0,128,255,0.08); }
+    `;
+    document.head.append(style);
+  };
   const keepWhitespace = (source, value) => source.replace(source.trim(), value);
   const ignored = (node) => ['SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG'].includes(node.parentElement?.tagName);
   const translateText = (root) => {
@@ -249,6 +265,7 @@
     return selector;
   };
 
+  installSelectorStyles();
   document.querySelectorAll('body > nav .nav-inner').forEach(createSelector);
   document.querySelectorAll('.language-selector').forEach((selector) => {
     const toggle = selector.querySelector('.language-toggle');
