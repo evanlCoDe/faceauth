@@ -36,6 +36,86 @@
         overflow-x: hidden;
       }
 
+      body.intro-active > nav,
+      body.intro-active > main,
+      body.intro-active > footer {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.85s ease, visibility 0s linear 0.85s;
+      }
+
+      body.intro-active {
+        overflow-y: hidden;
+      }
+
+      body.intro-active.intro-reveal > nav,
+      body.intro-active.intro-reveal > main,
+      body.intro-active.intro-reveal > footer {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.85s ease, visibility 0s linear 0s;
+      }
+
+      body.intro-active .hero {
+        opacity: 0;
+        transform: scale(0.985);
+        transition: opacity 0.9s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      body.intro-active.intro-reveal .hero {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .intro-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.85s ease, visibility 0s linear 0s;
+      }
+
+      .intro-screen.is-finishing {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.85s ease, visibility 0s linear 0.85s;
+      }
+
+      .intro-video {
+        width: min(56vw, 320px);
+        height: auto;
+        max-height: 78vh;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+        display: block;
+        transform: scale(0.94);
+        opacity: 0;
+        animation: intro-video-entrance 0.85s ease forwards;
+        transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      @keyframes intro-video-entrance {
+        from {
+          opacity: 0;
+          transform: scale(0.94);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .intro-screen.is-finishing .intro-video {
+        opacity: 0;
+        transform: scale(0.94);
+      }
+
       a {
         color: inherit;
         text-decoration: none;
@@ -356,8 +436,12 @@
         background: rgba(255,255,255,0.6);
         color: var(--text);
         padding: 14px 24px;
+        font: inherit;
         font-weight: 600;
         border: 1px solid var(--card-border);
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
       }
 
       .button-secondary:hover {
@@ -1268,29 +1352,57 @@
       }
 
       .beta-modal-actions {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
         gap: 10px;
         margin-top: 28px;
       }
 
-      .beta-modal-actions button {
-        min-height: 44px;
-        padding: 11px 18px;
+      .beta-modal-actions button,
+      .beta-modal-actions a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 18px;
         border: 1px solid transparent;
         border-radius: 999px;
         font: inherit;
         font-weight: 600;
         cursor: pointer;
+        text-align: center;
+        text-decoration: none;
       }
 
       .beta-download {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
         background: #000;
         color: #fff;
       }
 
-      .beta-download:hover {
+      .beta-download .button-icon {
+        width: 14px;
+        height: 14px;
+        color: #ffffff;
+        transform: translateY(-1px);
+        flex-shrink: 0;
+      }
+
+      .beta-download:not(:disabled):hover {
         background: var(--blue);
+      }
+
+      .beta-download:disabled,
+      .beta-download[aria-disabled="true"] {
+        border-color: rgba(0,0,0,0.08);
+        background: rgba(0,0,0,0.05);
+        color: rgba(17, 24, 39, 0.52);
+        cursor: not-allowed;
+        opacity: 0.8;
       }
 
       .beta-back {
@@ -1305,8 +1417,98 @@
         color: var(--text);
       }
 
+      .gatekeeper-modal {
+        width: min(100%, 560px);
+        padding: 34px;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 28px;
+        background: rgba(255,255,255,0.88);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        box-shadow: 0 24px 70px rgba(0,0,0,0.18);
+        transform: translateY(8px) scale(0.98);
+        transition: transform 0.2s ease;
+      }
+
+      .modal-overlay.is-open .gatekeeper-modal {
+        transform: translateY(0) scale(1);
+      }
+
+      .gatekeeper-modal h2 {
+        font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+      }
+
+      .gatekeeper-copy {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 0.98rem;
+        line-height: 1.6;
+      }
+
+      .gatekeeper-copy ol {
+        margin: 14px 0 0 1.1rem;
+        padding: 0;
+      }
+
+      .gatekeeper-copy li + li {
+        margin-top: 8px;
+      }
+
+      .gatekeeper-note {
+        margin-top: 18px;
+        color: #5a6472;
+        font-size: 0.82rem;
+        line-height: 1.5;
+      }
+
+      .gatekeeper-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .gatekeeper-actions a,
+      .gatekeeper-actions button {
+        min-width: 120px;
+        min-height: 46px;
+        padding: 11px 18px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background: #000;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .gatekeeper-actions .gatekeeper-back {
+        border: 1px solid rgba(0,0,0,0.1);
+        background: #fff;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .gatekeeper-actions .gatekeeper-back:hover {
+        background: rgba(0,0,0,0.04);
+        color: var(--text);
+      }
+
+      .gatekeeper-actions a:hover,
+      .gatekeeper-actions button:hover {
+        background: var(--blue);
+      }
+
       @media (max-width: 520px) {
-        .beta-modal {
+        .beta-modal,
+        .gatekeeper-modal {
           padding: 26px;
         }
 
@@ -1447,6 +1649,12 @@
         gap: 10px;
         transition: opacity 0.25s ease, visibility 0.25s ease, bottom 0.14s ease-out;
         will-change: bottom;
+      }
+
+      body.intro-active .assistant-widget {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
       }
 
       .assistant-panel {
@@ -1691,7 +1899,10 @@
       }
     </style>
   </head>
-  <body>
+  <body class="intro-active">
+    <div class="intro-screen" id="intro-screen" aria-label="Loading FaceAuth">
+      <video class="intro-video" id="intro-video" autoplay muted playsinline preload="auto" aria-hidden="true" src="face id loading web.mp4"></video>
+    </div>
     <nav>
       <div class="nav-inner">
         <div style="display:flex; align-items:center; gap:12px;">
@@ -1699,21 +1910,6 @@
           <a href="#" class="logo">FaceAuth</a>
         </div>
         <div class="nav-actions">
-          <div class="language-selector">
-            <button class="language-toggle" type="button" aria-expanded="false" aria-haspopup="listbox">English</button>
-            <div class="language-menu" role="listbox" aria-label="Language">
-              <button class="language-option is-selected" type="button" role="option" aria-selected="true" data-language="en">English</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="zh-CN">简体中文</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="zh-TW">繁體中文</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="es">Español</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="hi">हिन्दी</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="fr">Français</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="pt">Português</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="ru">Русский</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="ja">日本語</button>
-              <button class="language-option" type="button" role="option" aria-selected="false" data-language="ko">한국어</button>
-            </div>
-          </div>
           <a href="faq.html" class="nav-faq">FAQ</a>
           <a href="#" class="nav-button download-action">
             <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -1743,7 +1939,8 @@
             </svg>
             Download
           </a>
-          <a href="#" class="button-secondary" data-waitlist-trigger onclick="event.preventDefault()">Download Beta</a>
+          <a href="#" class="button-secondary beta-launch-trigger" onclick="event.preventDefault()">Download Beta</a>
+          <button type="button" class="button-secondary beta-waitlist-trigger" data-waitlist-trigger>Join Waitlist For Next Beta</button>
         </div>
 
         <div class="hero-commercial-frame">
@@ -1751,7 +1948,7 @@
           <span class="hero-commercial-corner top-right" aria-hidden="true"></span>
           <span class="hero-commercial-corner bottom-left" aria-hidden="true"></span>
           <span class="hero-commercial-corner bottom-right" aria-hidden="true"></span>
-          <video class="hero-commercial" id="hero-commercial" muted playsinline preload="metadata" aria-label="FaceAuth product commercial" src="faceauth-demo.mp4"></video>
+          <video class="hero-commercial" id="hero-commercial" muted playsinline preload="metadata" aria-label="FaceAuth product commercial" src="faceauth demo.mp4"></video>
         </div>
 
       </section>
@@ -2008,27 +2205,69 @@
           <span aria-hidden="true">·</span>
           <a href="support.html">Support</a>
           <span aria-hidden="true">·</span>
-          <a href="release-notes.html">Release Notes (App)</a>
-          <span aria-hidden="true">·</span>
-          <a href="release-notes-web.html">Release Notes (Web)</a>
+          <a href="release-notes.html">Release Notes</a>
+          
         </div>
         <div class="footer-copyright">&copy; 2026 FaceAuth. All rights reserved.</div>
       </div>
     </footer>
-    <div class="modal-overlay" id="beta-modal-overlay" aria-hidden="true">
-      <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-modal-title">
+    <div class="modal-overlay" id="official-download-overlay" aria-hidden="true">
+      <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="official-download-title">
         <div class="beta-modal-state" id="official-download-unavailable-state">
-          <h2 id="beta-modal-title">FaceAuth isn't available yet.</h2>
+          <h2 id="official-download-title">FaceAuth isn't available yet.</h2>
           <p>The official release is still being prepared. Check back soon for the official download.</p>
           <div class="beta-modal-actions">
-            <button class="beta-back" type="button">Go Back</button>
+            <button class="beta-back official-download-back" type="button">Go Back</button>
           </div>
         </div>
       </section>
     </div>
-    <div class="modal-overlay" id="beta-waitlist-overlay" aria-hidden="true">
-      <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-waitlist-title">
-        <div class="beta-modal-state" id="beta-waitlist-intro-state">
+    <div class="modal-overlay" id="beta-modal-overlay" aria-hidden="true" hidden>
+      <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-modal-title">
+        <div class="beta-modal-state" id="official-download-unavailable-state">
+          <h2 id="beta-modal-title"></h2>
+          <div class="beta-modal-actions">
+            <button class="beta-back beta-modal-back" type="button">Go Back</button>
+            <a class="beta-download beta-modal-download" href="faceauth.dmg" download="faceauth.dmg">
+              <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" />
+              </svg>
+              Download Beta
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="modal-overlay" id="beta-gatekeeper-overlay" aria-hidden="true">
+      <section class="gatekeeper-modal" role="dialog" aria-modal="true" aria-labelledby="gatekeeper-title">
+        <h2 id="gatekeeper-title">macOS Security — Gatekeeper May Block FaceAuth</h2>
+        <div class="gatekeeper-copy">
+          <p>FaceAuth is not distributed through the Mac App Store and is not signed/notarized by Apple, so macOS Gatekeeper may block it the first time you try to open it. This is a macOS security check and does not necessarily mean there is a problem with FaceAuth.</p>
+          <p>If macOS shows a warning:</p>
+          <ol>
+            <li>Try opening FaceAuth once.</li>
+            <li>Open System Settings.</li>
+            <li>Go to Privacy &amp; Security.</li>
+            <li>Scroll down to the Security section.</li>
+            <li>Look for the message saying that FaceAuth was blocked.</li>
+            <li>Click "Open Anyway".</li>
+            <li>Try opening FaceAuth again.</li>
+          </ol>
+        </div>
+        <div class="gatekeeper-actions">
+          <a class="beta-download gatekeeper-download" href="faceauth.dmg" download="faceauth.dmg">
+            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" />
+            </svg>
+            Download Beta
+          </a>
+          <button class="beta-back gatekeeper-back" type="button">Go Back</button>
+        </div>
+      </section>
+    </div>
+    <div class="modal-overlay" id="beta-waitlist-overlay" aria-hidden="true" hidden>
+      <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-waitlist-form-title">
+        <div class="beta-modal-state is-hidden" id="beta-waitlist-intro-state" aria-hidden="true">
           <h2 id="beta-waitlist-title">FaceAuth Beta isn't available yet.</h2>
           <p>We're still preparing the beta. Join the waitlist to be notified when it's ready.</p>
           <div class="beta-modal-actions">
@@ -2036,7 +2275,7 @@
             <button class="beta-download beta-waitlist-start" type="button">Join the Waitlist</button>
           </div>
         </div>
-        <div class="beta-modal-state is-hidden" id="beta-waitlist-form-state" aria-hidden="true">
+        <div class="beta-modal-state" id="beta-waitlist-form-state" aria-hidden="false">
           <h2 id="beta-waitlist-form-title">Join the FaceAuth Beta Waitlist</h2>
           <p>Be notified when the FaceAuth beta is ready.</p>
           <form class="beta-waitlist-form" id="beta-waitlist-form" novalidate>
@@ -2059,10 +2298,6 @@
             <div class="beta-waitlist-field">
               <label for="waitlist-phone">Phone number</label>
               <input id="waitlist-phone" name="phone" type="tel" autocomplete="tel" />
-            </div>
-            <div class="beta-waitlist-field">
-              <label for="waitlist-comments">Additional comments</label>
-              <textarea id="waitlist-comments" name="comments"></textarea>
             </div>
             <p class="beta-waitlist-error" id="beta-waitlist-error" role="alert" hidden></p>
             <div class="beta-modal-actions">
@@ -2102,6 +2337,8 @@
       <button class="assistant-toggle" id="assistant-toggle" type="button" aria-expanded="false" aria-controls="assistant-panel">✦ Ask FaceAuth AI</button>
     </aside>
     <script>
+      const introScreen = document.querySelector('#intro-screen');
+      const introVideo = document.querySelector('#intro-video');
       const heroCommercial = document.querySelector('#hero-commercial');
       let commercialStarted = false;
       let commercialWaiting = false;
@@ -2170,10 +2407,73 @@
 
       commercialVisibilityObserver.observe(heroCommercial);
 
+      let introFinished = false;
+      let introTransitionFinished = false;
+      const navigationEntry = performance.getEntriesByType('navigation')[0];
+      const returningFromSitePage = new URLSearchParams(window.location.search).get('returning') === '1';
+      const introShouldPlay = !returningFromSitePage || navigationEntry?.type === 'reload';
+
+      const removeIntro = () => {
+        if (!introTransitionFinished || !introVideo.ended) return;
+        introScreen.remove();
+      };
+
+      const finishIntro = () => {
+        if (introFinished) return;
+        introFinished = true;
+        document.body.classList.add('intro-reveal');
+        introScreen.classList.add('is-finishing');
+        introScreen.addEventListener('transitionend', () => {
+          introTransitionFinished = true;
+          document.body.classList.remove('intro-active');
+          removeIntro();
+        }, { once: true });
+      };
+
+      if (introShouldPlay) {
+        document.addEventListener('wheel', (event) => {
+          if (!introFinished && event.deltaY > 0) finishIntro();
+        }, { passive: true });
+
+        introVideo.addEventListener('timeupdate', () => {
+          if (introVideo.duration && introVideo.currentTime >= introVideo.duration - 1) {
+            finishIntro();
+          }
+        });
+        introVideo.addEventListener('ended', () => {
+          finishIntro();
+          removeIntro();
+        }, { once: true });
+        introVideo.play().catch(finishIntro);
+      } else {
+        introFinished = true;
+        introTransitionFinished = true;
+        introScreen.remove();
+        document.body.classList.remove('intro-active');
+      }
+
       const expandedVideo = document.querySelector('.expanded-video');
 
+      const officialDownloadOverlay = document.querySelector('#official-download-overlay');
+      const officialDownloadBackButton = document.querySelector('.official-download-back');
       const betaModalOverlay = document.querySelector('#beta-modal-overlay');
-      const betaBackButton = document.querySelector('.beta-back');
+      const betaBackButton = document.querySelector('.beta-modal-back');
+      const betaModalWaitlistButton = document.querySelector('.beta-modal-waitlist');
+      const betaModalDownloadButton = document.querySelector('.beta-modal-download');
+      const gatekeeperOverlay = document.querySelector('#beta-gatekeeper-overlay');
+      const gatekeeperCloseButton = document.querySelector('.gatekeeper-back');
+
+      const closeOfficialDownload = () => {
+        officialDownloadOverlay.classList.remove('is-open');
+        officialDownloadOverlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      };
+
+      const openOfficialDownload = () => {
+        officialDownloadOverlay.classList.add('is-open');
+        officialDownloadOverlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      };
 
       const closeBetaModal = () => {
         betaModalOverlay.classList.remove('is-open');
@@ -2181,18 +2481,73 @@
         document.body.style.overflow = '';
       };
 
+      const openBetaModal = () => {
+        betaModalOverlay.classList.add('is-open');
+        betaModalOverlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      };
+
+      const closeGatekeeperInfo = () => {
+        gatekeeperOverlay.classList.remove('is-open');
+        gatekeeperOverlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      };
+
+      const openGatekeeperInfo = () => {
+        gatekeeperOverlay.classList.add('is-open');
+        gatekeeperOverlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      };
+
       document.querySelectorAll('.download-action').forEach((button) => {
         button.addEventListener('click', (event) => {
           event.preventDefault();
-          betaModalOverlay.classList.add('is-open');
-          betaModalOverlay.setAttribute('aria-hidden', 'false');
-          document.body.style.overflow = 'hidden';
+          openOfficialDownload();
         });
       });
 
-      betaBackButton.addEventListener('click', closeBetaModal);
+      document.querySelectorAll('.beta-launch-trigger').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          if (betaModalOverlay) {
+            betaModalOverlay.classList.remove('is-open');
+            betaModalOverlay.setAttribute('aria-hidden', 'true');
+          }
+          openGatekeeperInfo();
+        });
+      });
+
+      officialDownloadBackButton.addEventListener('click', closeOfficialDownload);
+      if (betaBackButton) {
+        betaBackButton.addEventListener('click', closeBetaModal);
+      }
+      if (betaModalDownloadButton) {
+        betaModalDownloadButton.addEventListener('click', (event) => {
+          event.preventDefault();
+          window.location.href = 'faceauth.dmg';
+          closeBetaModal();
+        });
+      }
+      if (betaModalWaitlistButton) {
+        betaModalWaitlistButton.addEventListener('click', (event) => {
+          event.preventDefault();
+          closeBetaModal();
+          betaWaitlistOverlay.classList.add('is-open');
+          betaWaitlistOverlay.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      if (gatekeeperCloseButton) {
+        gatekeeperCloseButton.addEventListener('click', closeGatekeeperInfo);
+      }
+      officialDownloadOverlay.addEventListener('click', (event) => {
+        if (event.target === officialDownloadOverlay) closeOfficialDownload();
+      });
       betaModalOverlay.addEventListener('click', (event) => {
         if (event.target === betaModalOverlay) closeBetaModal();
+      });
+      gatekeeperOverlay.addEventListener('click', (event) => {
+        if (event.target === gatekeeperOverlay) closeGatekeeperInfo();
       });
       document.addEventListener('keydown', (event) => {
         if (event.key !== 'Escape') return;
@@ -2200,7 +2555,17 @@
           closeBetaWaitlist();
           return;
         }
-        closeBetaModal();
+        if (gatekeeperOverlay.classList.contains('is-open')) {
+          closeGatekeeperInfo();
+          return;
+        }
+        if (betaModalOverlay.classList.contains('is-open')) {
+          closeBetaModal();
+          return;
+        }
+        if (officialDownloadOverlay.classList.contains('is-open')) {
+          closeOfficialDownload();
+        }
       });
 
       const betaWaitlistOverlay = document.querySelector('#beta-waitlist-overlay');
@@ -2267,13 +2632,14 @@
           event.preventDefault();
           betaWaitlistOverlay.classList.add('is-open');
           betaWaitlistOverlay.setAttribute('aria-hidden', 'false');
+          showBetaWaitlistForm();
           document.body.style.overflow = 'hidden';
         });
       });
 
       betaWaitlistCloseButton.addEventListener('click', closeBetaWaitlist);
       betaWaitlistStartButton.addEventListener('click', showBetaWaitlistForm);
-      betaWaitlistFormBackButton.addEventListener('click', showBetaWaitlistIntro);
+      betaWaitlistFormBackButton.addEventListener('click', closeBetaWaitlist);
       betaWaitlistForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const hasMissingRequiredField = betaWaitlistRequiredFields.some((field) => {
@@ -2560,6 +2926,85 @@
         }, 2500);
       });
     </script>
-    <script src="language-selector.js?v=071398c"></script>
+    <script>
+      (() => {
+        const languages = [
+          ['English', 'en'], ['简体中文', 'zh-CN'], ['繁體中文', 'zh-TW'], ['Español', 'es'],
+          ['हिन्दी', 'hi'], ['Français', 'fr'], ['Português', 'pt'], ['Русский', 'ru'],
+          ['日本語', 'ja'], ['한국어', 'ko']
+        ];
+
+        document.querySelectorAll('body > nav .nav-inner').forEach((navInner) => {
+          let navActions = navInner.querySelector(':scope > .nav-actions');
+          if (!navActions) {
+            const navChildren = Array.from(navInner.children);
+            navActions = document.createElement('div');
+            navActions.className = 'nav-actions';
+            navChildren.slice(1).forEach((child) => navActions.append(child));
+            navInner.append(navActions);
+          }
+          if (navActions.querySelector('.language-selector')) return;
+
+          const selector = document.createElement('div');
+          selector.className = 'language-selector';
+          selector.dataset.language = 'en';
+          const toggle = document.createElement('button');
+          toggle.className = 'language-toggle';
+          toggle.type = 'button';
+          toggle.textContent = 'English';
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.setAttribute('aria-haspopup', 'listbox');
+          const menu = document.createElement('div');
+          menu.className = 'language-menu';
+          menu.setAttribute('role', 'listbox');
+          menu.setAttribute('aria-label', 'Language');
+
+          languages.forEach(([label, code], index) => {
+            const option = document.createElement('button');
+            option.className = `language-option${index === 0 ? ' is-selected' : ''}`;
+            option.type = 'button';
+            option.textContent = label;
+            option.dataset.language = code;
+            option.setAttribute('role', 'option');
+            option.setAttribute('aria-selected', String(index === 0));
+            option.addEventListener('click', () => {
+              selector.dataset.language = code;
+              toggle.textContent = label;
+              menu.querySelectorAll('.language-option').forEach((item) => {
+                const isSelected = item === option;
+                item.classList.toggle('is-selected', isSelected);
+                item.setAttribute('aria-selected', String(isSelected));
+              });
+              selector.classList.remove('is-open');
+              toggle.setAttribute('aria-expanded', 'false');
+            });
+            menu.append(option);
+          });
+
+          toggle.addEventListener('click', () => {
+            const isOpen = selector.classList.toggle('is-open');
+            toggle.setAttribute('aria-expanded', String(isOpen));
+          });
+          selector.append(toggle, menu);
+          navActions.insertBefore(selector, navActions.firstChild);
+        });
+
+        document.addEventListener('click', (event) => {
+          document.querySelectorAll('.language-selector.is-open').forEach((selector) => {
+            if (selector.contains(event.target)) return;
+            selector.classList.remove('is-open');
+            selector.querySelector('.language-toggle').setAttribute('aria-expanded', 'false');
+          });
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key !== 'Escape') return;
+          document.querySelectorAll('.language-selector.is-open').forEach((selector) => {
+            selector.classList.remove('is-open');
+            selector.querySelector('.language-toggle').setAttribute('aria-expanded', 'false');
+          });
+        });
+      })();
+    </script>
+    <script src="language-selector.js"></script>
   </body>
 </html>

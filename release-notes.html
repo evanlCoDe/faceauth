@@ -1,56 +1,105 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FaceAuth — Release Notes</title>
+    <link rel="icon" type="image/png" href="faceauth-favicon.png">
     <style>
       :root { --text: #111; --muted: #5f6368; --blue: #0080ff; }
-      * { box-sizing: border-box; }
-      body { margin: 0; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      nav { position: sticky; top: 0; z-index: 20; padding: 10px 20px; background: transparent; border: 0; }
-      .nav-inner, .page, .footer-inner { width: min(100% - 40px, 1200px); margin: 0 auto; }
-      .nav-inner { position: relative; isolation: isolate; overflow: visible; height: 52px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,.06); border-radius: 18px; background: rgba(255,255,255,.08); box-shadow: 0 1px 6px rgba(0,0,0,.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-      .nav-inner > * { position: relative; z-index: 1; }
-      .brand, .nav-actions, .footer-links { display: flex; align-items: center; gap: 24px; }
-      .brand img { width: 26px; height: 26px; object-fit: contain; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { color: var(--text); font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif; line-height: 1.5; }
       a { color: inherit; text-decoration: none; }
-      .logo, .footer-brand { font-weight: 700; }
-      .nav-actions a { color: var(--muted); font-size: .86rem; }
-      .nav-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(0,0,0,.08); border-radius: 999px; background: #000; color: #fff !important; padding: 8px 16px; font-size: .86rem; font-weight: 600; transition: all .2s ease; }
+      nav { position: sticky; top: 0; z-index: 20; padding: 10px 20px; background: transparent; border: 0; }
+      .nav-inner, .page, .footer-inner { margin: 0 auto; padding-left: 20px; padding-right: 20px; }
+      .nav-inner { position: relative; isolation: isolate; overflow: hidden; max-width: 1200px; height: 52px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,0.07); border-radius: 18px; background: rgba(255,255,255,0.10); box-shadow: 0 6px 18px rgba(0,0,0,0.018); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+      .nav-inner::before { display: none; }
+      .nav-inner > * { position: relative; z-index: 1; }
+      .brand { display: flex; align-items: center; gap: 12px; }
+      .brand img { width: 26px; height: 26px; object-fit: contain; }
+      .logo { font-size: 17px; font-weight: 600; }
+      .nav-actions { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+      .nav-faq { color: #8a929d; font-size: 0.86rem; font-weight: 500; transition: color 0.2s ease; }
+      .nav-faq:hover { color: var(--text); }
+      .language-selector { position: relative; }
+      .language-toggle { border: 0; background: transparent; color: #8a929d; padding: 0; font: inherit; font-size: 0.86rem; font-weight: 500; cursor: pointer; transition: color 0.2s ease; }
+      .language-toggle:hover, .language-toggle[aria-expanded="true"] { color: var(--text); }
+      .language-menu { position: absolute; top: calc(100% + 12px); left: 50%; z-index: 30; min-width: 148px; padding: 6px; border: 1px solid rgba(0,0,0,0.07); border-radius: 14px; background: rgba(255,255,255,0.82); box-shadow: 0 10px 28px rgba(0,0,0,0.08); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: 0; visibility: hidden; transform: translate(-50%, -6px); transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease; }
+      .language-selector.is-open .language-menu { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+      .language-option { display: block; width: 100%; padding: 7px 10px; border: 0; border-radius: 9px; background: transparent; color: var(--text); font: inherit; font-size: 0.82rem; text-align: left; cursor: pointer; }
+      .language-option:hover, .language-option.is-selected { background: rgba(0,128,255,0.08); }
+      .nav-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(0,0,0,0.08); border-radius: 999px; background: #000; color: #fff; padding: 8px 16px; text-decoration: none; font-size: 0.86rem; font-weight: 600; transition: all 0.2s ease; }
       .nav-button:hover { background: var(--blue); transform: translateY(-1px); }
       .button-icon { width: 14px; height: 14px; display: inline-block; flex-shrink: 0; color: #fff; transform: translateY(-1px); }
-      .page { padding: 82px 0 120px; }
-      .eyebrow { color: var(--blue); font-size: 1rem; font-weight: 600; }
-      h1 { margin: 12px 0 10px; font-size: clamp(2.4rem, 6vw, 4.5rem); letter-spacing: -.04em; }
-      .copy { color: var(--muted); font-size: 1.1rem; }
-      .legal-content { max-width: 720px; margin-top: 54px; line-height: 1.7; }
-      .legal-content h2 { margin-top: 34px; }
-      .copy { max-width: 620px; margin-top: 24px; color: var(--muted); font-size: 1.1rem; }
-      .apple-icon { width: 1.05em; height: 1.05em; object-fit: contain; vertical-align: -.18em; }
-      .modal-overlay { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(15,17,21,.28); opacity: 0; visibility: hidden; transition: opacity .2s ease, visibility .2s ease; }
-      .modal-overlay.is-open { opacity: 1; visibility: visible; }
-      .beta-modal { width: min(100%, 480px); padding: 34px; border: 1px solid rgba(0,0,0,.08); border-radius: 28px; background: rgba(255,255,255,.88); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); box-shadow: 0 24px 70px rgba(0,0,0,.18); transform: translateY(8px) scale(.98); transition: transform .2s ease; }
-      .modal-overlay.is-open .beta-modal { transform: translateY(0) scale(1); }
-      .beta-modal h2 { font-size: clamp(1.7rem, 4vw, 2.2rem); line-height: 1.08; }
-      .beta-modal p { margin-top: 16px; color: var(--muted); line-height: 1.55; }
-      .beta-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
-      .beta-modal-actions button { min-height: 44px; padding: 11px 18px; border: 1px solid transparent; border-radius: 999px; font: inherit; font-weight: 600; cursor: pointer; }
-      .beta-back { background: transparent; color: var(--muted); }
-      footer { padding: 28px; border-top: 1px solid rgba(0,0,0,.06); }
-      .footer-inner { color: var(--muted); font-size: .86rem; }
-      .footer-title { margin: 8px 0 16px; }
-      .footer-links { flex-wrap: wrap; }
-      .footer-copyright { margin-top: 18px; font-size: .78rem; }
-      @media (max-width: 700px) { .page { padding-top: 70px; } .nav-inner { align-items: flex-start; } .nav-actions { flex-wrap: wrap; justify-content: flex-end; } }
+      .page { max-width: 1200px; min-height: calc(100vh - 180px); padding-top: 110px; padding-bottom: 110px; }
+      .eyebrow { color: var(--blue); font-weight: 600; }
+      h1 { margin-top: 12px; font-size: clamp(2.8rem, 7vw, 5.5rem); line-height: 0.98; letter-spacing: -0.04em; }
+      .copy { max-width: 620px; margin-top: 24px; color: var(--muted); font-size: 1.15rem; }
+      .legal-content { max-width: 760px; margin-top: 28px; color: var(--muted); }
+      .legal-content h2 { margin-top: 34px; color: var(--text); font-size: 1.35rem; }
+      .legal-content h2:first-child { margin-top: 0; }
+      .legal-content p { margin-top: 14px; }
+      .legal-content ul { margin: 12px 0 0 22px; }
+      .legal-content li { padding: 4px 0; }
+      footer { border-top: 1px solid rgba(0,0,0,0.08); padding: 26px 20px 34px; }
+      .footer-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; color: var(--muted); font-size: 0.84rem; }
+      .footer-brand { color: var(--text); font-size: 1rem; font-weight: 700; }
+      .footer-title { margin-top: -12px; }
+      .footer-links { display: flex; flex-wrap: wrap; gap: 8px; }
+      .footer-links a:hover { color: var(--text); }
+      .footer-copyright { color: #8a929d; font-size: 0.78rem; }
+      @media (max-width: 760px) { .page { padding-top: 72px; } }
     </style>
   </head>
   <body>
-    <nav><div class="nav-inner"><div class="brand"><img src="2026-09-17_21-14-08.png" alt="FaceAuth logo"><a class="logo" href="index.html">FaceAuth</a></div><div class="nav-actions"><a class="nav-faq" href="faq.html">FAQ</a><a class="nav-button download-action" href="#"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-0.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" /></svg>Download</a></div></div></nav>
-    <main class="page"><div class="eyebrow">FaceAuth</div><h1>Release Notes</h1><p class="copy">Face ID for <img class="apple-icon" src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" alt="Apple logo"> Mac.</p><p class="copy">Stay up to date with FaceAuth as development continues.</p><article class="legal-content"><h2>Current status</h2><p>FaceAuth is currently in development. No public beta or official release is available yet.</p><h2>Version 1.0 — In Development</h2><p>FaceAuth is being actively developed to bring a simple, private way to unlock your Mac using your face.</p><h2>What's next</h2><p>Development and testing are ongoing. More updates will be added here as FaceAuth progresses toward its beta and official release.</p></article></main>
-    <footer><div class="footer-inner"><strong class="footer-brand">FaceAuth</strong><div class="footer-title">Face ID for Mac</div><div class="footer-links"><a href="privacy.html">Privacy Policy</a><span>·</span><a href="eula.html">EULA</a><span>·</span><a href="faq.html">FAQ</a><span>·</span><a href="support.html">Support</a><span>·</span><a href="release-notes.html">Release Notes (App)</a><span>·</span><a href="release-notes-web.html">Release Notes (Web)</a></div><div class="footer-copyright">© 2026 FaceAuth. All rights reserved.</div></div></footer>
-    <div class="modal-overlay" id="beta-modal-overlay" aria-hidden="true"><section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-modal-title"><h2 id="beta-modal-title">FaceAuth isn't available yet.</h2><p>The official release is still being prepared. Check back soon for the official download.</p><div class="beta-modal-actions"><button class="beta-back" type="button">Go Back</button></div></section></div>
-    <script src="release-notes-ui.js?v=071398c"></script>
-    <script src="language-selector.js?v=071398c"></script>
+    <nav><div class="nav-inner"><div class="brand"><img src="2026-09-17_21-14-08.png" alt="FaceAuth logo" /><a href="index.html" class="logo">FaceAuth</a></div><div class="nav-actions"><a href="faq.html" class="nav-faq">FAQ</a><a href="index.html#download" class="nav-button"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.56 12.31c0-2.88 2.36-4.27 2.46-4.35-1.34-1.96-3.42-2.22-4.15-2.25-1.77-.18-3.46 1.05-4.36 1.05-.9 0-2.28-1.03-3.74-1-1.92.03-3.7 1.12-4.68 2.84-2.01 3.49-.51 8.63 1.44 11.45.96 1.39 2.1 2.95 3.6 2.89 1.44-.06 1.99-.93 3.74-.93 1.74 0 2.23.93 3.76.9 1.55-.02 2.54-1.39 3.5-2.79.7-1 1.23-2.1 1.58-3.42-1.32-.47-2.54-1.79-2.54-4.37zm-1.96-8.77c.75-.91 1.26-2.17 1.12-3.42-1.08.04-2.38.72-3.15 1.63-.7.8-1.31 2.08-1.15 3.3 1.22.1 2.46-.62 3.18-1.51z" /></svg>Download</a></div></div></nav>
+    <main class="page">
+      <div class="eyebrow">FaceAuth</div>
+      <h1>Release Notes</h1>
+      <p class="copy">Stay up to date with FaceAuth as development continues.</p>
+      <article class="legal-content">
+        <h2>Current status</h2>
+        <p>FaceAuth is currently in development. No public beta or official release is available yet.</p>
+        <h2>Version 1.0 — In Development</h2>
+        <p>FaceAuth is being actively developed to bring a simple, private way to unlock your Mac using your face.</p>
+        <h2>What's in development</h2>
+        <ul>
+          <li>Face-based authentication</li>
+          <li>Fast face recognition</li>
+          <li>Multiple identities</li>
+          <li>Liveness detection</li>
+          <li>Local processing</li>
+          <li>Password fallback</li>
+          <li>A native macOS experience</li>
+        </ul>
+        <h2>Beta</h2>
+        <p>The FaceAuth beta is currently being prepared. It is not publicly available yet. Join the waitlist to be notified when the beta is ready.</p>
+        <h2>Official Release</h2>
+        <p>The official release is still being prepared. There is currently no official version available for download.</p>
+        <h2>What's next</h2>
+        <p>Development and testing are ongoing. More updates will be added here as FaceAuth progresses toward its beta and official release.</p>
+        <h2>September 2026</h2>
+        <h3>App Release Notes</h3>
+        <h4>Interface &amp; App Refinements</h4>
+        <ul>
+          <li>Fixed several layout and UI consistency issues across the app.</li>
+          <li>Refined spacing, alignment, and visual presentation for a cleaner experience.</li>
+          <li>Fixed the app's displayed name in areas where it was previously inconsistent.</li>
+          <li>Improved general interface stability and polish.</li>
+        </ul>
+        <h3>Web Release Notes</h3>
+        <h4>Beta Download Experience</h4>
+        <ul>
+          <li>Added the official <code>faceauth.dmg</code> beta installer to the website's download infrastructure.</li>
+          <li>Added the new Download Beta button and connected it to the official DMG.</li>
+          <li>Added macOS Gatekeeper/security guidance explaining what users may see when launching FaceAuth for the first time.</li>
+          <li>Added a dedicated beta download information popup with clear installation guidance.</li>
+          <li>Refined the Download Beta flow and its UI.</li>
+          <li>Temporarily removed the Join the Waitlist button from the visible beta popup while preserving the functionality for future use.</li>
+        </ul>
+      </article>
+    </main>
+    <footer><div class="footer-inner"><strong class="footer-brand">FaceAuth</strong><div class="footer-title">Face ID for Mac</div><div class="footer-links"><a href="privacy.html">Privacy Policy</a><span>&middot;</span><a href="eula.html">EULA</a><span>&middot;</span><a href="faq.html">FAQ</a><span>&middot;</span><a href="support.html">Support</a><span>&middot;</span><a href="release-notes.html">Release Notes</a></div><div class="footer-copyright">&copy; 2026 FaceAuth. All rights reserved.</div></div></footer>
+    <script src="language-selector.js"></script>
   </body>
 </html>

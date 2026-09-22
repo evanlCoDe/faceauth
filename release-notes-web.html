@@ -9,7 +9,9 @@
       * { box-sizing: border-box; }
       body { margin: 0; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       nav { position: sticky; top: 0; z-index: 20; padding: 10px 20px; background: transparent; border: 0; }
-      .nav-inner, .page, .footer-inner { width: min(100% - 40px, 1200px); margin: 0 auto; }
+      .nav-inner, .page, .footer-inner { margin: 0 auto; }
+      .nav-inner { width: auto; max-width: 1200px; }
+      .page, .footer-inner { width: min(100% - 40px, 1200px); }
       .nav-inner { position: relative; isolation: isolate; overflow: visible; height: 52px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0,0,0,.06); border-radius: 18px; background: rgba(255,255,255,.08); box-shadow: 0 1px 6px rgba(0,0,0,.02); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
       .nav-inner > * { position: relative; z-index: 1; }
       .brand, .nav-actions, .footer-links { display: flex; align-items: center; gap: 24px; }
@@ -46,7 +48,7 @@
       .footer-title { margin: 8px 0 16px; }
       .footer-links { flex-wrap: wrap; }
       .footer-copyright { margin-top: 18px; font-size: .78rem; }
-      @media (max-width: 700px) { .page { padding-top: 70px; } .nav-inner { align-items: flex-start; } .nav-actions { flex-wrap: wrap; justify-content: flex-end; } .release-item { padding: 20px; } }
+      @media (max-width: 700px) { .page { padding-top: 70px; } .nav-inner { align-items: center; padding: 0 12px; } .brand { gap: 8px; } .logo { font-size: 15px; } .nav-actions { flex-wrap: nowrap; justify-content: flex-end; gap: 8px; } .nav-actions a { white-space: nowrap; } .release-item { padding: 20px; } }
     </style>
   </head>
   <body>
