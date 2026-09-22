@@ -36,86 +36,6 @@
         overflow-x: hidden;
       }
 
-      body.intro-active > nav,
-      body.intro-active > main,
-      body.intro-active > footer {
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.85s ease, visibility 0s linear 0.85s;
-      }
-
-      body.intro-active {
-        overflow-y: hidden;
-      }
-
-      body.intro-active.intro-reveal > nav,
-      body.intro-active.intro-reveal > main,
-      body.intro-active.intro-reveal > footer {
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.85s ease, visibility 0s linear 0s;
-      }
-
-      body.intro-active .hero {
-        opacity: 0;
-        transform: scale(0.985);
-        transition: opacity 0.9s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-
-      body.intro-active.intro-reveal .hero {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      .intro-screen {
-        position: fixed;
-        inset: 0;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #fff;
-        opacity: 1;
-        visibility: visible;
-        transition: opacity 0.85s ease, visibility 0s linear 0s;
-      }
-
-      .intro-screen.is-finishing {
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.85s ease, visibility 0s linear 0.85s;
-      }
-
-      .intro-video {
-        width: min(56vw, 320px);
-        height: auto;
-        max-height: 78vh;
-        aspect-ratio: 4 / 5;
-        object-fit: cover;
-        display: block;
-        transform: scale(0.94);
-        opacity: 0;
-        animation: intro-video-entrance 0.85s ease forwards;
-        transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
-      }
-
-      @keyframes intro-video-entrance {
-        from {
-          opacity: 0;
-          transform: scale(0.94);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      .intro-screen.is-finishing .intro-video {
-        opacity: 0;
-        transform: scale(0.94);
-      }
-
       a {
         color: inherit;
         text-decoration: none;
@@ -1899,10 +1819,7 @@
       }
     </style>
   </head>
-  <body class="intro-active">
-    <div class="intro-screen" id="intro-screen" aria-label="Loading FaceAuth">
-      <video class="intro-video" id="intro-video" autoplay muted playsinline preload="auto" aria-hidden="true" src="face id loading web.mp4"></video>
-    </div>
+  <body>
     <nav>
       <div class="nav-inner">
         <div style="display:flex; align-items:center; gap:12px;">
@@ -2267,14 +2184,6 @@
     </div>
     <div class="modal-overlay" id="beta-waitlist-overlay" aria-hidden="true" hidden>
       <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="beta-waitlist-form-title">
-        <div class="beta-modal-state is-hidden" id="beta-waitlist-intro-state" aria-hidden="true">
-          <h2 id="beta-waitlist-title">FaceAuth Beta isn't available yet.</h2>
-          <p>We're still preparing the beta. Join the waitlist to be notified when it's ready.</p>
-          <div class="beta-modal-actions">
-            <button class="beta-back beta-waitlist-close" type="button">Go Back</button>
-            <button class="beta-download beta-waitlist-start" type="button">Join the Waitlist</button>
-          </div>
-        </div>
         <div class="beta-modal-state" id="beta-waitlist-form-state" aria-hidden="false">
           <h2 id="beta-waitlist-form-title">Join the FaceAuth Beta Waitlist</h2>
           <p>Be notified when the FaceAuth beta is ready.</p>
@@ -2337,8 +2246,6 @@
       <button class="assistant-toggle" id="assistant-toggle" type="button" aria-expanded="false" aria-controls="assistant-panel">✦ Ask FaceAuth AI</button>
     </aside>
     <script>
-      const introScreen = document.querySelector('#intro-screen');
-      const introVideo = document.querySelector('#intro-video');
       const heroCommercial = document.querySelector('#hero-commercial');
       let commercialStarted = false;
       let commercialWaiting = false;
@@ -2406,51 +2313,6 @@
       }, { threshold: 0.6 });
 
       commercialVisibilityObserver.observe(heroCommercial);
-
-      let introFinished = false;
-      let introTransitionFinished = false;
-      const navigationEntry = performance.getEntriesByType('navigation')[0];
-      const returningFromSitePage = new URLSearchParams(window.location.search).get('returning') === '1';
-      const introShouldPlay = !returningFromSitePage || navigationEntry?.type === 'reload';
-
-      const removeIntro = () => {
-        if (!introTransitionFinished || !introVideo.ended) return;
-        introScreen.remove();
-      };
-
-      const finishIntro = () => {
-        if (introFinished) return;
-        introFinished = true;
-        document.body.classList.add('intro-reveal');
-        introScreen.classList.add('is-finishing');
-        introScreen.addEventListener('transitionend', () => {
-          introTransitionFinished = true;
-          document.body.classList.remove('intro-active');
-          removeIntro();
-        }, { once: true });
-      };
-
-      if (introShouldPlay) {
-        document.addEventListener('wheel', (event) => {
-          if (!introFinished && event.deltaY > 0) finishIntro();
-        }, { passive: true });
-
-        introVideo.addEventListener('timeupdate', () => {
-          if (introVideo.duration && introVideo.currentTime >= introVideo.duration - 1) {
-            finishIntro();
-          }
-        });
-        introVideo.addEventListener('ended', () => {
-          finishIntro();
-          removeIntro();
-        }, { once: true });
-        introVideo.play().catch(finishIntro);
-      } else {
-        introFinished = true;
-        introTransitionFinished = true;
-        introScreen.remove();
-        document.body.classList.remove('intro-active');
-      }
 
       const expandedVideo = document.querySelector('.expanded-video');
 
@@ -2570,11 +2432,8 @@
 
       const betaWaitlistOverlay = document.querySelector('#beta-waitlist-overlay');
       const betaWaitlistModal = betaWaitlistOverlay.querySelector('.beta-modal');
-      const betaWaitlistIntroState = document.querySelector('#beta-waitlist-intro-state');
       const betaWaitlistFormState = document.querySelector('#beta-waitlist-form-state');
       const betaWaitlistConfirmationState = document.querySelector('#beta-waitlist-confirmation-state');
-      const betaWaitlistCloseButton = document.querySelector('.beta-waitlist-close');
-      const betaWaitlistStartButton = document.querySelector('.beta-waitlist-start');
       const betaWaitlistFormBackButton = document.querySelector('.beta-waitlist-form-back');
       const betaWaitlistDoneButton = document.querySelector('.beta-waitlist-done');
       const betaWaitlistForm = document.querySelector('#beta-waitlist-form');
@@ -2587,29 +2446,18 @@
       ];
       const betaWaitlistEndpoint = 'https://script.google.com/macros/s/AKfycbx4gs9m3mRL-rZYNlCHx9EN8Dt4Alb8P-95Bhxs5jRA9lUqxDMQ-FESBe8_ZiJToihi/exec';
 
-      const showBetaWaitlistIntro = () => {
-        betaWaitlistIntroState.classList.remove('is-hidden');
-        betaWaitlistFormState.classList.add('is-hidden');
-        betaWaitlistConfirmationState.classList.add('is-hidden');
-        betaWaitlistIntroState.setAttribute('aria-hidden', 'false');
-        betaWaitlistFormState.setAttribute('aria-hidden', 'true');
-        betaWaitlistConfirmationState.setAttribute('aria-hidden', 'true');
-        betaWaitlistModal.setAttribute('aria-labelledby', 'beta-waitlist-title');
-        betaWaitlistError.hidden = true;
-      };
-
       const closeBetaWaitlist = () => {
         betaWaitlistOverlay.classList.remove('is-open');
         betaWaitlistOverlay.setAttribute('aria-hidden', 'true');
-        showBetaWaitlistIntro();
+        betaWaitlistError.hidden = true;
+        betaWaitlistForm.reset();
+        betaWaitlistRequiredFields.forEach((field) => field.setAttribute('aria-invalid', 'false'));
         document.body.style.overflow = '';
       };
 
       const showBetaWaitlistForm = () => {
-        betaWaitlistIntroState.classList.add('is-hidden');
         betaWaitlistFormState.classList.remove('is-hidden');
         betaWaitlistConfirmationState.classList.add('is-hidden');
-        betaWaitlistIntroState.setAttribute('aria-hidden', 'true');
         betaWaitlistFormState.setAttribute('aria-hidden', 'false');
         betaWaitlistConfirmationState.setAttribute('aria-hidden', 'true');
         betaWaitlistModal.setAttribute('aria-labelledby', 'beta-waitlist-form-title');
@@ -2617,10 +2465,8 @@
       };
 
       const showBetaWaitlistConfirmation = () => {
-        betaWaitlistIntroState.classList.add('is-hidden');
         betaWaitlistFormState.classList.add('is-hidden');
         betaWaitlistConfirmationState.classList.remove('is-hidden');
-        betaWaitlistIntroState.setAttribute('aria-hidden', 'true');
         betaWaitlistFormState.setAttribute('aria-hidden', 'true');
         betaWaitlistConfirmationState.setAttribute('aria-hidden', 'false');
         betaWaitlistModal.setAttribute('aria-labelledby', 'beta-waitlist-confirmation-title');
@@ -2637,8 +2483,6 @@
         });
       });
 
-      betaWaitlistCloseButton.addEventListener('click', closeBetaWaitlist);
-      betaWaitlistStartButton.addEventListener('click', showBetaWaitlistForm);
       betaWaitlistFormBackButton.addEventListener('click', closeBetaWaitlist);
       betaWaitlistForm.addEventListener('submit', async (event) => {
         event.preventDefault();
