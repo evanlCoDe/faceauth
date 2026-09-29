@@ -1,0 +1,21 @@
+<svg width="461" height="474" viewBox="0 0 461 474" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Top-Left Corner -->
+<path d="M 165 30 H 115 A 85 85 0 0 0 30 115 V 165" stroke="#3499FF" stroke-width="53.2717" stroke-linecap="round"/>
+<!-- Top-Right Corner -->
+<path d="M 296 30 H 346 A 85 85 0 0 1 431 115 V 165" stroke="#3499FF" stroke-width="53.2717" stroke-linecap="round"/>
+<!-- Bottom-Left Corner -->
+<path d="M 30 296 V 346 A 85 85 0 0 0 115 431 H 165" stroke="#3499FF" stroke-width="53.2717" stroke-linecap="round"/>
+<!-- Bottom-Right Corner -->
+<path d="M 431 296 V 346 A 85 85 0 0 1 346 431 H 296" stroke="#3499FF" stroke-width="53.2717" stroke-linecap="round"/>
+
+<!-- Left Eye -->
+<path d="M 155 170 V 220" stroke="#3499FF" stroke-width="53.2717" stroke-linecap="round"/>
+<!-- Right Eye -->
+<path d="M 306 170 V 220" stroke="#3499FF" stroke-width="53.2717" stroke-linecap="round"/>
+
+<!-- Nose -->
+<path d="M 230.5 165 V 265 A 35 35 0 0 0 265.5 300" stroke="#3499FF" stroke-width="53.2717" stroke-linecap="round"/>
+
+<!-- Smile -->
+<path d="M 155 330 A 75.5 75.5 0 0 0 306 330" stroke="#3499FF" stroke-width="53.2717" stroke-linecap="round"/>
+</svg>
