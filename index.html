@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FaceAuth — Face ID for Mac</title>
+    <link rel="stylesheet" href="faceauth-navigation.css?v=20260929-4" />
     <link rel="icon" type="image/svg+xml" href="logo.svg?v=20260921-1" />
     <link rel="apple-touch-icon" href="logo.svg?v=20260921-1" />
     <style>
@@ -48,35 +49,59 @@
       }
 
       nav {
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        padding: 10px 20px;
-        background: transparent;
-        border: 0;
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        z-index: 50;
+        display: flex;
+        justify-content: center;
+        width: calc(100% - 32px);
+        pointer-events: none;
       }
 
       .nav-inner {
         position: relative;
         isolation: isolate;
         overflow: visible;
-        max-width: 1200px;
-        margin: 0 auto;
-        height: 52px;
-        padding: 0 22px;
+        --glass-blur: 12px;
+        --glass-tint-opacity: 0.14;
+        --glass-bezel-width: 1px;
+        width: max-content;
+        max-width: 100%;
+        min-height: 70px;
+        padding: 10px 24px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border: 1px solid rgba(0,0,0,0.06);
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 1px 6px rgba(0,0,0,0.02);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+        gap: 34px;
+        border: var(--glass-bezel-width) solid rgba(255,255,255,0.62);
+        border-radius: 999px;
+        background: linear-gradient(145deg, rgba(255,255,255,var(--glass-tint-opacity)), rgba(235,243,255,0.07));
+        box-shadow: 14px 14px 36px rgba(25,36,54,0.12), inset 0 1px 0 rgba(255,255,255,0.72);
+        backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+        -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+        backdrop-filter: url(#faceauth-glass-distortion) blur(var(--glass-blur)) saturate(155%);
+        pointer-events: auto;
       }
 
-      .nav-inner::before {
-        display: none;
+      .nav-inner::after {
+        content: "";
+        position: absolute;
+        inset: 1px;
+        z-index: 0;
+        border: 1px solid rgba(255,255,255,0.28);
+        border-radius: inherit;
+        box-shadow: inset 0 1px 1px rgba(255,255,255,0.72), inset 0 -1px 2px rgba(40,58,82,0.12), inset 1px 0 1px rgba(255,255,255,0.22), inset -1px 0 1px rgba(255,255,255,0.36);
+        pointer-events: none;
+      }
+
+      .liquid-filter-defs {
+        position: absolute;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        pointer-events: none;
       }
 
       .nav-inner > * {
@@ -131,7 +156,7 @@
 
       .language-menu {
         position: absolute;
-        top: calc(100% + 12px);
+        bottom: calc(100% + 34px);
         left: 50%;
         z-index: 30;
         min-width: 148px;
@@ -144,7 +169,7 @@
         -webkit-backdrop-filter: blur(14px);
         opacity: 0;
         visibility: hidden;
-        transform: translate(-50%, -6px);
+        transform: translate(-50%, 6px);
         transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
       }
 
@@ -1488,12 +1513,13 @@
         }
 
         .nav-inner {
-          height: 56px;
-          padding: 0 16px;
+          min-height: 66px;
+          gap: 20px;
+          padding: 9px 18px;
         }
 
         nav {
-          padding: 8px 12px;
+          bottom: 74px;
         }
 
         .hero {
@@ -1562,7 +1588,7 @@
       .assistant-widget {
         position: fixed;
         right: 22px;
-        bottom: 22px;
+        bottom: 100px;
         z-index: 40;
         display: flex;
         flex-direction: column;
@@ -1811,7 +1837,7 @@
       @media (max-width: 520px) {
         .assistant-widget {
           right: 16px;
-          bottom: 16px;
+          bottom: 100px;
         }
 
         .assistant-panel-content {
@@ -1822,10 +1848,17 @@
   </head>
   <body>
     <nav>
+      <svg class="liquid-filter-defs" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="faceauth-glass-distortion" x="-8%" y="-12%" width="116%" height="124%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.014 0.06" numOctaves="1" seed="5" result="ripple" />
+            <feDisplacementMap in="SourceGraphic" in2="ripple" scale="3" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
       <div class="nav-inner">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <img src="2026-09-17_21-14-08.png" alt="FaceAuth logo" style="width:26px;height:26px;display:block;object-fit:contain;" />
-          <a href="#" class="logo">FaceAuth</a>
+        <div style="display:flex; align-items:center;">
+          <a href="#top" class="logo" onclick="event.preventDefault(); window.scrollTo({ top: 0, behavior: 'instant' });">FaceAuth</a>
         </div>
         <div class="nav-actions">
           <a href="faq.html" class="nav-faq">FAQ</a>
@@ -1842,7 +1875,7 @@
 
     
     <main>
-      <section class="hero">
+      <section class="hero" id="top">
         <div class="hero-logo-wrap">
           <img src="2026-09-17_21-14-08.png" alt="FaceAuth logo" class="hero-logo" />
         </div>
@@ -1869,9 +1902,9 @@
 
       </section>
 
-<section class="scroll-intro" aria-label="FaceAuth experience overview">
+<section class="scroll-intro" id="about" aria-label="FaceAuth experience overview">
         <div class="scroll-intro-box">
-          <div id="features" class="scroll-intro-copy">The world's first Face ID for Mac</div>
+          <div id="features" class="scroll-intro-copy" data-about-target>The world’s first Face ID for Mac</div>
 
           <div class="scroll-intro-column">
 
@@ -1901,9 +1934,9 @@
         </div>
       </section>
 
-      <section class="scroll-intro" aria-label="FaceAuth experience overview">
+      <section class="scroll-intro" id="design" aria-label="FaceAuth experience overview">
         <div class="scroll-intro-box">
-          <div class="scroll-intro-copy">With the convenience<br />and design of your iPhone</div>
+          <div class="scroll-intro-copy" data-design-target>With the convenience<br />and design of your iPhone</div>
 
           <div class="scroll-intro-column">
             <div class="feature-panel">
@@ -1957,10 +1990,10 @@
         </div>
       </section>
 
-      <section class="app-feature-grid" aria-label="FaceAuth app features">
+      <section class="app-feature-grid" id="apps" aria-label="FaceAuth app features">
         <article class="app-feature-card native-app-card">
           <img class="app-feature-image" src="native-app.png" alt="FaceAuth native app settings" />
-          <h2 class="app-feature-label">Native<br />App</h2>
+          <h2 class="app-feature-label" data-apps-target>Native<br />App</h2>
         </article>
 
         <article class="app-feature-card identities-card">
@@ -2008,7 +2041,7 @@
 
       <section class="scroll-intro" aria-label="FaceAuth convenience and design features">
         <div class="scroll-intro-box">
-          <div class="scroll-intro-copy">Your face. Your Mac. Your privacy.</div>
+          <div class="scroll-intro-copy" id="security" data-security-target>Your face. Your Mac. Your privacy.</div>
 
           <div class="scroll-intro-column">
             
@@ -2523,7 +2556,7 @@
       const assistantInput = document.querySelector('#assistant-input');
       const assistantMessages = document.querySelector('#assistant-messages');
       const assistantFooter = document.querySelector('footer');
-      const assistantDefaultBottom = 22;
+      const assistantDefaultBottom = 100;
       const assistantFooterGap = 28;
       let assistantFooterFrame = 0;
 
@@ -2840,6 +2873,7 @@
         });
       })();
     </script>
+    <script src="faceauth-navigation.js?v=20260929-12"></script>
     <script src="language-selector.js"></script>
   </body>
 </html>

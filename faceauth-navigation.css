@@ -1,0 +1,348 @@
+html {
+  scroll-behavior: smooth;
+  scroll-padding-bottom: 128px;
+}
+
+body.faceauth-nav-enabled {
+  padding-bottom: 118px;
+}
+
+#faceauth-site-nav {
+  position: fixed;
+  top: auto;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  padding: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+#faceauth-site-nav .nav-inner {
+  position: relative;
+  isolation: isolate;
+  width: max-content;
+  max-width: 100%;
+  min-height: 68px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.012);
+  box-shadow: 0 8px 22px rgba(17, 25, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  pointer-events: auto;
+}
+
+#faceauth-site-nav .nav-inner::before,
+#faceauth-site-nav .nav-inner::after {
+  content: none !important;
+}
+
+#faceauth-site-nav .nav-inner > * {
+  position: relative;
+  z-index: 1;
+}
+
+#faceauth-site-nav .nav-actions {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+#faceauth-site-nav .nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+#faceauth-site-nav .glass-nav-link {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: #343943;
+  font: inherit;
+  font-size: 0.83rem;
+  font-weight: 550;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: color 180ms ease, transform 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#faceauth-site-nav .glass-nav-link svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.78;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), opacity 250ms ease;
+}
+
+#faceauth-site-nav .glass-nav-link:hover,
+#faceauth-site-nav .glass-nav-link[aria-current] {
+  color: #0080ff;
+}
+
+#faceauth-site-nav .glass-nav-link:hover svg,
+#faceauth-site-nav .glass-nav-link[aria-current] svg {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+#faceauth-site-nav .glass-nav-link:active,
+#faceauth-site-nav .glass-nav-link.is-pressed {
+  transform: scale(0.96);
+}
+
+#faceauth-site-nav .glass-nav-link:focus-visible {
+  outline: 2px solid rgba(0, 128, 255, 0.72);
+  outline-offset: 2px;
+}
+
+#faceauth-site-nav .glass-indicator {
+  position: absolute;
+  z-index: 2;
+  top: 5px;
+  left: 0;
+  width: 0;
+  height: calc(100% - 10px);
+  overflow: hidden;
+  border: 1px solid rgba(0, 128, 255, 0.28);
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54), inset 0 -1px 0 rgba(255, 255, 255, 0.08), 0 5px 16px rgba(0, 0, 0, 0.08), inset 0 0 2px rgba(0, 128, 255, 0.2), -4px -4px 12px rgba(255, 255, 255, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: left 380ms cubic-bezier(0.2, 0.85, 0.25, 1), width 380ms cubic-bezier(0.2, 0.85, 0.25, 1), opacity 160ms ease, transform 180ms ease;
+}
+
+#faceauth-site-nav .glass-indicator::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: none;
+}
+
+#faceauth-site-nav .glass-indicator.is-pressed {
+  transform: scale(0.97);
+}
+
+/* The indicator is the draggable surface; the labels remain ordinary links. */
+#faceauth-site-nav .nav-inner.is-dragging .glass-indicator {
+  opacity: 0.5;
+  transform: scale(1.32);
+  transition: opacity 140ms ease, transform 180ms cubic-bezier(0.2, 0.9, 0.22, 1);
+}
+
+#faceauth-site-nav .nav-inner.is-dragging .glass-nav-link {
+  cursor: grabbing;
+}
+
+#faceauth-site-nav .liquid-filter-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+#faceauth-site-nav .lg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+#faceauth-site-nav .lg-refract {
+  background: transparent;
+}
+
+#faceauth-site-nav .lg-tint {
+  background: transparent;
+}
+
+#faceauth-site-nav .language-selector {
+  display: none;
+  position: relative;
+  z-index: 4;
+  flex: 0 0 auto;
+  order: 2;
+  margin-left: 3px;
+}
+
+#faceauth-site-nav .language-toggle {
+  min-height: 38px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #606875;
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+#faceauth-site-nav .language-toggle:hover,
+#faceauth-site-nav .language-toggle[aria-expanded="true"] {
+  color: #171b22;
+}
+
+#faceauth-site-nav .language-toggle:focus-visible {
+  outline: 2px solid rgba(0, 128, 255, 0.72);
+  outline-offset: 2px;
+}
+
+#faceauth-site-nav .language-menu {
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: calc(100% + 14px);
+  left: auto;
+  z-index: 20;
+  min-width: 148px;
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  background: rgba(250, 252, 255, 0.76);
+  box-shadow: 0 12px 30px rgba(19, 29, 44, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 180ms ease, visibility 180ms ease, transform 180ms ease;
+}
+
+#faceauth-site-nav .language-selector.is-open .language-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#faceauth-site-nav .language-option {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #20242c;
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+#faceauth-site-nav .language-option:hover,
+#faceauth-site-nav .language-option.is-selected {
+  background: rgba(0, 128, 255, 0.09);
+}
+
+#about,
+#design,
+#security {
+  scroll-margin-top: 36px;
+  scroll-margin-bottom: 128px;
+}
+
+@media (max-width: 620px) {
+  #faceauth-site-nav {
+    max-width: calc(100vw - 16px);
+  }
+
+  #faceauth-site-nav .nav-inner {
+    min-height: 64px;
+    padding: 6px;
+  }
+
+  #faceauth-site-nav .nav-actions,
+  #faceauth-site-nav .nav-links {
+    gap: 0;
+  }
+
+  #faceauth-site-nav .glass-nav-link {
+    min-height: 48px;
+    padding: 0 7px;
+    font-size: 0.72rem;
+  }
+
+  #faceauth-site-nav .glass-nav-link svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  #faceauth-site-nav .language-selector {
+    margin-left: 1px;
+  }
+
+  #faceauth-site-nav .language-toggle {
+    padding: 0 5px;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 360px) {
+  #faceauth-site-nav .glass-nav-link {
+    padding: 0 5px;
+    font-size: 0.66rem;
+  }
+
+  #faceauth-site-nav .glass-nav-link svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  #faceauth-site-nav .language-toggle {
+    padding: 0 3px;
+    font-size: 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  #faceauth-site-nav .glass-nav-link,
+  #faceauth-site-nav .glass-nav-link svg,
+  #faceauth-site-nav .glass-indicator,
+  #faceauth-site-nav .language-menu {
+    transition-duration: 0.01ms;
+  }
+}

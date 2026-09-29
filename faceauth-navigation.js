@@ -1,0 +1,607 @@
+(() => {
+  'use strict';
+
+  const SWITCHER_CONFIG = Object.freeze({
+    glassThickness: 30,
+    bezelWidth: 40,
+    ior: 1.4,
+    scaleRatio: 1,
+    blur: 0,
+    specularOpacity: 0.5,
+    specularSat: 0,
+    tintColor: '255,255,255',
+    tintOpacity: 0,
+    innerShadow: 'rgba(255,255,255,0)',
+    innerShadowBlur: 0,
+    innerShadowSpread: 0,
+    balancedSpecular: true
+  });
+  const ACTIVE_BUBBLE_CONFIG = Object.freeze({
+    ...SWITCHER_CONFIG,
+    tintColor: '0,128,255',
+    tintOpacity: 0.14,
+    innerShadow: 'rgba(0,128,255,0.2)',
+    innerShadowBlur: 2
+  });
+
+  const targets = new Map();
+  let defs;
+
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+  function surfaceFn(x) {
+    return Math.pow(1 - Math.pow(1 - x, 4), 0.25);
+  }
+
+  function calcRefractionProfile(glassThickness, bezelWidth, ior, samples = 128) {
+    const eta = 1 / ior;
+    const profile = new Float64Array(samples);
+
+    function refract(nx, ny) {
+      const dot = ny;
+      const k = 1 - eta * eta * (1 - dot * dot);
+      if (k < 0) return null;
+      const root = Math.sqrt(k);
+      return [-(eta * dot + root) * nx, eta - (eta * dot + root) * ny];
+    }
+
+    for (let index = 0; index < samples; index += 1) {
+      const x = index / samples;
+      const y = surfaceFn(x);
+      const delta = x < 1 ? 0.0001 : -0.0001;
+      const derivative = (surfaceFn(x + delta) - y) / delta;
+      const magnitude = Math.sqrt(derivative * derivative + 1);
+      const refracted = refract(-derivative / magnitude, -1 / magnitude);
+      profile[index] = refracted ? refracted[0] * ((y * bezelWidth + glassThickness) / refracted[1]) : 0;
+    }
+
+    return profile;
+  }
+
+  function generateDisplacementMap(width, height, radius, bezelWidth, profile, maxDisplacement) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    if (!context) return '';
+
+    const image = context.createImageData(width, height);
+    const pixels = image.data;
+    for (let index = 0; index < pixels.length; index += 4) {
+      pixels[index] = 128;
+      pixels[index + 1] = 128;
+      pixels[index + 2] = 0;
+      pixels[index + 3] = 255;
+    }
+
+    const radiusSquared = radius * radius;
+    const outerRadiusSquared = (radius + 1) ** 2;
+    const innerRadiusSquared = Math.max(radius - bezelWidth, 0) ** 2;
+    const widthBody = width - radius * 2;
+    const heightBody = height - radius * 2;
+    const sampleCount = profile.length;
+
+    for (let y1 = 0; y1 < height; y1 += 1) {
+      for (let x1 = 0; x1 < width; x1 += 1) {
+        const x = x1 < radius ? x1 - radius : x1 >= width - radius ? x1 - radius - widthBody : 0;
+        const y = y1 < radius ? y1 - radius : y1 >= height - radius ? y1 - radius - heightBody : 0;
+        const distanceSquared = x * x + y * y;
+        if (distanceSquared > outerRadiusSquared || distanceSquared < innerRadiusSquared) continue;
+
+        const distance = Math.sqrt(distanceSquared);
+        if (distance === 0) continue;
+        const fromSide = radius - distance;
+        const opacity = distanceSquared < radiusSquared
+          ? 1
+          : 1 - (distance - Math.sqrt(radiusSquared)) / (Math.sqrt(outerRadiusSquared) - Math.sqrt(radiusSquared));
+        if (opacity <= 0) continue;
+
+        const sample = Math.min(((fromSide / bezelWidth) * sampleCount) | 0, sampleCount - 1);
+        const displacement = profile[sample] || 0;
+        const offsetX = (-x / distance * displacement) / maxDisplacement;
+        const offsetY = (-y / distance * displacement) / maxDisplacement;
+        const pixelIndex = (y1 * width + x1) * 4;
+        pixels[pixelIndex] = 128 + offsetX * 127 * opacity;
+        pixels[pixelIndex + 1] = 128 + offsetY * 127 * opacity;
+      }
+    }
+
+    context.putImageData(image, 0, 0);
+    return canvas.toDataURL();
+  }
+
+  function generateSpecularMap(width, height, radius, bezelWidth, balanced) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    if (!context) return '';
+
+    const image = context.createImageData(width, height);
+    const pixels = image.data;
+    const angle = Math.PI / 3;
+    const radiusSquared = radius * radius;
+    const outerRadiusSquared = (radius + 1) ** 2;
+    const innerRadiusSquared = Math.max(radius - bezelWidth, 0) ** 2;
+    const widthBody = width - radius * 2;
+    const heightBody = height - radius * 2;
+    const lightVectorX = Math.cos(angle);
+    const lightVectorY = Math.sin(angle);
+
+    for (let y1 = 0; y1 < height; y1 += 1) {
+      for (let x1 = 0; x1 < width; x1 += 1) {
+        const x = x1 < radius ? x1 - radius : x1 >= width - radius ? x1 - radius - widthBody : 0;
+        const y = y1 < radius ? y1 - radius : y1 >= height - radius ? y1 - radius - heightBody : 0;
+        const distanceSquared = x * x + y * y;
+        if (distanceSquared > outerRadiusSquared || distanceSquared < innerRadiusSquared) continue;
+
+        const distance = Math.sqrt(distanceSquared);
+        if (distance === 0) continue;
+        const fromSide = radius - distance;
+        const opacity = distanceSquared < radiusSquared
+          ? 1
+          : 1 - (distance - Math.sqrt(radiusSquared)) / (Math.sqrt(outerRadiusSquared) - Math.sqrt(radiusSquared));
+        if (opacity <= 0) continue;
+
+        const normalX = x / distance;
+        const normalY = -y / distance;
+        const dot = balanced ? 1 : Math.abs(normalX * lightVectorX + normalY * lightVectorY);
+        const edge = Math.sqrt(Math.max(0, 1 - (1 - fromSide) ** 2));
+        const coefficient = dot * edge;
+        const color = (255 * coefficient) | 0;
+        const pixelIndex = (y1 * width + x1) * 4;
+        pixels[pixelIndex] = color;
+        pixels[pixelIndex + 1] = color;
+        pixels[pixelIndex + 2] = color;
+        pixels[pixelIndex + 3] = (color * coefficient * opacity) | 0;
+      }
+    }
+
+    context.putImageData(image, 0, 0);
+    return canvas.toDataURL();
+  }
+
+  function svgElement(tag, attributes) {
+    const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+    return element;
+  }
+
+  function ensureDefs() {
+    const existing = document.getElementById('faceauth-liquid-glass-defs');
+    if (existing && document.documentElement.contains(existing)) {
+      defs = existing;
+      return;
+    }
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '0');
+    svg.setAttribute('height', '0');
+    svg.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;pointer-events:none;z-index:-1;';
+    defs = svgElement('defs', { id: 'faceauth-liquid-glass-defs' });
+    svg.appendChild(defs);
+    document.documentElement.appendChild(svg);
+  }
+
+  function buildFilter(id, width, height, radius, config) {
+    const bezel = Math.max(0, Math.min(config.bezelWidth, radius - 1, Math.min(width, height) / 2 - 1));
+    const profile = calcRefractionProfile(config.glassThickness, bezel, config.ior);
+    const maxDisplacement = Math.max(...Array.from(profile).map(Math.abs)) || 1;
+    const displacementUrl = generateDisplacementMap(width, height, radius, bezel, profile, maxDisplacement);
+    const specularUrl = generateSpecularMap(width, height, radius, bezel * 2.5, config.balancedSpecular);
+    const scale = maxDisplacement * config.scaleRatio;
+    const padding = config.balancedSpecular ? 0.36 : 0;
+    const x = Math.round(-width * padding);
+    const y = Math.round(-height * padding);
+    const filter = svgElement('filter', {
+      id,
+      x: String(x),
+      y: String(y),
+      width: String(Math.round(width * (1 + padding * 2))),
+      height: String(Math.round(height * (1 + padding * 2))),
+      filterUnits: 'userSpaceOnUse',
+      primitiveUnits: 'userSpaceOnUse',
+      'color-interpolation-filters': 'sRGB'
+    });
+
+    const blur = svgElement('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: config.blur, result: 'blurred' });
+    const displacementImage = svgElement('feImage', { href: displacementUrl, x: 0, y: 0, width, height, result: 'displacement-map' });
+    const displacement = svgElement('feDisplacementMap', {
+      in: 'blurred',
+      in2: 'displacement-map',
+      scale,
+      xChannelSelector: 'R',
+      yChannelSelector: 'G',
+      result: 'refracted'
+    });
+    const saturation = svgElement('feColorMatrix', {
+      in: 'refracted',
+      type: 'saturate',
+      values: config.specularSat,
+      result: 'refracted-saturation'
+    });
+    const specularImage = svgElement('feImage', { href: specularUrl, x: 0, y: 0, width, height, result: 'specular-map' });
+    const composite = svgElement('feComposite', {
+      in: 'refracted-saturation',
+      in2: 'specular-map',
+      operator: 'in',
+      result: 'specular-mask'
+    });
+    const transfer = svgElement('feComponentTransfer', { in: 'specular-map', result: 'faded-specular' });
+    transfer.appendChild(svgElement('feFuncA', { type: 'linear', slope: config.specularOpacity }));
+    const blendSaturation = svgElement('feBlend', { in: 'specular-mask', in2: 'refracted', mode: 'normal', result: 'glass-surface' });
+    const blendSpecular = svgElement('feBlend', { in: 'faded-specular', in2: 'glass-surface', mode: 'normal' });
+
+    [blur, displacementImage, displacement, saturation, specularImage, composite, transfer, blendSaturation, blendSpecular]
+      .forEach((primitive) => filter.appendChild(primitive));
+    return filter;
+  }
+
+  function applyGlass(element, configGetter) {
+    if (targets.has(element)) return;
+    if (getComputedStyle(element).position === 'static') element.style.position = 'relative';
+
+    const refractiveLayer = document.createElement('div');
+    refractiveLayer.className = 'lg-layer lg-refract';
+    const tintLayer = document.createElement('div');
+    tintLayer.className = 'lg-layer lg-tint';
+    element.insertBefore(tintLayer, element.firstChild);
+    element.insertBefore(refractiveLayer, element.firstChild);
+
+    let filterNode = null;
+    let timer = null;
+
+    function elevateContent() {
+      Array.from(element.children).forEach((child) => {
+        if (child === refractiveLayer || child === tintLayer) return;
+        if (getComputedStyle(child).position === 'static') child.style.position = 'relative';
+        if (!child.style.zIndex) child.style.zIndex = '1';
+      });
+    }
+
+    function rebuild() {
+      ensureDefs();
+      const rect = element.getBoundingClientRect();
+      const width = Math.round(element.offsetWidth || rect.width);
+      const height = Math.round(element.offsetHeight || rect.height);
+      if (width < 4 || height < 4) return;
+
+      const config = configGetter();
+      const dataRadius = parseFloat(element.getAttribute('data-radius') || '0');
+      const cssRadius = parseFloat(getComputedStyle(element).borderTopLeftRadius || '0');
+      const radius = Math.max(2, Math.min(dataRadius || cssRadius || 24, width / 2, height / 2));
+      if (filterNode) filterNode.remove();
+
+      const id = `faceauth-liquid-${Math.random().toString(36).slice(2, 10)}`;
+      filterNode = buildFilter(id, width, height, radius, config);
+      if (filterNode.querySelector('feImage')?.getAttribute('href')) {
+        defs.appendChild(filterNode);
+        refractiveLayer.style.backdropFilter = `url(#${id})`;
+        refractiveLayer.style.webkitBackdropFilter = `url(#${id})`;
+      }
+
+      refractiveLayer.style.borderRadius = `${radius}px`;
+      tintLayer.style.borderRadius = `${radius}px`;
+      tintLayer.style.backgroundColor = `rgba(${config.tintColor},${config.tintOpacity})`;
+      tintLayer.style.boxShadow = `inset 0 0 ${config.innerShadowBlur}px ${config.innerShadowSpread}px ${config.innerShadow}`;
+      elevateContent();
+    }
+
+    function scheduleRebuild() {
+      clearTimeout(timer);
+      timer = setTimeout(rebuild, 16);
+    }
+
+    const resizeObserver = new ResizeObserver(scheduleRebuild);
+    resizeObserver.observe(element);
+    const instance = {
+      rebuild,
+      destroy() {
+        clearTimeout(timer);
+        resizeObserver.disconnect();
+        if (filterNode) filterNode.remove();
+        refractiveLayer.remove();
+        tintLayer.remove();
+      }
+    };
+    targets.set(element, instance);
+    rebuild();
+  }
+
+  function injectSharedNavigation() {
+    const oldNavs = Array.from(document.querySelectorAll('nav'));
+    const nav = document.querySelector('body > nav') || document.createElement('nav');
+    oldNavs.forEach((oldNav) => {
+      if (oldNav !== nav) oldNav.remove();
+    });
+
+    nav.id = 'faceauth-site-nav';
+    nav.setAttribute('aria-label', 'Primary navigation');
+    nav.innerHTML = `
+      <div class="nav-inner" data-radius="999">
+        <div class="glass-indicator" aria-hidden="true"></div>
+        <div class="nav-actions">
+          <div class="nav-links">
+            <a class="glass-nav-link" data-nav="home" href="index.html#top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 3l8.5 7.5v8.2a1.8 1.8 0 0 1-1.8 1.8H5.3a1.8 1.8 0 0 1-1.8-1.8v-8.2Z"/><path d="M9 20.5v-6h6v6"/></svg><span>Home</span></a>
+            <a class="glass-nav-link" data-nav="about" href="index.html#about"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 10.5v5"/><circle cx="12" cy="7.5" r=".8" fill="currentColor" stroke="none"/></svg><span>About</span></a>
+            <a class="glass-nav-link" data-nav="design" href="index.html#design"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg><span>Design</span></a>
+            <a class="glass-nav-link" data-nav="security" href="index.html#security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5.5c0 4.5-3.2 7.7-8 9.5-4.8-1.8-8-5-8-9.5V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/></svg><span>Security</span></a>
+            <a class="glass-nav-link" data-nav="faq" href="faq.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.3 9.2c.2-1.4 1.3-2.3 2.8-2.3 1.7 0 2.9 1 2.9 2.5 0 1.3-.7 2.1-1.8 2.8-.9.6-1.3 1.1-1.3 2.2"/><circle cx="12" cy="17.7" r=".8" fill="currentColor" stroke="none"/></svg><span>FAQ</span></a>
+          </div>
+        </div>
+      </div>`;
+    if (!nav.isConnected) document.body.insertAdjacentElement('afterbegin', nav);
+    document.body.classList.add('faceauth-nav-enabled');
+
+    return nav;
+  }
+
+  function initializeNavigation(nav) {
+    const surface = nav.querySelector('.nav-inner');
+    const indicator = nav.querySelector('.glass-indicator');
+    const links = Array.from(nav.querySelectorAll('.glass-nav-link'));
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    const pageName = location.pathname.endsWith('/') ? 'index.html' : pathParts.pop()?.toLowerCase() || 'index.html';
+
+    function currentItem() {
+      if (pageName === 'faq.html') return 'faq';
+      if (pageName === '' || pageName === 'index.html') {
+        const currentHash = decodeURIComponent(location.hash.slice(1));
+        if (['about', 'design', 'security'].includes(currentHash)) return currentHash;
+        return 'home';
+      }
+      return 'home';
+    }
+
+    let selected = currentItem();
+    let focusedTarget = null;
+    let alignmentObserver;
+    let pointerId = null;
+    let pressX = 0;
+    let pressY = 0;
+    let pressWidth = 0;
+    let dragTarget = null;
+    let isDragging = false;
+    let suppressClick = false;
+    let glassRebuildQueued = false;
+
+    function updateCurrentState() {
+      selected = currentItem();
+      const currentHash = decodeURIComponent(location.hash.slice(1));
+      links.forEach((link) => {
+        const isCurrent = link.dataset.nav === selected;
+        link.classList.toggle('is-active', isCurrent);
+        if (isCurrent) link.setAttribute('aria-current', ['about', 'design', 'security'].includes(currentHash) ? 'location' : 'page');
+        else link.removeAttribute('aria-current');
+      });
+      moveIndicator(focusedTarget || links.find((link) => link.dataset.nav === selected), true);
+    }
+
+    function moveIndicator(link, immediate = false) {
+      if (!link) {
+        indicator.style.opacity = '0';
+        return;
+      }
+
+      const surfaceRect = surface.getBoundingClientRect();
+      const linkRect = link.getBoundingClientRect();
+      const left = linkRect.left - surfaceRect.left - parseFloat(getComputedStyle(surface).borderLeftWidth || '0');
+      indicator.style.opacity = '1';
+      if (immediate) {
+        indicator.style.transition = 'none';
+        indicator.style.left = `${left}px`;
+        indicator.style.width = `${linkRect.width}px`;
+        indicator.offsetWidth;
+        indicator.style.transition = '';
+      } else {
+        indicator.style.left = `${left}px`;
+        indicator.style.width = `${linkRect.width}px`;
+      }
+      targets.get(indicator)?.rebuild();
+    }
+
+    function itemMetrics(link) {
+      const surfaceRect = surface.getBoundingClientRect();
+      const linkRect = link.getBoundingClientRect();
+      return {
+        left: linkRect.left - surfaceRect.left - parseFloat(getComputedStyle(surface).borderLeftWidth || '0'),
+        width: linkRect.width,
+        center: linkRect.left - surfaceRect.left + linkRect.width / 2
+      };
+    }
+
+    function nearestLink(clientX) {
+      const surfaceRect = surface.getBoundingClientRect();
+      const localX = clientX - surfaceRect.left;
+      return links.reduce((nearest, link) => {
+        if (!nearest) return link;
+        return Math.abs(itemMetrics(link).center - localX) < Math.abs(itemMetrics(nearest).center - localX) ? link : nearest;
+      }, null);
+    }
+
+    function queueGlassRebuild() {
+      if (glassRebuildQueued) return;
+      glassRebuildQueued = true;
+      requestAnimationFrame(() => {
+        glassRebuildQueued = false;
+        targets.get(indicator)?.rebuild();
+      });
+    }
+
+    function dragIndicator(clientX) {
+      const surfaceRect = surface.getBoundingClientRect();
+      const width = pressWidth || itemMetrics(dragTarget || links[0]).width;
+      const localX = clientX - surfaceRect.left;
+      const min = 0;
+      const max = Math.max(min, surface.clientWidth - width);
+      const left = clamp(localX - width / 2, min, max);
+      indicator.style.left = `${left}px`;
+      indicator.style.width = `${width}px`;
+      dragTarget = nearestLink(clientX);
+      queueGlassRebuild();
+    }
+
+    function activate(link) {
+      selected = link.dataset.nav;
+      links.forEach((item) => {
+        const isCurrent = item === link;
+        item.classList.toggle('is-active', isCurrent);
+        if (isCurrent) item.setAttribute('aria-current', 'page');
+        else item.removeAttribute('aria-current');
+      });
+      moveIndicator(link);
+    }
+
+    function positionForUrl(url) {
+      const targetId = decodeURIComponent(url.hash.slice(1));
+      const textTargets = {
+        about: '[data-about-target]',
+        design: '[data-design-target]',
+        security: '[data-security-target]'
+      };
+      return document.querySelector(textTargets[targetId]) || document.getElementById(targetId);
+    }
+
+    function navigate(link, event) {
+      if (event) event.preventDefault();
+      activate(link);
+      const url = new URL(link.href, location.href);
+      if (url.pathname !== location.pathname || !url.hash) {
+        location.assign(url.href);
+        return;
+      }
+      const target = positionForUrl(url);
+      if (!target) return;
+
+      history.pushState(null, '', `${url.pathname}${url.search}${url.hash}`);
+      const targetRect = target.getBoundingClientRect();
+      const top = link.dataset.nav === 'home'
+        ? 0
+        : window.scrollY + targetRect.top - (window.innerHeight - targetRect.height) / 2;
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+      });
+      updateCurrentState();
+    }
+
+    surface.addEventListener('pointerdown', (event) => {
+      const link = event.target.closest('.glass-nav-link');
+      if (!link || !event.isPrimary || event.button !== 0 || pointerId !== null) return;
+      event.preventDefault();
+      pointerId = event.pointerId;
+      pressX = event.clientX;
+      pressY = event.clientY;
+      pressWidth = itemMetrics(link).width;
+      dragTarget = link;
+      isDragging = false;
+      surface.setPointerCapture?.(pointerId);
+      link.classList.add('is-pressed');
+      indicator.classList.add('is-pressed');
+    });
+
+    surface.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== pointerId) return;
+      const moved = Math.hypot(event.clientX - pressX, event.clientY - pressY);
+      if (!isDragging && moved > 6) {
+        isDragging = true;
+        surface.classList.add('is-dragging');
+        indicator.classList.remove('is-pressed');
+      }
+      if (isDragging) dragIndicator(event.clientX);
+    });
+
+    function finishPointer(event, cancelled = false) {
+      if (event.pointerId !== pointerId) return;
+      surface.releasePointerCapture?.(pointerId);
+      links.forEach((link) => link.classList.remove('is-pressed'));
+      indicator.classList.remove('is-pressed');
+      surface.classList.remove('is-dragging');
+      if (!cancelled) {
+        // Pointer down is prevented to avoid text selection. Complete both a tap
+        // and a drag here, then ignore the browser's follow-up click event.
+        suppressClick = true;
+        const target = isDragging ? dragTarget : nearestLink(pressX);
+        if (target) {
+          moveIndicator(target);
+          queueGlassRebuild();
+          navigate(target);
+        }
+      } else if (isDragging) {
+        const target = links.find((link) => link.dataset.nav === selected);
+        if (target) {
+          moveIndicator(target);
+          queueGlassRebuild();
+        }
+      }
+      pointerId = null;
+      isDragging = false;
+      dragTarget = null;
+    }
+
+    surface.addEventListener('pointerup', (event) => finishPointer(event));
+    surface.addEventListener('pointercancel', (event) => finishPointer(event, true));
+    links.forEach((link) => {
+      link.addEventListener('focus', () => {
+        focusedTarget = link;
+        moveIndicator(link, matchMedia('(prefers-reduced-motion: reduce)').matches);
+      });
+      link.addEventListener('blur', () => {
+        requestAnimationFrame(() => {
+          const activeLink = document.activeElement.closest('.glass-nav-link');
+          focusedTarget = activeLink && surface.contains(activeLink) ? activeLink : null;
+          moveIndicator(
+            focusedTarget || links.find((item) => item.dataset.nav === selected),
+            matchMedia('(prefers-reduced-motion: reduce)').matches
+          );
+        });
+      });
+    });
+    surface.addEventListener('click', (event) => {
+      const link = event.target.closest('.glass-nav-link');
+      if (!link) return;
+      if (suppressClick) {
+        suppressClick = false;
+        event.preventDefault();
+        return;
+      }
+      navigate(link, event);
+    });
+
+    window.addEventListener('resize', () => moveIndicator(focusedTarget || links.find((link) => link.dataset.nav === selected), true));
+    window.addEventListener('popstate', updateCurrentState);
+    window.addEventListener('hashchange', updateCurrentState);
+
+    alignmentObserver = new ResizeObserver(() => {
+      moveIndicator(focusedTarget || links.find((link) => link.dataset.nav === selected), true);
+    });
+    alignmentObserver.observe(surface);
+    links.forEach((link) => alignmentObserver.observe(link));
+
+    indicator.style.zIndex = '2';
+    nav.querySelector('.nav-actions').style.zIndex = '3';
+    applyGlass(surface, () => SWITCHER_CONFIG);
+    moveIndicator(links.find((link) => link.dataset.nav === selected), true);
+    applyGlass(indicator, () => ACTIVE_BUBBLE_CONFIG);
+    document.fonts?.ready.then(() => moveIndicator(links.find((link) => link.dataset.nav === selected), true));
+    updateCurrentState();
+
+    const initialHash = decodeURIComponent(location.hash.slice(1));
+    if (['about', 'design', 'security'].includes(initialHash)) {
+      const target = positionForUrl(new URL(location.href));
+      if (target) {
+        requestAnimationFrame(() => {
+          const rect = target.getBoundingClientRect();
+          const top = window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
+          window.scrollTo({
+            top: Math.max(0, top),
+            behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+          });
+        });
+      }
+    }
+  }
+
+  const nav = injectSharedNavigation();
+  initializeNavigation(nav);
+})();
