@@ -37,6 +37,10 @@
   const targets = new Map();
   let defs;
 
+  window.addEventListener('faceauth-liquid-glass-change', () => {
+    targets.forEach((target) => target.rebuild());
+  });
+
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
   function surfaceFn(x) {
@@ -270,6 +274,14 @@
     }
 
     function rebuild() {
+      if (document.documentElement.classList.contains('liquid-glass-disabled')) {
+        if (filterNode) filterNode.remove();
+        filterNode = null;
+        refractiveLayer.style.removeProperty('backdrop-filter');
+        refractiveLayer.style.removeProperty('-webkit-backdrop-filter');
+        return;
+      }
+
       if (!isSafari) ensureDefs();
       const rect = element.getBoundingClientRect();
       const width = Math.round(element.offsetWidth || rect.width);
@@ -340,9 +352,9 @@
         <div class="nav-actions">
           <div class="nav-links">
             <a class="glass-nav-link" data-nav="home" href="index.html#top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 3l8.5 7.5v8.2a1.8 1.8 0 0 1-1.8 1.8H5.3a1.8 1.8 0 0 1-1.8-1.8v-8.2Z"/><path d="M9 20.5v-6h6v6"/></svg><span>Home</span></a>
-            <a class="glass-nav-link" data-nav="about" href="index.html#about"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 10.5v5"/><circle cx="12" cy="7.5" r=".8" fill="currentColor" stroke="none"/></svg><span>About</span></a>
             <a class="glass-nav-link" data-nav="design" href="index.html#design"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg><span>Design</span></a>
             <a class="glass-nav-link" data-nav="security" href="index.html#security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5.5c0 4.5-3.2 7.7-8 9.5-4.8-1.8-8-5-8-9.5V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/></svg><span>Security</span></a>
+            <a class="glass-nav-link" data-nav="support" href="index.html#support"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.8 7.3L3.5 20l1.2-4.1a8.5 8.5 0 1 1 15.8-4.4Z"/><path d="M9.7 9.2a2.3 2.3 0 0 1 4.5.7c0 1.7-2.2 1.9-2.2 3.4m0 2.2h.01"/></svg><span>Support</span></a>
             <a class="glass-nav-link" data-nav="faq" href="faq.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.3 9.2c.2-1.4 1.3-2.3 2.8-2.3 1.7 0 2.9 1 2.9 2.5 0 1.3-.7 2.1-1.8 2.8-.9.6-1.3 1.1-1.3 2.2"/><circle cx="12" cy="17.7" r=".8" fill="currentColor" stroke="none"/></svg><span>FAQ</span></a>
           </div>
         </div>
@@ -351,6 +363,50 @@
     document.body.classList.add('faceauth-nav-enabled');
 
     return nav;
+  }
+
+  function injectSettingsButton() {
+    const button = document.createElement('button');
+    const popup = document.createElement('div');
+    button.type = 'button';
+    button.className = 'faceauth-settings-button';
+    button.dataset.radius = '999';
+    button.setAttribute('aria-label', 'Settings');
+    button.setAttribute('aria-controls', 'faceauth-settings-popup');
+    button.setAttribute('aria-expanded', 'false');
+    button.innerHTML = `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M10 2.75h4l.55 2.35a7.7 7.7 0 0 1 1.7.98l2.2-.99 2 3.46-1.65 1.8a7.5 7.5 0 0 1 0 2.1l1.65 1.8-2 3.46-2.2-.99a7.7 7.7 0 0 1-1.7.98L14 20.05h-4l-.55-2.35a7.7 7.7 0 0 1-1.7-.98l-2.2.99-2-3.46 1.65-1.8a7.5 7.5 0 0 1 0-2.1l-1.65-1.8 2-3.46 2.2.99a7.7 7.7 0 0 1 1.7-.98L10 2.75Z" />
+        <circle cx="12" cy="11.4" r="2.65" />
+      </svg>`;
+    popup.id = 'faceauth-settings-popup';
+    popup.className = 'faceauth-settings-popup';
+    popup.dataset.radius = '18';
+    popup.setAttribute('role', 'dialog');
+    popup.setAttribute('aria-label', 'Settings');
+    popup.setAttribute('aria-hidden', 'true');
+    document.body.insertAdjacentElement('afterbegin', button);
+    document.body.insertAdjacentElement('afterbegin', popup);
+    button.addEventListener('click', () => {
+      const isOpen = popup.classList.toggle('is-open');
+      button.setAttribute('aria-expanded', String(isOpen));
+      popup.setAttribute('aria-hidden', String(!isOpen));
+    });
+    document.addEventListener('click', (event) => {
+      if (!popup.classList.contains('is-open') || popup.contains(event.target) || button.contains(event.target)) return;
+      popup.classList.remove('is-open');
+      popup.setAttribute('aria-hidden', 'true');
+      button.setAttribute('aria-expanded', 'false');
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !popup.classList.contains('is-open')) return;
+      popup.classList.remove('is-open');
+      popup.setAttribute('aria-hidden', 'true');
+      button.setAttribute('aria-expanded', 'false');
+      button.focus();
+    });
+    applyGlass(button, () => SWITCHER_CONFIG);
+    applyGlass(popup, () => SWITCHER_CONFIG);
   }
 
   function initializeNavigation(nav) {
@@ -364,7 +420,7 @@
       if (pageName === 'faq.html') return 'faq';
       if (pageName === '' || pageName === 'index.html') {
         const currentHash = decodeURIComponent(location.hash.slice(1));
-        if (['about', 'design', 'security'].includes(currentHash)) return currentHash;
+        if (['design', 'security', 'support'].includes(currentHash)) return currentHash;
         return 'home';
       }
       return 'home';
@@ -381,20 +437,42 @@
     let isDragging = false;
     let suppressClick = false;
     let glassRebuildQueued = false;
+    let scrollUpdateQueued = false;
+    let indicatorAnimationFrame = 0;
+    let indicatorAnimationTime = 0;
+    let indicatorTargetLeft = 0;
+    let indicatorTargetWidth = 0;
+    let pendingScrollDestination = null;
+    let scrollDestinationTimer = 0;
+
+    function setActiveLink(link, ariaCurrent = 'page') {
+      if (!link) return;
+      links.forEach((item) => {
+        const isCurrent = item === link;
+        item.classList.toggle('is-active', isCurrent);
+        if (isCurrent) item.setAttribute('aria-current', ariaCurrent);
+        else item.removeAttribute('aria-current');
+      });
+    }
 
     function updateCurrentState() {
+      cancelPendingScrollDestination();
       selected = currentItem();
       const currentHash = decodeURIComponent(location.hash.slice(1));
-      links.forEach((link) => {
-        const isCurrent = link.dataset.nav === selected;
-        link.classList.toggle('is-active', isCurrent);
-        if (isCurrent) link.setAttribute('aria-current', ['about', 'design', 'security'].includes(currentHash) ? 'location' : 'page');
-        else link.removeAttribute('aria-current');
-      });
+      const currentLink = links.find((link) => link.dataset.nav === selected);
+      setActiveLink(currentLink, ['design', 'security', 'support'].includes(currentHash) ? 'location' : 'page');
       moveIndicator(focusedTarget || links.find((link) => link.dataset.nav === selected), true);
     }
 
+    function stopIndicatorAnimation() {
+      if (indicatorAnimationFrame) cancelAnimationFrame(indicatorAnimationFrame);
+      indicatorAnimationFrame = 0;
+      indicatorAnimationTime = 0;
+      surface.classList.remove('is-scroll-following');
+    }
+
     function moveIndicator(link, immediate = false) {
+      stopIndicatorAnimation();
       if (!link) {
         indicator.style.opacity = '0';
         return;
@@ -415,6 +493,52 @@
         indicator.style.width = `${linkRect.width}px`;
       }
       targets.get(indicator)?.rebuild();
+    }
+
+    function animateScrollIndicator(link) {
+      if (!link) return;
+      const target = itemMetrics(link);
+      indicatorTargetLeft = target.left;
+      indicatorTargetWidth = target.width;
+      indicator.style.opacity = '1';
+
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        stopIndicatorAnimation();
+        indicator.style.left = `${target.left}px`;
+        indicator.style.width = `${target.width}px`;
+        targets.get(indicator)?.rebuild();
+        return;
+      }
+
+      surface.classList.add('is-scroll-following');
+      if (indicatorAnimationFrame) return;
+
+      indicatorAnimationTime = performance.now();
+      function animateFrame(timestamp) {
+        const elapsed = Math.min(32, Math.max(1, timestamp - indicatorAnimationTime));
+        indicatorAnimationTime = timestamp;
+        const easing = 1 - Math.exp(-elapsed / 72);
+        const currentLeft = parseFloat(indicator.style.left) || 0;
+        const currentWidth = parseFloat(indicator.style.width) || indicatorTargetWidth;
+        const left = currentLeft + (indicatorTargetLeft - currentLeft) * easing;
+        const width = currentWidth + (indicatorTargetWidth - currentWidth) * easing;
+        indicator.style.left = `${left}px`;
+        indicator.style.width = `${width}px`;
+
+        if (Math.abs(indicatorTargetLeft - left) < 0.3 && Math.abs(indicatorTargetWidth - width) < 0.3) {
+          indicator.style.left = `${indicatorTargetLeft}px`;
+          indicator.style.width = `${indicatorTargetWidth}px`;
+          indicatorAnimationFrame = 0;
+          indicatorAnimationTime = 0;
+          surface.classList.remove('is-scroll-following');
+          targets.get(indicator)?.rebuild();
+          return;
+        }
+
+        indicatorAnimationFrame = requestAnimationFrame(animateFrame);
+      }
+
+      indicatorAnimationFrame = requestAnimationFrame(animateFrame);
     }
 
     function itemMetrics(link) {
@@ -454,29 +578,110 @@
       const left = clamp(localX - width / 2, min, max);
       indicator.style.left = `${left}px`;
       indicator.style.width = `${width}px`;
-      dragTarget = nearestLink(clientX);
+      const bubbleCenter = surfaceRect.left + left + width / 2;
+      const nextTarget = nearestLink(bubbleCenter);
+      if (nextTarget !== dragTarget) {
+        dragTarget = nextTarget;
+        setActiveLink(dragTarget);
+      }
       queueGlassRebuild();
     }
 
     function activate(link) {
+      stopIndicatorAnimation();
       selected = link.dataset.nav;
-      links.forEach((item) => {
-        const isCurrent = item === link;
-        item.classList.toggle('is-active', isCurrent);
-        if (isCurrent) item.setAttribute('aria-current', 'page');
-        else item.removeAttribute('aria-current');
-      });
+      setActiveLink(link);
       moveIndicator(link);
     }
 
     function positionForUrl(url) {
       const targetId = decodeURIComponent(url.hash.slice(1));
       const textTargets = {
-        about: '[data-about-target]',
         design: '[data-design-target]',
         security: '[data-security-target]'
       };
       return document.querySelector(textTargets[targetId]) || document.getElementById(targetId);
+    }
+
+    const scrollSections = pageName === 'index.html'
+      ? links
+        .filter((link) => link.dataset.nav !== 'faq')
+        .map((link) => ({ link, target: positionForUrl(new URL(link.href, location.href)) }))
+        .filter((section) => section.target)
+        .sort((first, second) => first.target.compareDocumentPosition(second.target) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1)
+      : [];
+
+    function updateActiveSectionFromScroll() {
+      if (!scrollSections.length || pendingScrollDestination || isDragging || pointerId !== null) return;
+
+      const scrollLine = window.scrollY + window.innerHeight * 0.42;
+      const hysteresis = Math.min(48, window.innerHeight * 0.06);
+      const positions = scrollSections.map((section) => section.target.getBoundingClientRect().top + window.scrollY);
+      const isAtBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+      let candidateIndex = isAtBottom ? scrollSections.length - 1 : 0;
+      if (!isAtBottom) {
+        positions.forEach((position, index) => {
+          if (position <= scrollLine) candidateIndex = index;
+        });
+      }
+
+      let activeIndex = scrollSections.findIndex((section) => section.link.dataset.nav === selected);
+      if (activeIndex < 0) activeIndex = candidateIndex;
+      if (candidateIndex > activeIndex) {
+        while (activeIndex < candidateIndex && positions[activeIndex + 1] <= scrollLine - hysteresis) activeIndex += 1;
+      } else if (candidateIndex < activeIndex) {
+        while (activeIndex > candidateIndex && positions[activeIndex] > scrollLine + hysteresis) activeIndex -= 1;
+      }
+
+      const activeSection = scrollSections[activeIndex];
+      if (!activeSection || activeSection.link.dataset.nav === selected) return;
+      selected = activeSection.link.dataset.nav;
+      focusedTarget = null;
+      setActiveLink(activeSection.link, 'location');
+      animateScrollIndicator(activeSection.link);
+    }
+
+    function queueScrollSectionUpdate() {
+      if (scrollUpdateQueued) return;
+      scrollUpdateQueued = true;
+      requestAnimationFrame(() => {
+        scrollUpdateQueued = false;
+        updateActiveSectionFromScroll();
+      });
+    }
+
+    function finishScrollToDestination() {
+      if (!pendingScrollDestination) return;
+      clearTimeout(scrollDestinationTimer);
+      scrollDestinationTimer = 0;
+      const destination = pendingScrollDestination;
+      pendingScrollDestination = null;
+      const link = links.find((item) => item.dataset.nav === destination);
+      if (!link) return;
+      selected = destination;
+      focusedTarget = null;
+      setActiveLink(link, 'location');
+      moveIndicator(link);
+    }
+
+    function scheduleScrollDestinationFinish(delay = 160) {
+      clearTimeout(scrollDestinationTimer);
+      scrollDestinationTimer = window.setTimeout(finishScrollToDestination, delay);
+    }
+
+    function cancelPendingScrollDestination() {
+      if (!pendingScrollDestination) return;
+      pendingScrollDestination = null;
+      clearTimeout(scrollDestinationTimer);
+      scrollDestinationTimer = 0;
+    }
+
+    function handlePageScroll() {
+      if (pendingScrollDestination) {
+        scheduleScrollDestinationFinish();
+        return;
+      }
+      queueScrollSectionUpdate();
     }
 
     function navigate(link, event) {
@@ -495,16 +700,20 @@
       const top = link.dataset.nav === 'home'
         ? 0
         : window.scrollY + targetRect.top - (window.innerHeight - targetRect.height) / 2;
+      const behavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+      pendingScrollDestination = link.dataset.nav;
       window.scrollTo({
         top: Math.max(0, top),
-        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+        behavior
       });
-      updateCurrentState();
+      if (behavior === 'instant') finishScrollToDestination();
+      else scheduleScrollDestinationFinish(500);
     }
 
     surface.addEventListener('pointerdown', (event) => {
       const link = event.target.closest('.glass-nav-link');
       if (!link || !event.isPrimary || event.button !== 0 || pointerId !== null) return;
+      stopIndicatorAnimation();
       event.preventDefault();
       pointerId = event.pointerId;
       pressX = event.clientX;
@@ -524,6 +733,7 @@
         isDragging = true;
         surface.classList.add('is-dragging');
         indicator.classList.remove('is-pressed');
+        dragTarget = null;
       }
       if (isDragging) dragIndicator(event.clientX);
     });
@@ -547,6 +757,7 @@
       } else if (isDragging) {
         const target = links.find((link) => link.dataset.nav === selected);
         if (target) {
+          setActiveLink(target);
           moveIndicator(target);
           queueGlassRebuild();
         }
@@ -586,6 +797,18 @@
     });
 
     window.addEventListener('resize', () => moveIndicator(focusedTarget || links.find((link) => link.dataset.nav === selected), true));
+    window.addEventListener('scroll', handlePageScroll, { passive: true });
+    window.addEventListener('scrollend', finishScrollToDestination);
+    window.addEventListener('wheel', cancelPendingScrollDestination, { passive: true });
+    window.addEventListener('touchstart', cancelPendingScrollDestination, { passive: true });
+    window.addEventListener('pointerdown', (event) => {
+      if (!event.target.closest('#faceauth-site-nav')) cancelPendingScrollDestination();
+    }, { passive: true });
+    window.addEventListener('keydown', (event) => {
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) {
+        cancelPendingScrollDestination();
+      }
+    });
     window.addEventListener('popstate', updateCurrentState);
     window.addEventListener('hashchange', updateCurrentState);
 
@@ -604,7 +827,7 @@
     updateCurrentState();
 
     const initialHash = decodeURIComponent(location.hash.slice(1));
-    if (['about', 'design', 'security'].includes(initialHash)) {
+    if (['design', 'security', 'support'].includes(initialHash)) {
       const target = positionForUrl(new URL(location.href));
       if (target) {
         requestAnimationFrame(() => {
@@ -658,5 +881,6 @@
 
   const nav = injectSharedNavigation();
   initializeNavigation(nav);
+  injectSettingsButton();
   injectSafariNotice();
 })();

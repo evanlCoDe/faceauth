@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="appearance-theme.js?v=20260930-4"></script>
     <title>FaceAuth — Face ID for Mac</title>
-    <link rel="stylesheet" href="faceauth-navigation.css?v=20260929-15" />
+    <link rel="stylesheet" href="faceauth-navigation.css?v=20260930-17" />
     <link rel="icon" type="image/svg+xml" href="logo.svg?v=20260921-1" />
     <link rel="apple-touch-icon" href="logo.svg?v=20260921-1" />
     <style>
@@ -1107,29 +1108,34 @@
         font-size: 1.2rem;
       }
 
-      .requirements-section {
+      .requirements-section,
+      .support-section {
         max-width: 1100px;
         margin: 80px auto 120px;
         padding: 0 20px;
       }
 
-      .requirements-section h2 {
+      .requirements-section h2,
+      .support-section h2 {
         font-size: clamp(2rem, 4vw, 3.25rem);
         line-height: 1.05;
       }
 
-      .requirements-section p {
+      .requirements-section p,
+      .support-section p {
         max-width: 620px;
         margin-top: 16px;
         color: var(--muted);
       }
 
-      .requirements-section h3 {
+      .requirements-section h3,
+      .support-section h3 {
         margin-top: 28px;
         font-size: 1.35rem;
       }
 
-      .requirements-block {
+      .requirements-block,
+      .support-block {
         width: 100%;
         max-width: 518px;
         margin-top: 28px;
@@ -1138,18 +1144,46 @@
         background: #f0f4f9;
       }
 
-      .requirements-block h3 {
+      .requirements-block h3,
+      .support-block h3 {
         margin-top: 0;
       }
 
-      .requirements-section ul {
+      .requirements-section ul,
+      .support-section ul {
         max-width: 620px;
         margin: 12px 0 0 20px;
         color: var(--muted);
       }
 
-      .requirements-section li {
+      .requirements-section li,
+      .support-section li {
         padding: 3px 0;
+      }
+
+      .support-intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 64px;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .support-atom {
+        width: 64px;
+        height: 64px;
+        margin: 0;
+        object-fit: contain;
+      }
+
+      .support-contact-heading {
+        margin-top: 24px !important;
+      }
+
+      .support-block a {
+        color: var(--blue);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        overflow-wrap: anywhere;
       }
 
       .final-cta {
@@ -1555,6 +1589,16 @@
           padding: 24px 18px;
         }
 
+        .support-intro {
+          grid-template-columns: minmax(0, 1fr) 48px;
+          gap: 8px;
+        }
+
+        .support-atom {
+          width: 48px;
+          height: 48px;
+        }
+
         .app-feature-card {
           min-height: 380px;
           padding: 24px 18px;
@@ -1877,7 +1921,7 @@
     <main>
       <section class="hero" id="top">
         <div class="hero-logo-wrap">
-          <img src="2026-09-17_21-14-08.png" alt="FaceAuth logo" class="hero-logo" />
+          <img src="faceauth-logo-transparent.png" alt="FaceAuth logo" class="hero-logo" />
         </div>
         <h1>Your face.<br />Your<img src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" class="hero-apple-icon" alt="Apple logo" />Mac.</h1>
         <div class="eyebrow">Face ID for Mac</div>
@@ -2113,6 +2157,7 @@
         
       </section>
 
+
       <section id="requirements" class="requirements-section" aria-label="Software Requirements">
         <h2>Software Requirements</h2>
         <div class="requirements-block">
@@ -2140,6 +2185,24 @@
           Download
         </a>
       </section>
+
+      <section id="support" class="requirements-section support-section" aria-label="Support">
+        <h2>Support</h2>
+        <div class="requirements-block support-block">
+          <div class="support-intro">
+            <div>
+              <h3>Need help?</h3>
+              <p>If you're experiencing any issues with FaceAuth or have questions about the app, we'll do our best to help.</p>
+            </div>
+            <img class="simple-icon support-atom" src="support-atom-outline.png" alt="" aria-hidden="true" />
+          </div>
+          <h3 class="support-contact-heading">Contact Support</h3>
+          <ul>
+            <li><strong>Email:</strong> <a href="mailto:faceauthappsupport@gmail.com">faceauthappsupport@gmail.com</a></li>
+          </ul>
+        </div>
+      </section>
+
     </main>
     <footer>
       <div class="footer-inner">
@@ -2873,7 +2936,7 @@
         });
       })();
     </script>
-    <script src="faceauth-navigation.js?v=20260929-20"></script>
-    <script src="language-selector.js"></script>
+    <script src="faceauth-navigation.js?v=20260930-10"></script>
+    <script src="language-selector.js?v=20260930-16"></script>
   </body>
 </html>

@@ -121,6 +121,12 @@
     'The official release is still being prepared. There is currently no official version available for download.': ['The official release is still being prepared. There is currently no official version available for download.', '正式版仍在准备中。目前没有可供下载的正式版本。', '正式版本仍在準備中。目前沒有可供下載的正式版本。', 'El lanzamiento oficial todavía se está preparando. Actualmente no hay una versión oficial disponible para descargar.', 'आधिकारिक रिलीज़ अभी तैयार की जा रही है। फिलहाल डाउनलोड के लिए कोई आधिकारिक संस्करण उपलब्ध नहीं है।', 'La version officielle est encore en préparation. Aucune version officielle n’est actuellement disponible au téléchargement.', 'O lançamento oficial ainda está sendo preparado. No momento, não há uma versão oficial disponível para download.', 'Официальный выпуск всё ещё готовится. В настоящее время официальная версия для скачивания недоступна.', '正式版は現在準備中です。ダウンロードできる正式版はまだありません。', '정식 출시를 준비하고 있습니다. 현재 다운로드할 수 있는 정식 버전은 없습니다.'],
     'Development and testing are ongoing. More updates will be added here as FaceAuth progresses toward its beta and official release.': ['Development and testing are ongoing. More updates will be added here as FaceAuth progresses toward its beta and official release.', '开发和测试仍在进行中。随着 FaceAuth 迈向测试版和正式版，我们会在这里发布更多更新。', '開發與測試仍在進行中。隨著 FaceAuth 邁向測試版與正式版本，我們會在這裡新增更多更新。', 'El desarrollo y las pruebas continúan. Añadiremos más novedades aquí a medida que FaceAuth avance hacia su beta y lanzamiento oficial.', 'विकास और परीक्षण जारी हैं। FaceAuth के बीटा और आधिकारिक रिलीज़ की ओर बढ़ने पर यहाँ और अपडेट जोड़े जाएंगे।', 'Le développement et les tests se poursuivent. D’autres mises à jour seront ajoutées ici à mesure que FaceAuth progresse vers sa bêta et sa version officielle.', 'O desenvolvimento e os testes continuam. Mais atualizações serão adicionadas aqui à medida que o FaceAuth avançar para a versão beta e o lançamento oficial.', 'Разработка и тестирование продолжаются. Здесь будут появляться новые обновления по мере продвижения FaceAuth к бете и официальному выпуску.', '開発とテストを継続しています。ベータ版と正式版に向けて進展するたび、ここに最新情報を追加します。', '개발과 테스트가 진행 중입니다. FaceAuth가 베타와 정식 출시를 향해 나아가면서 이곳에 더 많은 업데이트를 추가하겠습니다.'],
     'Language': ['Language', '语言', '語言', 'Idioma', 'भाषा', 'Langue', 'Idioma', 'Язык', '言語', '언어'],
+    'Appearance': ['Appearance', '外观', '外觀', 'Apariencia', 'दिखावट', 'Apparence', 'Aparência', 'Внешний вид', '外観', '모양'],
+    'Ultra Smooth Scrolling': ['Ultra Smooth Scrolling', '超顺滑滚动', '超順暢捲動', 'Desplazamiento ultrasuave', 'अल्ट्रा स्मूद स्क्रॉलिंग', 'Défilement ultra-fluide', 'Rolagem ultrassuave', 'Сверхплавная прокрутка', '超スムーズスクロール', '매우 부드러운 스크롤'],
+    'Liquid Glass': ['Liquid Glass', '液态玻璃', '液態玻璃', 'Vidrio líquido', 'लिक्विड ग्लास', 'Verre liquide', 'Vidro líquido', 'Жидкое стекло', 'リキッドグラス', '리퀴드 글래스'],
+    'Dark': ['Dark', '深色', '深色', 'Oscuro', 'डार्क', 'Sombre', 'Escuro', 'Тёмный', 'ダーク', '다크'],
+    'Day': ['Day', '白天', '白天', 'Día', 'दिन', 'Jour', 'Dia', 'День', '昼', '낮'],
+    'Night': ['Night', '夜间', '夜間', 'Noche', 'रात', 'Nuit', 'Noite', 'Ночь', '夜', '밤'],
     'Go Back': ['Go Back', '返回', '返回', 'Volver', 'वापस जाएँ', 'Retour', 'Voltar', 'Назад', '戻る', '뒤로'],
     'Join the Waitlist': ['Join the Waitlist', '加入候补名单', '加入候補名單', 'Unirse a la lista de espera', 'वेटलिस्ट में शामिल हों', 'Rejoindre la liste d’attente', 'Entrar na lista de espera', 'Присоединиться к списку ожидания', 'ウェイトリストに参加', '대기 목록 참여'],
     "You're on the list.": ['You’re on the list.', '你已加入名单。', '你已加入名單。', 'Estás en la lista.', 'आप सूची में हैं।', 'Vous êtes sur la liste.', 'Você está na lista.', 'Вы в списке.', 'リストに登録されました。', '목록에 등록되었습니다.'],
@@ -252,6 +258,102 @@
     document.documentElement.lang = selectedLanguage;
   };
 
+  const setSettingsRowsHidden = (popup, hidden) => {
+    popup?.querySelectorAll('.language-toggle, .appearance-toggle, .scroll-smoothing-toggle, .liquid-glass-toggle').forEach((toggle) => {
+      if (hidden) {
+        toggle.setAttribute('aria-hidden', 'true');
+        toggle.tabIndex = -1;
+      } else {
+        toggle.removeAttribute('aria-hidden');
+        toggle.tabIndex = 0;
+      }
+    });
+  };
+
+  const returnToLanguageRow = (selector, focusRow = false) => {
+    const toggle = selector.querySelector('.language-toggle');
+    const popup = selector.closest('.faceauth-settings-popup');
+    selector.classList.remove('is-open');
+    popup?.classList.remove('has-submenu');
+    toggle.setAttribute('aria-expanded', 'false');
+    setSettingsRowsHidden(popup, false);
+    if (focusRow) requestAnimationFrame(() => toggle.focus());
+  };
+
+  const returnToAppearanceRow = (selector, focusRow = false) => {
+    const toggle = selector.querySelector('.appearance-toggle');
+    const popup = selector.closest('.faceauth-settings-popup');
+    selector.classList.remove('is-open');
+    popup?.classList.remove('has-submenu');
+    toggle.setAttribute('aria-expanded', 'false');
+    setSettingsRowsHidden(popup, false);
+    if (focusRow) requestAnimationFrame(() => toggle.focus());
+  };
+
+  const prepareSelector = (selector) => {
+    const toggle = selector.querySelector('.language-toggle');
+    const menu = selector.querySelector('.language-menu');
+    if (!toggle.querySelector('.language-globe')) {
+      const globe = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      globe.classList.add('language-globe');
+      globe.setAttribute('viewBox', '0 0 24 24');
+      globe.setAttribute('aria-hidden', 'true');
+      globe.innerHTML = '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>';
+      const settingLabel = document.createElement('span');
+      settingLabel.className = 'language-setting-label';
+      const chevron = document.createElement('span');
+      chevron.className = 'language-row-chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      chevron.textContent = '›';
+      toggle.replaceChildren(globe, settingLabel, chevron);
+    }
+    toggle.setAttribute('aria-label', translated('Language'));
+
+    if (!menu.querySelector('.language-submenu-header')) {
+      const options = Array.from(menu.querySelectorAll('.language-option'));
+      const header = document.createElement('div');
+      header.className = 'language-submenu-header';
+      const back = document.createElement('button');
+      back.className = 'language-back';
+      back.type = 'button';
+      back.textContent = '‹';
+      back.setAttribute('aria-label', translated('Go Back'));
+      header.append(back);
+
+      const list = document.createElement('div');
+      list.className = 'language-options';
+      list.setAttribute('role', 'listbox');
+      list.setAttribute('aria-label', translated('Language'));
+      options.forEach((option) => list.append(option));
+      menu.replaceChildren(header, list);
+      menu.setAttribute('role', 'group');
+      menu.removeAttribute('aria-label');
+      back.addEventListener('click', () => {
+        returnToLanguageRow(selector, true);
+      });
+    }
+
+    if (!selector.dataset.hierarchical) {
+      toggle.addEventListener('click', () => {
+        const isOpen = selector.classList.contains('is-open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        if (isOpen) {
+          const popup = selector.closest('.faceauth-settings-popup');
+          popup?.classList.add('has-submenu');
+          setSettingsRowsHidden(popup, true);
+          setTimeout(() => {
+            if (selector.classList.contains('is-open')) menu.querySelector('.language-back').focus();
+          }, 260);
+        } else {
+          const popup = selector.closest('.faceauth-settings-popup');
+          popup?.classList.remove('has-submenu');
+          setSettingsRowsHidden(popup, false);
+        }
+      });
+      selector.dataset.hierarchical = 'true';
+    }
+  };
+
   const createSelector = (navInner) => {
     let navActions = navInner.querySelector(':scope > .nav-actions');
     if (!navActions) {
@@ -261,8 +363,10 @@
       navChildren.slice(1).forEach((child) => navActions.append(child));
       navInner.append(navActions);
     }
+    const selectorContainer = document.querySelector('.faceauth-settings-popup') || navActions;
     const existingSelector = navActions.querySelector('.language-selector');
     if (existingSelector) {
+      prepareSelector(existingSelector);
       if (!existingSelector.dataset.localized) {
         existingSelector.querySelectorAll('.language-option').forEach((option) => {
           option.addEventListener('click', () => {
@@ -270,10 +374,12 @@
             document.querySelectorAll('.language-selector').forEach((item) => { item.dataset.language = selectedLanguage; });
             applyTranslations();
             updateSelectors();
+            returnToLanguageRow(existingSelector, true);
           });
         });
         existingSelector.dataset.localized = 'true';
       }
+      selectorContainer.append(existingSelector);
       return existingSelector;
     }
 
@@ -303,6 +409,7 @@
         document.querySelectorAll('.language-selector').forEach((item) => { item.dataset.language = code; });
         applyTranslations();
         updateSelectors();
+        returnToLanguageRow(selector, true);
       });
       menu.append(option);
     });
@@ -312,7 +419,8 @@
       toggle.setAttribute('aria-expanded', String(isOpen));
     });
     selector.append(toggle, menu);
-    navActions.insertBefore(selector, navActions.firstChild);
+    prepareSelector(selector);
+    selectorContainer.append(selector);
     return selector;
   };
 
@@ -321,17 +429,169 @@
       const toggle = selector.querySelector('.language-toggle');
       const menu = selector.querySelector('.language-menu');
       const selectedIndex = languageOrder.indexOf(selectedLanguage);
-      toggle.textContent = languageNames[selectedIndex];
-      menu.setAttribute('aria-label', translated('Language'));
+      toggle.querySelector('.language-setting-label').textContent = translated('Language');
+      toggle.setAttribute('aria-label', translated('Language'));
+      const list = menu.querySelector('.language-options');
+      list.setAttribute('aria-label', translated('Language'));
+      menu.querySelector('.language-back').setAttribute('aria-label', translated('Go Back'));
       menu.querySelectorAll('.language-option').forEach((option, index) => {
         option.textContent = languageNames[index];
         option.classList.toggle('is-selected', index === selectedIndex);
         option.setAttribute('aria-selected', String(index === selectedIndex));
       });
     });
+    document.querySelectorAll('.appearance-selector').forEach(updateAppearanceSelector);
+    document.querySelectorAll('.scroll-smoothing-setting').forEach(updateScrollingSetting);
+    document.querySelectorAll('.liquid-glass-setting').forEach(updateLiquidGlassSetting);
+  };
+
+  const updateScrollingSetting = (setting) => {
+    const toggle = setting.querySelector('.scroll-smoothing-toggle');
+    const isEnabled = window.faceAuthScrolling?.ultraSmoothEnabled !== false;
+    setting.querySelector('.settings-switch-label').textContent = translated('Ultra Smooth Scrolling');
+    toggle.classList.toggle('is-on', isEnabled);
+    toggle.setAttribute('aria-checked', String(isEnabled));
+    toggle.setAttribute('aria-label', translated('Ultra Smooth Scrolling'));
+  };
+
+  const updateLiquidGlassSetting = (setting) => {
+    const toggle = setting.querySelector('.liquid-glass-toggle');
+    const isEnabled = window.faceAuthLiquidGlass?.enabled !== false;
+    setting.querySelector('.settings-switch-label').textContent = translated('Liquid Glass');
+    toggle.classList.toggle('is-on', isEnabled);
+    toggle.setAttribute('aria-checked', String(isEnabled));
+    toggle.setAttribute('aria-label', translated('Liquid Glass'));
+  };
+
+  const updateAppearanceSelector = (selector) => {
+    const toggle = selector.querySelector('.appearance-switch');
+    const selectedMode = window.faceAuthAppearance?.mode || 'day';
+    selector.querySelector('.appearance-toggle .appearance-setting-label').textContent = translated('Appearance');
+    selector.querySelector('.appearance-setting-row .appearance-setting-label').textContent = translated('Dark');
+    selector.querySelector('.appearance-back').setAttribute('aria-label', translated('Go Back'));
+    toggle.classList.toggle('is-night', selectedMode === 'night');
+    toggle.setAttribute('aria-checked', String(selectedMode === 'night'));
+    toggle.setAttribute('aria-label', translated('Dark'));
+  };
+
+  const createAppearanceSelector = () => {
+    const popup = document.querySelector('.faceauth-settings-popup');
+    if (!popup || popup.querySelector('.appearance-selector')) return;
+
+    const selector = document.createElement('div');
+    selector.className = 'appearance-selector';
+    const toggle = document.createElement('button');
+    toggle.className = 'appearance-toggle';
+    toggle.type = 'button';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.innerHTML = '<svg class="appearance-row-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l-1.42 1.42m11.3-11.3 1.42-1.42"/></svg><span class="appearance-setting-label"></span><span class="appearance-row-chevron" aria-hidden="true">›</span>';
+    const menu = document.createElement('div');
+    menu.className = 'appearance-menu';
+    menu.setAttribute('role', 'group');
+    const header = document.createElement('div');
+    header.className = 'language-submenu-header';
+    const back = document.createElement('button');
+    back.className = 'language-back appearance-back';
+    back.type = 'button';
+    back.textContent = '‹';
+    back.setAttribute('aria-label', translated('Go Back'));
+    header.append(back);
+    const setting = document.createElement('div');
+    setting.className = 'appearance-setting-row';
+    const label = document.createElement('span');
+    label.className = 'appearance-setting-label';
+    const darkSwitch = document.createElement('button');
+    darkSwitch.className = 'appearance-switch';
+    darkSwitch.type = 'button';
+    darkSwitch.setAttribute('role', 'switch');
+    darkSwitch.setAttribute('aria-checked', 'false');
+    darkSwitch.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
+    setting.append(label, darkSwitch);
+    menu.append(header, setting);
+    selector.append(toggle, menu);
+    popup.append(selector);
+
+    toggle.addEventListener('click', () => {
+      const isOpen = selector.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      if (isOpen) {
+        popup.classList.add('has-submenu');
+        setSettingsRowsHidden(popup, true);
+        setTimeout(() => {
+          if (selector.classList.contains('is-open')) back.focus();
+        }, 260);
+      } else {
+        popup.classList.remove('has-submenu');
+        setSettingsRowsHidden(popup, false);
+      }
+    });
+    darkSwitch.addEventListener('click', () => {
+      const nextMode = window.faceAuthAppearance?.mode === 'night' ? 'day' : 'night';
+      window.faceAuthAppearance?.setMode(nextMode);
+      updateAppearanceSelector(selector);
+    });
+    back.addEventListener('click', () => returnToAppearanceRow(selector, true));
+    updateAppearanceSelector(selector);
+  };
+
+  const createScrollingSetting = () => {
+    const popup = document.querySelector('.faceauth-settings-popup');
+    if (!popup || popup.querySelector('.scroll-smoothing-setting')) return;
+
+    const setting = document.createElement('div');
+    setting.className = 'scroll-smoothing-setting';
+    const row = document.createElement('div');
+    row.className = 'settings-switch-row';
+    const label = document.createElement('span');
+    label.className = 'settings-switch-label';
+    const toggle = document.createElement('button');
+    toggle.className = 'appearance-switch scroll-smoothing-toggle';
+    toggle.type = 'button';
+    toggle.setAttribute('role', 'switch');
+    toggle.setAttribute('aria-checked', 'true');
+    toggle.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
+    row.append(label, toggle);
+    setting.append(row);
+    popup.append(setting);
+    toggle.addEventListener('click', () => {
+      const isEnabled = window.faceAuthScrolling?.ultraSmoothEnabled !== false;
+      window.faceAuthScrolling?.setUltraSmoothEnabled(!isEnabled);
+      updateScrollingSetting(setting);
+    });
+    updateScrollingSetting(setting);
+  };
+
+  const createLiquidGlassSetting = () => {
+    const popup = document.querySelector('.faceauth-settings-popup');
+    if (!popup || popup.querySelector('.liquid-glass-setting')) return;
+
+    const setting = document.createElement('div');
+    setting.className = 'liquid-glass-setting';
+    const row = document.createElement('div');
+    row.className = 'settings-switch-row';
+    const label = document.createElement('span');
+    label.className = 'settings-switch-label';
+    const toggle = document.createElement('button');
+    toggle.className = 'appearance-switch liquid-glass-toggle';
+    toggle.type = 'button';
+    toggle.setAttribute('role', 'switch');
+    toggle.setAttribute('aria-checked', 'true');
+    toggle.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
+    row.append(label, toggle);
+    setting.append(row);
+    popup.append(setting);
+    toggle.addEventListener('click', () => {
+      const isEnabled = window.faceAuthLiquidGlass?.enabled !== false;
+      window.faceAuthLiquidGlass?.setEnabled(!isEnabled);
+      updateLiquidGlassSetting(setting);
+    });
+    updateLiquidGlassSetting(setting);
   };
 
   document.querySelectorAll('body > nav .nav-inner').forEach(createSelector);
+  createAppearanceSelector();
+  createScrollingSetting();
+  createLiquidGlassSetting();
   updateSelectors();
   applyTranslations();
 
@@ -350,14 +610,25 @@
     document.querySelectorAll('.language-selector.is-open').forEach((selector) => {
       if (selector.contains(event.target)) return;
       selector.classList.remove('is-open');
-      selector.querySelector('.language-toggle').setAttribute('aria-expanded', 'false');
+      selector.closest('.faceauth-settings-popup')?.classList.remove('has-submenu');
+      const toggle = selector.querySelector('.language-toggle');
+      toggle.setAttribute('aria-expanded', 'false');
+      setSettingsRowsHidden(selector.closest('.faceauth-settings-popup'), false);
+    });
+    document.querySelectorAll('.appearance-selector.is-open').forEach((selector) => {
+      if (selector.contains(event.target)) return;
+      returnToAppearanceRow(selector);
     });
   });
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape') return;
     document.querySelectorAll('.language-selector.is-open').forEach((selector) => {
       selector.classList.remove('is-open');
-      selector.querySelector('.language-toggle').setAttribute('aria-expanded', 'false');
+        selector.closest('.faceauth-settings-popup')?.classList.remove('has-submenu');
+        const toggle = selector.querySelector('.language-toggle');
+        toggle.setAttribute('aria-expanded', 'false');
+        setSettingsRowsHidden(selector.closest('.faceauth-settings-popup'), false);
     });
+      document.querySelectorAll('.appearance-selector.is-open').forEach((selector) => returnToAppearanceRow(selector));
   });
 })();

@@ -1,0 +1,190 @@
+(() => {
+  const storageKey = 'faceauth-appearance';
+  const scrollStorageKey = 'faceauth-ultra-smooth-scrolling';
+  const liquidGlassStorageKey = 'faceauth-liquid-glass';
+  const transitionDuration = 420;
+  const scrollFrameDuration = 1000 / 25;
+  let mode = 'day';
+  let ultraSmoothScrolling = true;
+  let liquidGlassEnabled = true;
+  let fallbackFrame = 0;
+  let fallbackTimeout = 0;
+  let pendingWheelDelta = 0;
+  let scrollFrameTimeout = 0;
+  let lastScrollUpdate = 0;
+
+  try {
+    mode = localStorage.getItem(storageKey) === 'night' ? 'night' : 'day';
+  } catch {}
+
+  try {
+    ultraSmoothScrolling = localStorage.getItem(scrollStorageKey) !== 'false';
+  } catch {}
+
+  try {
+    liquidGlassEnabled = localStorage.getItem(liquidGlassStorageKey) !== 'false';
+  } catch {}
+
+  const applyMode = (nextMode, persist = false) => {
+    mode = nextMode === 'night' ? 'night' : 'day';
+    const root = document.documentElement;
+    const theme = mode === 'night' ? 'dark' : 'light';
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const shouldTransition = root.dataset.theme && root.dataset.theme !== theme && !prefersReducedMotion;
+    const updateTheme = () => {
+      root.dataset.theme = theme;
+      root.style.colorScheme = theme;
+    };
+
+    if (persist) {
+      try {
+        localStorage.setItem(storageKey, mode);
+      } catch {}
+    }
+
+    if (!shouldTransition) {
+      cancelAnimationFrame(fallbackFrame);
+      clearTimeout(fallbackTimeout);
+      root.classList.remove('theme-transitioning');
+      updateTheme();
+      return;
+    }
+
+    if (typeof document.startViewTransition === 'function') {
+      document.startViewTransition(updateTheme);
+      return;
+    }
+
+    root.classList.add('theme-transitioning');
+    cancelAnimationFrame(fallbackFrame);
+    clearTimeout(fallbackTimeout);
+    fallbackFrame = requestAnimationFrame(() => {
+      fallbackFrame = 0;
+      updateTheme();
+      fallbackTimeout = window.setTimeout(() => {
+        root.classList.remove('theme-transitioning');
+        fallbackTimeout = 0;
+      }, transitionDuration + 30);
+    });
+  };
+
+  window.faceAuthAppearance = Object.freeze({
+    get mode() {
+      return mode;
+    },
+    setMode(nextMode) {
+      applyMode(nextMode, true);
+    }
+  });
+
+  const setUltraSmoothScrolling = (enabled, persist = true) => {
+    ultraSmoothScrolling = Boolean(enabled);
+    const root = document.documentElement;
+
+    if (ultraSmoothScrolling) {
+      root.style.removeProperty('scroll-behavior');
+      pendingWheelDelta = 0;
+      clearTimeout(scrollFrameTimeout);
+      scrollFrameTimeout = 0;
+      lastScrollUpdate = 0;
+    } else {
+      root.style.scrollBehavior = 'auto';
+    }
+
+    if (persist) {
+      try {
+        localStorage.setItem(scrollStorageKey, String(ultraSmoothScrolling));
+      } catch {}
+    }
+  };
+
+  const canScrollWithinTarget = (target, deltaY) => {
+    let element = target instanceof Element ? target : target?.parentElement;
+    while (element && element !== document.body && element !== document.documentElement) {
+      if (element.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(element.tagName)) return true;
+      const overflowY = getComputedStyle(element).overflowY;
+      const maxScrollTop = element.scrollHeight - element.clientHeight;
+      if (maxScrollTop > 1 && ['auto', 'scroll', 'overlay'].includes(overflowY)) {
+        const canScrollUp = element.scrollTop > 0;
+        const canScrollDown = element.scrollTop < maxScrollTop - 1;
+        if (deltaY < 0 ? canScrollUp : canScrollDown) return true;
+      }
+      element = element.parentElement;
+    }
+    return false;
+  };
+
+  const flushWheelDelta = () => {
+    scrollFrameTimeout = 0;
+    if (ultraSmoothScrolling || pendingWheelDelta === 0) return;
+
+    const elapsed = performance.now() - lastScrollUpdate;
+    if (lastScrollUpdate && elapsed < scrollFrameDuration) {
+      scrollFrameTimeout = window.setTimeout(flushWheelDelta, scrollFrameDuration - elapsed);
+      return;
+    }
+
+    const deltaY = pendingWheelDelta;
+    pendingWheelDelta = 0;
+    const maxScrollTop = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const nextScrollTop = Math.max(0, Math.min(maxScrollTop, window.scrollY + deltaY));
+    window.scrollTo(window.scrollX, nextScrollTop);
+    lastScrollUpdate = performance.now();
+  };
+
+  window.addEventListener('wheel', (event) => {
+    if (ultraSmoothScrolling || event.defaultPrevented || event.ctrlKey || event.shiftKey || event.deltaY === 0) return;
+    if (canScrollWithinTarget(event.target, event.deltaY)) return;
+
+    event.preventDefault();
+    const deltaMultiplier = event.deltaMode === WheelEvent.DOM_DELTA_LINE
+      ? 16
+      : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+        ? window.innerHeight
+        : 1;
+    pendingWheelDelta += event.deltaY * deltaMultiplier;
+    if (!scrollFrameTimeout) flushWheelDelta();
+  }, { passive: false });
+
+  window.faceAuthScrolling = Object.freeze({
+    get ultraSmoothEnabled() {
+      return ultraSmoothScrolling;
+    },
+    setUltraSmoothEnabled(enabled) {
+      setUltraSmoothScrolling(enabled);
+    }
+  });
+
+  const setLiquidGlassEnabled = (enabled, persist = true) => {
+    liquidGlassEnabled = Boolean(enabled);
+    const updateLiquidGlass = () => {
+      document.documentElement.classList.toggle('liquid-glass-disabled', !liquidGlassEnabled);
+      window.dispatchEvent(new Event('faceauth-liquid-glass-change'));
+    };
+
+    if (persist) {
+      try {
+        localStorage.setItem(liquidGlassStorageKey, String(liquidGlassEnabled));
+      } catch {}
+    }
+
+    if (persist && document.visibilityState === 'visible' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && typeof document.startViewTransition === 'function') {
+      document.startViewTransition(updateLiquidGlass);
+    } else {
+      updateLiquidGlass();
+    }
+  };
+
+  window.faceAuthLiquidGlass = Object.freeze({
+    get enabled() {
+      return liquidGlassEnabled;
+    },
+    setEnabled(enabled) {
+      setLiquidGlassEnabled(enabled);
+    }
+  });
+
+  applyMode(mode);
+  setUltraSmoothScrolling(ultraSmoothScrolling, false);
+  setLiquidGlassEnabled(liquidGlassEnabled, false);
+})();
