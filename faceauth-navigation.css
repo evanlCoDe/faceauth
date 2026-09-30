@@ -179,7 +179,8 @@ body.faceauth-nav-enabled {
   pointer-events: none;
 }
 
-#faceauth-site-nav .lg-layer {
+#faceauth-site-nav .lg-layer,
+.faceauth-glass-notice .lg-layer {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -187,12 +188,214 @@ body.faceauth-nav-enabled {
   pointer-events: none;
 }
 
-#faceauth-site-nav .lg-refract {
+#faceauth-site-nav .lg-refract,
+.faceauth-glass-notice .lg-refract {
   background: transparent;
 }
 
-#faceauth-site-nav .lg-tint {
+#faceauth-site-nav .lg-tint,
+.faceauth-glass-notice .lg-tint {
   background: transparent;
+}
+
+html.faceauth-safari-glass #faceauth-site-nav .lg-refract {
+  overflow: hidden;
+  background: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 2px rgba(42, 62, 91, 0.06);
+  backdrop-filter: saturate(1.12) contrast(1.025) !important;
+  -webkit-backdrop-filter: saturate(1.12) contrast(1.025) !important;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice .lg-refract {
+  overflow: hidden;
+  background: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 2px rgba(42, 62, 91, 0.06);
+  backdrop-filter: saturate(1.12) contrast(1.025) !important;
+  -webkit-backdrop-filter: saturate(1.12) contrast(1.025) !important;
+}
+
+html.faceauth-safari-glass #faceauth-site-nav .glass-indicator {
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.58), inset 0 -2px 4px rgba(33, 52, 78, 0.13), 0 5px 16px rgba(0, 0, 0, 0.08), inset 0 0 2px rgba(0, 128, 255, 0.2), -4px -4px 12px rgba(255, 255, 255, 0.12);
+}
+
+html.faceauth-safari-glass #faceauth-site-nav .glass-indicator::after {
+  background: radial-gradient(ellipse 72% 42% at 50% 0%, rgba(255, 255, 255, 0.18), transparent 100%), radial-gradient(ellipse 60% 30% at 50% 100%, rgba(33, 52, 78, 0.07), transparent 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(33, 52, 78, 0.08);
+}
+
+html.faceauth-safari-glass #faceauth-site-nav .lg-tint {
+  overflow: hidden;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice .lg-tint {
+  overflow: hidden;
+}
+
+html.faceauth-safari-glass #faceauth-site-nav .lg-tint::before,
+html.faceauth-safari-glass #faceauth-site-nav .lg-tint::after,
+html.faceauth-safari-glass .faceauth-glass-notice .lg-tint::before,
+html.faceauth-safari-glass .faceauth-glass-notice .lg-tint::after {
+  content: "";
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+html.faceauth-safari-glass #faceauth-site-nav .lg-tint::before {
+  inset: 0;
+  box-sizing: border-box;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: radial-gradient(ellipse 76% 62% at 50% 0%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.07) 46%, transparent 100%), radial-gradient(ellipse 76% 68% at 50% 100%, rgba(40, 58, 82, 0.15), rgba(40, 58, 82, 0.035) 48%, transparent 100%), radial-gradient(ellipse 20% 88% at 0% 50%, rgba(255, 255, 255, 0.22), transparent 100%), radial-gradient(ellipse 20% 88% at 100% 50%, rgba(255, 255, 255, 0.19), transparent 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.38), inset 0 -1px 2px rgba(42, 62, 91, 0.14), inset 1px 0 1px rgba(255, 255, 255, 0.1), inset -1px 0 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(0.3px) saturate(125%) contrast(1.03);
+  -webkit-backdrop-filter: blur(0.3px) saturate(125%) contrast(1.03);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice .lg-tint::before {
+  inset: 0;
+  box-sizing: border-box;
+  padding: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: radial-gradient(ellipse 76% 62% at 50% 0%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.07) 46%, transparent 100%), radial-gradient(ellipse 76% 68% at 50% 100%, rgba(40, 58, 82, 0.15), rgba(40, 58, 82, 0.035) 48%, transparent 100%), radial-gradient(ellipse 20% 88% at 0% 50%, rgba(255, 255, 255, 0.22), transparent 100%), radial-gradient(ellipse 20% 88% at 100% 50%, rgba(255, 255, 255, 0.19), transparent 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.38), inset 0 -1px 2px rgba(42, 62, 91, 0.14), inset 1px 0 1px rgba(255, 255, 255, 0.1), inset -1px 0 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(0.3px) saturate(125%) contrast(1.03);
+  -webkit-backdrop-filter: blur(0.3px) saturate(125%) contrast(1.03);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+}
+
+html.faceauth-safari-glass #faceauth-site-nav .lg-tint::after {
+  inset: 2px;
+  background-image: radial-gradient(ellipse 36% 46% at 18% 0%, rgba(255, 255, 255, 0.1), transparent 100%), radial-gradient(ellipse 27% 38% at 84% 100%, rgba(255, 255, 255, 0.055), transparent 100%);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  mix-blend-mode: screen;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice .lg-tint::after {
+  inset: 2px;
+  background-image: radial-gradient(ellipse 36% 46% at 18% 0%, rgba(255, 255, 255, 0.1), transparent 100%), radial-gradient(ellipse 27% 38% at 84% 100%, rgba(255, 255, 255, 0.055), transparent 100%);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  mix-blend-mode: screen;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top));
+  right: 16px;
+  z-index: 1100;
+  isolation: isolate;
+  box-sizing: border-box;
+  width: min(360px, calc(100vw - 32px));
+  padding: 17px 44px 17px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.012);
+  box-shadow: 0 8px 22px rgba(17, 25, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  color: #343943;
+  font: inherit;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 240ms ease, transform 320ms cubic-bezier(0.2, 0.85, 0.25, 1), visibility 240ms;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice.is-dismissed {
+  opacity: 0;
+  transform: translateY(-8px);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice-copy,
+html.faceauth-safari-glass .faceauth-glass-notice-close {
+  position: relative;
+  z-index: 1;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice-copy strong {
+  display: block;
+  margin: 0 0 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice-copy p {
+  margin: 0 0 5px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice-copy p:last-child {
+  margin-bottom: 0;
+  color: #555e6d;
+}
+
+html.faceauth-safari-glass .faceauth-glass-notice-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #343943;
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.faceauth-safari-glass .faceauth-glass-notice {
+    transition-duration: 0.01ms;
+  }
+}
+
+html.faceauth-ios-safari .faceauth-glass-notice {
+  top: calc(12px + env(safe-area-inset-top));
+  right: auto;
+  left: 50%;
+  width: min(360px, calc(100vw - 24px));
+  transform: translate(-50%, -8px);
+}
+
+html.faceauth-ios-safari .faceauth-glass-notice.is-visible {
+  transform: translate(-50%, 0);
+}
+
+html.faceauth-ios-safari .faceauth-glass-notice.is-dismissed {
+  transform: translate(-50%, -8px);
+}
+
+html.faceauth-ios-safari .faceauth-glass-notice-close {
+  width: 34px;
+  height: 34px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #faceauth-site-nav .language-selector {

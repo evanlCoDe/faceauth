@@ -1,6 +1,16 @@
 (() => {
   'use strict';
 
+  const userAgent = navigator.userAgent;
+  const isSafari = /Safari/i.test(userAgent)
+    && !/(Chrome|Chromium|CriOS|Edg\/|EdgiOS|OPR|OPiOS|Opera|FxiOS|Firefox)/i.test(userAgent);
+  const isMobileSafari = isSafari && (
+    /iPhone|iPad/i.test(userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+  if (isSafari) document.documentElement.classList.add('faceauth-safari-glass');
+  if (isMobileSafari) document.documentElement.classList.add('faceauth-ios-safari');
+
   const SWITCHER_CONFIG = Object.freeze({
     glassThickness: 30,
     bezelWidth: 40,
@@ -260,7 +270,7 @@
     }
 
     function rebuild() {
-      ensureDefs();
+      if (!isSafari) ensureDefs();
       const rect = element.getBoundingClientRect();
       const width = Math.round(element.offsetWidth || rect.width);
       const height = Math.round(element.offsetHeight || rect.height);
@@ -270,14 +280,21 @@
       const dataRadius = parseFloat(element.getAttribute('data-radius') || '0');
       const cssRadius = parseFloat(getComputedStyle(element).borderTopLeftRadius || '0');
       const radius = Math.max(2, Math.min(dataRadius || cssRadius || 24, width / 2, height / 2));
-      if (filterNode) filterNode.remove();
+      if (isSafari) {
+        if (filterNode) filterNode.remove();
+        filterNode = null;
+        refractiveLayer.style.removeProperty('backdrop-filter');
+        refractiveLayer.style.removeProperty('-webkit-backdrop-filter');
+      } else {
+        if (filterNode) filterNode.remove();
 
-      const id = `faceauth-liquid-${Math.random().toString(36).slice(2, 10)}`;
-      filterNode = buildFilter(id, width, height, radius, config);
-      if (filterNode.querySelector('feImage')?.getAttribute('href')) {
-        defs.appendChild(filterNode);
-        refractiveLayer.style.backdropFilter = `url(#${id})`;
-        refractiveLayer.style.webkitBackdropFilter = `url(#${id})`;
+        const id = `faceauth-liquid-${Math.random().toString(36).slice(2, 10)}`;
+        filterNode = buildFilter(id, width, height, radius, config);
+        if (filterNode.querySelector('feImage')?.getAttribute('href')) {
+          defs.appendChild(filterNode);
+          refractiveLayer.style.backdropFilter = `url(#${id})`;
+          refractiveLayer.style.webkitBackdropFilter = `url(#${id})`;
+        }
       }
 
       refractiveLayer.style.borderRadius = `${radius}px`;
@@ -602,6 +619,44 @@
     }
   }
 
+  function injectSafariNotice() {
+    if (!isSafari) return;
+
+    const dismissalKey = 'faceauth-mobile-safari-notice-dismissed';
+    if (isMobileSafari) {
+      try {
+        if (sessionStorage.getItem(dismissalKey) === 'true') return;
+      } catch {}
+    }
+
+    const notice = document.createElement('aside');
+    notice.className = 'faceauth-glass-notice';
+    notice.dataset.radius = '24';
+    notice.setAttribute('aria-label', 'Browser recommendation');
+    notice.innerHTML = `
+      <button class="faceauth-glass-notice-close" type="button" aria-label="Dismiss notification">×</button>
+      <div class="faceauth-glass-notice-copy">
+        <strong>For the best Liquid Glass experience</strong>
+        <p>We recommend using Google Chrome.</p>
+      </div>`;
+    const dismissButton = notice.querySelector('.faceauth-glass-notice-close');
+    dismissButton.style.zIndex = '3';
+    dismissButton.addEventListener('click', () => {
+      if (isMobileSafari) {
+        try {
+          sessionStorage.setItem(dismissalKey, 'true');
+        } catch {}
+      }
+      notice.classList.remove('is-visible');
+      notice.classList.add('is-dismissed');
+    });
+
+    document.body.appendChild(notice);
+    applyGlass(notice, () => SWITCHER_CONFIG);
+    requestAnimationFrame(() => notice.classList.add('is-visible'));
+  }
+
   const nav = injectSharedNavigation();
   initializeNavigation(nav);
+  injectSafariNotice();
 })();
