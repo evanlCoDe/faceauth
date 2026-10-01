@@ -809,11 +809,11 @@
       thumb.style.left = `calc(${currentIntensity * 100}% - ${thumbRadius}px)`;
     };
 
-    const setThumbPosition = (clientX) => {
+    const setThumbPosition = (clientX, offset = pointerOffset) => {
       const track = slider.getBoundingClientRect();
       const thumbRadius = thumb.offsetHeight / 2;
       const travel = Math.max(0, track.width - thumbRadius * 2);
-      const nextLeft = Math.min(travel, Math.max(0, clientX - pointerOffset - track.left - thumbRadius));
+      const nextLeft = Math.min(travel, Math.max(0, clientX - offset - track.left - thumbRadius));
       const intensity = travel ? nextLeft / travel : 0;
       renderThumbPosition(intensity);
       window.faceAuthNavigationGlass?.setIntensity(currentIntensity, false);
@@ -830,6 +830,11 @@
       if (slider.hasPointerCapture(event.pointerId)) slider.releasePointerCapture(event.pointerId);
     };
 
+    slider.addEventListener('pointerdown', (event) => {
+      if (activePointerId !== null || !event.target.closest('.liquid-glass-slider-track') || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      setThumbPosition(event.clientX, 0);
+      window.faceAuthNavigationGlass?.setIntensity(currentIntensity);
+    });
     thumb.addEventListener('pointerdown', (event) => {
       if (activePointerId !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
       const thumbBounds = thumb.getBoundingClientRect();
