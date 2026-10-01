@@ -1,3 +1,9 @@
+@property --faceauth-glass-foreground {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #000;
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-bottom: 128px;
@@ -211,6 +217,7 @@ body.faceauth-nav-enabled {
   width: auto;
   max-height: 0;
   overflow: hidden;
+  overscroll-behavior-y: contain;
   scrollbar-width: none;
   padding: 0 4px;
   border: 0;
@@ -332,6 +339,7 @@ body.faceauth-nav-enabled {
   padding: 14px;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   scrollbar-width: none;
   opacity: 0;
   pointer-events: none;
@@ -428,6 +436,7 @@ body.faceauth-nav-enabled {
 .faceauth-settings-popup .settings-panel-back span:first-child {
   font-size: 1.45rem;
   line-height: 0.8;
+  transform: translateY(-1px);
 }
 
 .faceauth-settings-popup .settings-panel-back:hover {
@@ -1601,6 +1610,27 @@ html.faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner {
 
 html[data-theme="dark"].faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner {
   background-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) !important;
+}
+
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceauth-settings-button, .faceauth-settings-popup) {
+  background-color: rgba(128, 128, 128, var(--faceauth-nav-glass-light-opacity, 0.323125)) !important;
+}
+
+html[data-theme="dark"].faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceauth-settings-button, .faceauth-settings-popup) {
+  background-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) !important;
+}
+
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) #faceauth-site-nav .glass-nav-link,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) #faceauth-site-nav .glass-nav-link :where(*),
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-button,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-button :where(*),
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-popup,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-popup * {
+  color: var(--faceauth-glass-foreground, #000) !important;
+}
+
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) #faceauth-site-nav .glass-nav-link {
+  transition: transform 180ms ease;
 }
 
 html.motion-blur-enabled body > main {

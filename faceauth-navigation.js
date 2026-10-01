@@ -438,8 +438,16 @@
       button.setAttribute('aria-expanded', 'false');
       button.focus();
     });
-    applyGlass(button, () => SWITCHER_CONFIG);
-    applyGlass(popup, () => SWITCHER_CONFIG);
+    applyGlass(button, navigationGlassConfig);
+    applyGlass(popup, navigationGlassConfig);
+    window.addEventListener('faceauth-navigation-glass-intensity-change', () => {
+      const config = navigationGlassConfig();
+      targets.get(button)?.updateConfig(config);
+      targets.get(popup)?.updateConfig(config);
+    });
+    popup.addEventListener('faceauth-settings-open', () => {
+      if (!popup.querySelector('.lg-refract')?.style.backdropFilter) targets.get(popup)?.rebuild();
+    });
   }
 
   function initializeNavigation(nav) {

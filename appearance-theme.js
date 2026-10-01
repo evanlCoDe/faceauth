@@ -297,7 +297,9 @@
     navigationGlassIntensity = Math.min(1, Math.max(0, value));
     const root = document.documentElement;
     const opacityCurve = navigationGlassIntensity + navigationGlassIntensity * (1 - navigationGlassIntensity) * 0.5;
+    const foregroundChannel = navigationGlassIntensity < 0.5 ? 0 : 255;
     root.classList.add('faceauth-navigation-glass-intensity');
+    root.style.setProperty('--faceauth-glass-foreground', `rgb(${foregroundChannel}, ${foregroundChannel}, ${foregroundChannel})`);
     root.style.setProperty('--faceauth-nav-glass-light-opacity', String(opacityCurve * 0.94));
     root.style.setProperty('--faceauth-nav-glass-dark-opacity', String(opacityCurve * 0.96));
     window.dispatchEvent(new CustomEvent('faceauth-navigation-glass-intensity-change', {
