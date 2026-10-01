@@ -204,7 +204,8 @@
     const target = motionBlurEnabled && !isReducedMotion && timestamp - lastMotionScrollTime < 55
       ? motionBlurTarget
       : 0;
-    const smoothing = 1 - Math.exp(-elapsed / (target > motionBlurAmount ? 35 : 40));
+    const responseTime = target > motionBlurAmount ? 24 : target > 0 ? 88 : 48;
+    const smoothing = 1 - Math.exp(-elapsed / responseTime);
     motionBlurAmount += (target - motionBlurAmount) * smoothing;
     if (motionBlurAmount < 0.01 && target === 0) motionBlurAmount = 0;
     motionBlurFilterPrimitive?.setAttribute('stdDeviation', `0 ${motionBlurAmount.toFixed(2)}`);

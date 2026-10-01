@@ -923,8 +923,28 @@
     requestAnimationFrame(() => notice.classList.add('is-visible'));
   }
 
+  function initializeAssistantGlass() {
+    const panel = document.querySelector('.assistant-panel');
+    if (!panel) return;
+    applyGlass(panel, navigationGlassConfig);
+    window.addEventListener('faceauth-navigation-glass-intensity-change', () => {
+      targets.get(panel)?.updateConfig(navigationGlassConfig());
+    });
+  }
+
+  function initializeAssistantToggleGlass() {
+    const toggle = document.querySelector('.assistant-toggle');
+    if (!toggle) return;
+    applyGlass(toggle, navigationGlassConfig);
+    window.addEventListener('faceauth-navigation-glass-intensity-change', () => {
+      targets.get(toggle)?.updateConfig(navigationGlassConfig());
+    });
+  }
+
   const nav = injectSharedNavigation();
   initializeNavigation(nav);
   injectSettingsButton();
+  initializeAssistantGlass();
+  initializeAssistantToggleGlass();
   injectSafariNotice();
 })();

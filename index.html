@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="appearance-theme.js?v=20261001-5"></script>
+    <script src="appearance-theme.js?v=20261001-7"></script>
     <title>FaceAuth — Face ID for Mac</title>
-    <link rel="stylesheet" href="faceauth-navigation.css?v=20260930-29" />
+    <link rel="stylesheet" href="faceauth-navigation.css?v=20261001-32" />
     <link rel="icon" type="image/svg+xml" href="logo.svg?v=20260921-1" />
     <link rel="apple-touch-icon" href="logo.svg?v=20260921-1" />
     <style>
@@ -1854,6 +1854,8 @@
       }
 
       .assistant-toggle {
+        isolation: isolate;
+        overflow: hidden;
         padding: 12px 17px;
         border: 1px solid rgba(0,0,0,0.08);
         border-radius: 999px;
@@ -1864,7 +1866,7 @@
         font-size: 0.86rem;
         font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
 
       .assistant-toggle:hover,
@@ -1876,6 +1878,39 @@
 
       .assistant-toggle:active {
         transform: translateY(0) scale(0.98);
+      }
+
+      html.faceauth-navigation-glass-intensity body :is(.assistant-panel, .assistant-toggle) {
+        border-color: rgba(255,255,255,0.24) !important;
+      }
+
+      html.faceauth-navigation-glass-intensity body .assistant-panel {
+        background-color: rgba(128,128,128,var(--faceauth-nav-glass-light-opacity,0.323125)) !important;
+        background-image: none !important;
+      }
+
+      html[data-theme="dark"].faceauth-navigation-glass-intensity body #assistant-panel {
+        background-color: rgba(27,32,40,var(--faceauth-nav-glass-dark-opacity,0.33)) !important;
+      }
+
+      html.faceauth-navigation-glass-intensity body .assistant-panel {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+
+      html.faceauth-navigation-glass-intensity body .assistant-toggle {
+        background-color: rgba(8,10,14,var(--faceauth-nav-glass-dark-opacity,0.33)) !important;
+        background-image: none !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+
+      html.faceauth-navigation-glass-intensity body .assistant-panel {
+        box-shadow: 0 18px 48px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.24), inset 0 -1px 0 rgba(255,255,255,0.05);
+      }
+
+      html.faceauth-navigation-glass-intensity body .assistant-toggle {
+        box-shadow: 0 8px 22px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.24), inset 0 -1px 0 rgba(255,255,255,0.05);
       }
 
       @media (max-width: 520px) {
@@ -2337,7 +2372,7 @@
           </form>
         </div>
       </section>
-      <button class="assistant-toggle" id="assistant-toggle" type="button" aria-expanded="false" aria-controls="assistant-panel">✦ Ask FaceAuth AI</button>
+      <button class="assistant-toggle" id="assistant-toggle" type="button" aria-expanded="false" aria-controls="assistant-panel"><span>✦ Ask FaceAuth AI</span></button>
     </aside>
     <script>
       const heroCommercial = document.querySelector('#hero-commercial');
@@ -2936,7 +2971,7 @@
         });
       })();
     </script>
-    <script src="faceauth-navigation.js?v=20260930-16"></script>
+    <script src="faceauth-navigation.js?v=20261001-18"></script>
     <script src="language-selector.js?v=20260930-27"></script>
   </body>
 </html>

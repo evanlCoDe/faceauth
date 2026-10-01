@@ -799,7 +799,8 @@ body.faceauth-nav-enabled {
 html.liquid-glass-disabled #faceauth-site-nav .lg-layer,
 html.liquid-glass-disabled .faceauth-glass-notice .lg-layer,
 html.liquid-glass-disabled .faceauth-settings-button .lg-layer,
-html.liquid-glass-disabled .faceauth-settings-popup .lg-layer {
+html.liquid-glass-disabled .faceauth-settings-popup .lg-layer,
+html.liquid-glass-disabled .assistant-toggle .lg-layer {
   display: none !important;
 }
 
@@ -1031,7 +1032,7 @@ html[data-theme="dark"] .faceauth-settings-popup .liquid-glass-slider-labels {
   color: rgba(242, 244, 247, 0.68) !important;
 }
 
-html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-settings-popup, .faceauth-glass-notice) .lg-refract {
+html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-settings-popup, .faceauth-glass-notice, .assistant-toggle) .lg-refract {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 2px rgba(0, 0, 0, 0.24) !important;
 }
 
@@ -1214,7 +1215,9 @@ html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-settings-popup,
 #faceauth-site-nav .lg-layer,
 .faceauth-glass-notice .lg-layer,
 .faceauth-settings-button .lg-layer,
-.faceauth-settings-popup .lg-layer {
+.faceauth-settings-popup .lg-layer,
+.assistant-panel .lg-layer,
+.assistant-toggle .lg-layer {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -1225,7 +1228,9 @@ html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-settings-popup,
 #faceauth-site-nav .lg-refract,
 .faceauth-glass-notice .lg-refract,
 .faceauth-settings-button .lg-refract,
-.faceauth-settings-popup .lg-refract {
+.faceauth-settings-popup .lg-refract,
+.assistant-panel .lg-refract,
+.assistant-toggle .lg-refract {
   background: transparent;
 }
 
@@ -1236,7 +1241,9 @@ html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-settings-popup,
 
 html.faceauth-safari-glass #faceauth-site-nav .lg-refract,
 html.faceauth-safari-glass .faceauth-settings-button .lg-refract,
-html.faceauth-safari-glass .faceauth-settings-popup .lg-refract {
+html.faceauth-safari-glass .faceauth-settings-popup .lg-refract,
+html.faceauth-safari-glass .assistant-panel .lg-refract,
+html.faceauth-safari-glass .assistant-toggle .lg-refract {
   overflow: hidden;
   background: transparent;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 2px rgba(42, 62, 91, 0.06);
@@ -1267,7 +1274,8 @@ html.faceauth-safari-glass #faceauth-site-nav .lg-tint {
 
 html.faceauth-safari-glass .faceauth-glass-notice .lg-tint,
 html.faceauth-safari-glass .faceauth-settings-button .lg-tint,
-html.faceauth-safari-glass .faceauth-settings-popup .lg-tint {
+html.faceauth-safari-glass .faceauth-settings-popup .lg-tint,
+html.faceauth-safari-glass .assistant-toggle .lg-tint {
   overflow: hidden;
 }
 
@@ -1287,7 +1295,8 @@ html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::after {
 
 html.faceauth-safari-glass #faceauth-site-nav .lg-tint::before,
 html.faceauth-safari-glass .faceauth-settings-button .lg-tint::before,
-html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::before {
+html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::before,
+html.faceauth-safari-glass .assistant-toggle .lg-tint::before {
   inset: 0;
   box-sizing: border-box;
   padding: 2px;
@@ -1319,7 +1328,8 @@ html.faceauth-safari-glass .faceauth-glass-notice .lg-tint::before {
 
 html.faceauth-safari-glass #faceauth-site-nav .lg-tint::after,
 html.faceauth-safari-glass .faceauth-settings-button .lg-tint::after,
-html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::after {
+html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::after,
+html.faceauth-safari-glass .assistant-toggle .lg-tint::after {
   inset: 2px;
   background-image: radial-gradient(ellipse 36% 46% at 18% 0%, rgba(255, 255, 255, 0.1), transparent 100%), radial-gradient(ellipse 27% 38% at 84% 100%, rgba(255, 255, 255, 0.055), transparent 100%);
   background-repeat: no-repeat;
@@ -1625,7 +1635,14 @@ html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) #faceauth-s
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-button,
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-button :where(*),
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-popup,
-html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-popup * {
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-popup *,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel :where(*) {
+  color: var(--faceauth-glass-foreground, #000) !important;
+}
+
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-toggle,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-toggle :where(*) {
   color: var(--faceauth-glass-foreground, #000) !important;
 }
 
