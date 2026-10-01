@@ -2,6 +2,7 @@
   const storageKey = 'faceauth-appearance';
   const scrollStorageKey = 'faceauth-ultra-smooth-scrolling';
   const liquidGlassStorageKey = 'faceauth-liquid-glass';
+  const liquidGlassStrengthStorageKey = 'faceauth-liquid-glass-strength';
   const motionBlurStorageKey = 'faceauth-motion-blur';
   const defaultNavigationGlassIntensity = 0.25;
   const transitionDuration = 420;
@@ -9,6 +10,7 @@
   let mode = 'day';
   let ultraSmoothScrolling = true;
   let liquidGlassEnabled = true;
+  let navigationGlassStrength = 1;
   let motionBlurEnabled = true;
   let navigationGlassIntensity = defaultNavigationGlassIntensity;
   let fallbackFrame = 0;
@@ -27,6 +29,13 @@
 
   try {
     liquidGlassEnabled = localStorage.getItem(liquidGlassStorageKey) !== 'false';
+  } catch {}
+
+  try {
+    const storedStrength = Number(localStorage.getItem(liquidGlassStrengthStorageKey));
+    if (localStorage.getItem(liquidGlassStrengthStorageKey) !== null && Number.isFinite(storedStrength)) {
+      navigationGlassStrength = Math.min(1, Math.max(0, storedStrength));
+    }
   } catch {}
 
   try {
@@ -292,29 +301,65 @@
     }
   });
 
+  const updateNavigationGlassVariables = () => {
+    const root = document.documentElement;
+    const opacityCurve = navigationGlassIntensity + navigationGlassIntensity * (1 - navigationGlassIntensity) * 0.5;
+    const solidSurfaceOpacity = (1 - navigationGlassStrength) * 0.85 * (1 - opacityCurve * 0.15);
+    const lightOpacity = Math.min(0.98, opacityCurve * 0.94 + solidSurfaceOpacity);
+    const darkOpacity = Math.min(0.98, opacityCurve * 0.96 + solidSurfaceOpacity);
+    const foregroundChannel = navigationGlassIntensity < 0.5 ? 0 : 255;
+    root.classList.add('faceauth-navigation-glass-intensity');
+    root.style.setProperty('--faceauth-glass-foreground', `rgb(${foregroundChannel}, ${foregroundChannel}, ${foregroundChannel})`);
+    root.style.setProperty('--faceauth-nav-glass-light-opacity', String(lightOpacity));
+    root.style.setProperty('--faceauth-nav-glass-dark-opacity', String(darkOpacity));
+    root.style.setProperty('--faceauth-nav-glass-blur', `${navigationGlassIntensity * 2.6}px`);
+    root.style.setProperty('--faceauth-nav-glass-highlight-opacity', String(opacityCurve * (0.04 + navigationGlassStrength * 0.20)));
+    root.style.setProperty('--faceauth-glass-strength', String(navigationGlassStrength));
+    root.style.setProperty('--faceauth-glass-strength-scale', String(0.2 + navigationGlassStrength * 2.3));
+    root.style.setProperty('--faceauth-glass-strength-saturation', String(1.05 + navigationGlassStrength * 0.5));
+    root.style.setProperty('--faceauth-glass-specular-opacity', String(opacityCurve * (0.08 + navigationGlassStrength * 0.92)));
+    root.style.setProperty('--faceauth-glass-edge-opacity', String(0.08 + navigationGlassStrength * 0.42));
+    root.style.setProperty('--faceauth-glass-scrollbar-saturation', `${135 + navigationGlassStrength * 45}%`);
+    root.style.setProperty('--faceauth-glass-scrollbar-edge-opacity', String(0.08 + navigationGlassStrength * 0.42));
+  };
+
   const setNavigationGlassIntensity = (intensity) => {
     const value = Number(intensity);
     if (!Number.isFinite(value)) return;
     navigationGlassIntensity = Math.min(1, Math.max(0, value));
-    const root = document.documentElement;
-    const opacityCurve = navigationGlassIntensity + navigationGlassIntensity * (1 - navigationGlassIntensity) * 0.5;
-    const foregroundChannel = navigationGlassIntensity < 0.5 ? 0 : 255;
-    root.classList.add('faceauth-navigation-glass-intensity');
-    root.style.setProperty('--faceauth-glass-foreground', `rgb(${foregroundChannel}, ${foregroundChannel}, ${foregroundChannel})`);
-    root.style.setProperty('--faceauth-nav-glass-light-opacity', String(opacityCurve * 0.94));
-    root.style.setProperty('--faceauth-nav-glass-dark-opacity', String(opacityCurve * 0.96));
+    updateNavigationGlassVariables();
     window.dispatchEvent(new CustomEvent('faceauth-navigation-glass-intensity-change', {
       detail: { intensity: navigationGlassIntensity }
     }));
+  };
 
+  const setNavigationGlassStrength = (strength, persist = true) => {
+    const value = Number(strength);
+    if (!Number.isFinite(value)) return;
+    navigationGlassStrength = Math.min(1, Math.max(0, value));
+    updateNavigationGlassVariables();
+    window.dispatchEvent(new CustomEvent('faceauth-navigation-glass-strength-change', {
+      detail: { strength: navigationGlassStrength }
+    }));
+    if (persist) {
+      try {
+        localStorage.setItem(liquidGlassStrengthStorageKey, String(navigationGlassStrength));
+      } catch {}
+    }
   };
 
   window.faceAuthNavigationGlass = Object.freeze({
     get intensity() {
       return navigationGlassIntensity;
     },
+    get strength() {
+      return navigationGlassStrength;
+    },
     setIntensity(intensity) {
       setNavigationGlassIntensity(intensity);
+    },
+    setStrength(strength, persist) {
+      setNavigationGlassStrength(strength, persist);
     }
   });
 
@@ -323,4 +368,5 @@
   setMotionBlurEnabled(motionBlurEnabled, false);
   setLiquidGlassEnabled(liquidGlassEnabled, false);
   setNavigationGlassIntensity(navigationGlassIntensity);
+  setNavigationGlassStrength(navigationGlassStrength, false);
 })();

@@ -124,6 +124,9 @@
     'Appearance': ['Appearance', '外观', '外觀', 'Apariencia', 'दिखावट', 'Apparence', 'Aparência', 'Внешний вид', '外観', '모양'],
     'Ultra Smooth Scrolling': ['Ultra Smooth Scrolling', '超顺滑滚动', '超順暢捲動', 'Desplazamiento ultrasuave', 'अल्ट्रा स्मूद स्क्रॉलिंग', 'Défilement ultra-fluide', 'Rolagem ultrassuave', 'Сверхплавная прокрутка', '超スムーズスクロール', '매우 부드러운 스크롤'],
     'Liquid Glass': ['Liquid Glass', '液态玻璃', '液態玻璃', 'Vidrio líquido', 'लिक्विड ग्लास', 'Verre liquide', 'Vidro líquido', 'Жидкое стекло', 'リキッドグラス', '리퀴드 글래스'],
+    'Liquid Glass Strength': ['Liquid Glass Strength', '液态玻璃强度', '液態玻璃強度', 'Intensidad del vidrio líquido', 'लिक्विड ग्लास की तीव्रता', 'Intensité du verre liquide', 'Intensidade do vidro líquido', 'Интенсивность жидкого стекла', 'リキッドグラスの強さ', '리퀴드 글래스 강도'],
+    'Weak': ['Weak', '弱', '弱', 'Débil', 'कमज़ोर', 'Faible', 'Fraco', 'Слабая', '弱い', '약하게'],
+    'Strong': ['Strong', '强', '強', 'Fuerte', 'मज़बूत', 'Fort', 'Forte', 'Сильная', '強い', '강하게'],
     'Dark': ['Dark', '深色', '深色', 'Oscuro', 'डार्क', 'Sombre', 'Escuro', 'Тёмный', 'ダーク', '다크'],
     'Day': ['Day', '白天', '白天', 'Día', 'दिन', 'Jour', 'Dia', 'День', '昼', '낮'],
     'Night': ['Night', '夜间', '夜間', 'Noche', 'रात', 'Nuit', 'Noite', 'Ночь', '夜', '밤'],
@@ -356,7 +359,8 @@
     const languageSelector = popup?.querySelector('.language-selector');
     const appearanceSelector = popup?.querySelector('.appearance-selector');
     const liquidGlassSetting = popup?.querySelector('.liquid-glass-setting');
-    if (!popup || !languageSelector || !appearanceSelector || !liquidGlassSetting) return;
+    const liquidGlassStrengthSetting = popup?.querySelector('.liquid-glass-strength-setting');
+    if (!popup || !languageSelector || !appearanceSelector || !liquidGlassSetting || !liquidGlassStrengthSetting) return;
 
     const languageToggle = languageSelector.querySelector('.language-toggle');
     const languageMenu = languageSelector.querySelector('.language-menu');
@@ -421,7 +425,7 @@
     appearanceSelector.id = 'settings-panel-appearance';
     appearanceSelector.setAttribute('aria-hidden', 'true');
     appearanceSelector.inert = true;
-    appearanceSelector.replaceChildren(darkSetting, liquidGlassSetting);
+    appearanceSelector.replaceChildren(darkSetting, liquidGlassSetting, liquidGlassStrengthSetting);
     createSettingsPanelHeader(appearanceSelector, 'Appearance', 'settings');
 
     const websitePerformancePanel = document.createElement('section');
@@ -457,6 +461,7 @@
       window.faceAuthAppearance?.setMode('day');
       window.faceAuthLiquidGlass?.setEnabled(true);
       window.faceAuthNavigationGlass?.setIntensity(0.25);
+      window.faceAuthNavigationGlass?.setStrength(1);
       window.faceAuthScrolling?.setUltraSmoothEnabled(true);
       window.faceAuthMotionBlur?.setEnabled(false);
       applyTranslations();
@@ -867,9 +872,92 @@
     popup.append(setting);
   };
 
+  const createLiquidGlassStrengthSetting = () => {
+    const popup = document.querySelector('.faceauth-settings-popup');
+    if (!popup || popup.querySelector('.liquid-glass-strength-setting')) return;
+
+    const setting = document.createElement('div');
+    setting.className = 'liquid-glass-setting liquid-glass-strength-setting';
+    const label = document.createElement('span');
+    label.className = 'liquid-glass-label';
+    label.textContent = translated('Liquid Glass Strength');
+    const slider = document.createElement('div');
+    slider.className = 'liquid-glass-slider liquid-glass-strength-slider';
+    slider.setAttribute('aria-hidden', 'true');
+    slider.innerHTML = '<span class="liquid-glass-slider-track"></span><span class="liquid-glass-slider-thumb"></span>';
+    const thumb = slider.querySelector('.liquid-glass-slider-thumb');
+    let currentStrength = window.faceAuthNavigationGlass?.strength ?? 1;
+    let activePointerId = null;
+    let pointerOffset = 0;
+    let previousPointerX = 0;
+
+    const renderThumbPosition = (strength) => {
+      currentStrength = Math.min(1, Math.max(0, strength));
+      const thumbRadius = (thumb.offsetHeight || 18) / 2;
+      thumb.style.left = `calc(${currentStrength * 100}% - ${thumbRadius}px)`;
+    };
+
+    const setThumbPosition = (clientX, offset = pointerOffset) => {
+      const track = slider.getBoundingClientRect();
+      const thumbRadius = thumb.offsetHeight / 2;
+      const travel = Math.max(0, track.width - thumbRadius * 2);
+      const nextLeft = Math.min(travel, Math.max(0, clientX - offset - track.left - thumbRadius));
+      renderThumbPosition(travel ? nextLeft / travel : 0);
+      window.faceAuthNavigationGlass?.setStrength(currentStrength, false);
+    };
+
+    renderThumbPosition(currentStrength);
+
+    const finishDrag = (event) => {
+      if (event.pointerId !== activePointerId) return;
+      window.faceAuthNavigationGlass?.setStrength(currentStrength);
+      activePointerId = null;
+      slider.classList.remove('is-dragging');
+      thumb.style.removeProperty('--liquid-glass-drag-stretch');
+      if (slider.hasPointerCapture(event.pointerId)) slider.releasePointerCapture(event.pointerId);
+    };
+
+    slider.addEventListener('pointerdown', (event) => {
+      if (activePointerId !== null || !event.target.closest('.liquid-glass-slider-track') || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      setThumbPosition(event.clientX, 0);
+      window.faceAuthNavigationGlass?.setStrength(currentStrength);
+    });
+    thumb.addEventListener('pointerdown', (event) => {
+      if (activePointerId !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      const thumbBounds = thumb.getBoundingClientRect();
+      activePointerId = event.pointerId;
+      pointerOffset = event.clientX - (thumbBounds.left + thumbBounds.width / 2);
+      previousPointerX = event.clientX;
+      slider.classList.add('is-dragging');
+      slider.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    });
+    slider.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== activePointerId) return;
+      setThumbPosition(event.clientX);
+      const movement = Math.abs(event.clientX - previousPointerX);
+      thumb.style.setProperty('--liquid-glass-drag-stretch', String(Math.min(1.4, 1.1 + movement * 0.035)));
+      previousPointerX = event.clientX;
+    });
+    slider.addEventListener('pointerup', finishDrag);
+    slider.addEventListener('pointercancel', finishDrag);
+    slider.addEventListener('lostpointercapture', finishDrag);
+    window.addEventListener('faceauth-navigation-glass-strength-change', (event) => {
+      if (activePointerId === null && Number.isFinite(event.detail?.strength)) renderThumbPosition(event.detail.strength);
+    });
+
+    const endpoints = document.createElement('div');
+    endpoints.className = 'liquid-glass-slider-labels';
+    endpoints.setAttribute('aria-hidden', 'true');
+    endpoints.innerHTML = `<span>${translated('Weak')}</span><span>${translated('Strong')}</span>`;
+    setting.append(label, slider, endpoints);
+    popup.append(setting);
+  };
+
   document.querySelectorAll('body > nav .nav-inner').forEach(createSelector);
   createAppearanceSelector();
   createLiquidGlassSetting();
+  createLiquidGlassStrengthSetting();
   createSettingsHierarchy();
   updateSelectors();
   applyTranslations();

@@ -40,6 +40,9 @@
   window.addEventListener('faceauth-liquid-glass-change', () => {
     targets.forEach((target) => target.rebuild());
   });
+  window.addEventListener('faceauth-navigation-glass-strength-change', () => {
+    targets.forEach((target) => target.updateConfig());
+  });
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -53,6 +56,20 @@
       tintOpacity: intensity * 0.04,
       innerShadow: 'rgba(255,255,255,0.22)',
       innerShadowBlur: 0.5 + intensity * 1.5
+    };
+  }
+
+  function withGlassStrength(config) {
+    const strength = clamp(window.faceAuthNavigationGlass?.strength ?? 1, 0, 1);
+    const edgeStrength = 0.25 + strength * 1.5;
+    return {
+      ...config,
+      scaleRatio: config.scaleRatio * (0.2 + strength * 2.3),
+      specularOpacity: clamp(config.specularOpacity * (0.2 + strength * 1.2), 0, 1),
+      specularSat: clamp(config.specularSat + strength * 0.55, 0, 1),
+      tintOpacity: config.tintOpacity * (1.15 - strength * 0.9),
+      innerShadowBlur: config.innerShadowBlur * edgeStrength,
+      innerShadowSpread: config.innerShadowSpread * edgeStrength
     };
   }
 
@@ -303,7 +320,7 @@
       const height = Math.round(element.offsetHeight || rect.height);
       if (width < 4 || height < 4) return;
 
-      const config = configGetter();
+      const config = withGlassStrength(configGetter());
       const dataRadius = parseFloat(element.getAttribute('data-radius') || '0');
       const cssRadius = parseFloat(getComputedStyle(element).borderTopLeftRadius || '0');
       const radius = Math.max(2, Math.min(dataRadius || cssRadius || 24, width / 2, height / 2));
@@ -332,6 +349,7 @@
     }
 
     function updateConfig(config = configGetter()) {
+      config = withGlassStrength(config);
       if (filterNode) {
         const blur = filterNode.querySelector('feGaussianBlur');
         const displacement = filterNode.querySelector('feDisplacementMap');
