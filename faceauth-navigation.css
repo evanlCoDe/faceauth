@@ -59,15 +59,23 @@ body.faceauth-nav-enabled {
   z-index: 1001;
   isolation: isolate;
   box-sizing: border-box;
-  width: min(228px, calc(100vw - 76px - env(safe-area-inset-left) - env(safe-area-inset-right)));
-  min-height: 48px;
-  padding: 6px;
+  width: min(260px, calc(100vw - 76px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+  height: auto;
+  min-height: 0;
+  max-height: min(450px, calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  padding: 0;
   overflow: hidden;
   border: 1px solid rgba(72, 80, 92, 0.12);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.012);
   box-shadow: 0 8px 22px rgba(17, 25, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.16);
   color: #171b22;
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
   opacity: 0;
   pointer-events: none;
   transform: translateX(-8px) scale(0.98);
@@ -84,6 +92,11 @@ body.faceauth-nav-enabled {
   visibility: visible;
 }
 
+.faceauth-settings-popup button {
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+
 .faceauth-settings-popup .language-selector {
   position: relative;
   z-index: 1;
@@ -98,7 +111,7 @@ body.faceauth-nav-enabled {
   width: 100%;
 }
 
-.faceauth-settings-popup .scroll-smoothing-setting {
+.faceauth-settings-popup :is(.scroll-smoothing-setting, .motion-blur-setting) {
   position: relative;
   z-index: 1;
   display: block;
@@ -119,7 +132,7 @@ body.faceauth-nav-enabled {
   background: transparent;
   color: #171b22;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.875rem;
   text-align: left;
   cursor: pointer;
   transition: max-height 220ms ease, min-height 220ms ease, padding 220ms ease, opacity 140ms ease, transform 220ms ease;
@@ -139,14 +152,14 @@ body.faceauth-nav-enabled {
   background: transparent;
   color: #171b22;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.875rem;
   text-align: left;
   cursor: pointer;
   transition: max-height 220ms ease, min-height 220ms ease, padding 220ms ease, opacity 140ms ease, transform 220ms ease;
 }
 
 .faceauth-settings-popup .language-setting-label {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .faceauth-settings-popup .language-globe {
@@ -158,6 +171,17 @@ body.faceauth-nav-enabled {
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: 0.78;
+}
+
+.faceauth-settings-popup :is(.settings-row-copy, .appearance-setting-copy, .settings-switch-copy) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.faceauth-settings-popup .settings-row-copy {
+  flex: 1;
 }
 
 .faceauth-settings-popup .language-row-chevron {
@@ -297,6 +321,324 @@ body.faceauth-nav-enabled {
   background: rgba(72, 80, 92, 0.07);
 }
 
+.faceauth-settings-popup .settings-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(22px);
+  transition: opacity 180ms ease, transform 260ms cubic-bezier(0.2, 0.85, 0.25, 1), visibility 0s linear 260ms;
+  visibility: hidden;
+}
+
+.faceauth-settings-popup .settings-panel::-webkit-scrollbar {
+  display: none;
+}
+
+.faceauth-settings-popup .settings-panel.is-active,
+.faceauth-settings-popup .settings-panel.is-before,
+.faceauth-settings-popup .settings-panel.is-after {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.faceauth-settings-popup .settings-panel.is-active {
+  position: relative;
+  inset: auto;
+  max-height: min(450px, calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  overflow-y: auto;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.faceauth-settings-popup .settings-panel.is-before {
+  transform: translateX(-22px);
+}
+
+.faceauth-settings-popup .settings-panel.is-after {
+  transform: translateX(22px);
+}
+
+.faceauth-settings-popup .settings-root-heading {
+  margin: 0;
+  padding: 1px 8px 10px;
+  color: #171b22;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.faceauth-settings-popup .settings-panel-header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(84px, 1fr) minmax(0, 1.25fr) 1fr;
+  align-items: center;
+  min-height: 38px;
+  margin: -3px -3px 6px;
+  padding: 0 2px 7px;
+  border-bottom: 1px solid rgba(72, 80, 92, 0.1);
+}
+
+.faceauth-settings-popup .settings-panel-header h2 {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  color: #171b22;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.faceauth-settings-popup .settings-panel-back {
+  position: relative;
+  z-index: 1;
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 30px;
+  padding: 0 5px 0 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #087cf0;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+}
+
+.faceauth-settings-popup .settings-panel-back span:first-child {
+  font-size: 1.45rem;
+  line-height: 0.8;
+}
+
+.faceauth-settings-popup .settings-panel-back:hover {
+  background: rgba(72, 80, 92, 0.07);
+}
+
+.faceauth-settings-popup .settings-navigation-row,
+.faceauth-settings-popup .settings-panel[data-settings-panel="settings"] .appearance-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  max-height: none;
+  padding: 0 10px;
+  border: 0;
+  border-bottom: 1px solid rgba(72, 80, 92, 0.1);
+  border-radius: 8px;
+  background: transparent;
+  color: #20242c;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.faceauth-settings-popup .settings-panel[data-settings-panel="settings"] .appearance-toggle .appearance-row-icon {
+  display: none;
+}
+
+.faceauth-settings-popup .settings-panel[data-settings-panel="settings"] .appearance-toggle .appearance-setting-label {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.faceauth-settings-popup .settings-row-chevron {
+  color: rgba(23, 27, 34, 0.42);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.faceauth-settings-popup .settings-navigation-row:hover,
+.faceauth-settings-popup .settings-panel[data-settings-panel="settings"] .appearance-toggle:hover {
+  background: rgba(72, 80, 92, 0.055);
+}
+
+.faceauth-settings-popup .settings-navigation-row:focus-visible,
+.faceauth-settings-popup .settings-panel-back:focus-visible {
+  outline: 2px solid rgba(0, 128, 255, 0.62);
+  outline-offset: -2px;
+}
+
+.faceauth-settings-popup .settings-language-panel {
+  gap: 0;
+}
+
+.faceauth-settings-popup .settings-language-panel .language-options {
+  padding: 0 2px;
+}
+
+.faceauth-settings-popup .settings-reset-content {
+  padding: 12px 8px;
+}
+
+.faceauth-settings-popup .settings-reset-content h3 {
+  margin: 0 0 7px;
+  color: #20242c;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+
+.faceauth-settings-popup .settings-reset-content p {
+  margin: 0;
+  color: rgba(32, 36, 44, 0.7);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+}
+
+.faceauth-settings-popup .settings-reset-button {
+  width: 100%;
+  min-height: 42px;
+  margin-top: auto;
+  border: 0;
+  border-radius: 11px;
+  background: #ff3b30;
+  color: #fff;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.faceauth-settings-popup .settings-reset-button:hover {
+  background: #e83229;
+}
+
+.faceauth-settings-popup .settings-reset-button:active {
+  transform: scale(0.98);
+}
+
+.faceauth-settings-popup .settings-reset-button:focus-visible {
+  outline: 2px solid rgba(255, 59, 48, 0.55);
+  outline-offset: 3px;
+}
+
+.faceauth-settings-popup .appearance-setting-row {
+  margin: 0 2px;
+  min-height: 48px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.faceauth-settings-popup .settings-switch-row {
+  min-height: 48px;
+  padding: 0 10px;
+}
+
+.faceauth-settings-popup .liquid-glass-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 2px;
+  padding: 9px 10px 4px;
+}
+
+.faceauth-settings-popup .liquid-glass-label {
+  color: #20242c;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.faceauth-settings-popup .liquid-glass-slider {
+  position: relative;
+  height: 18px;
+  margin: 0 3px;
+  touch-action: none;
+  user-select: none;
+}
+
+.faceauth-settings-popup .liquid-glass-slider-track {
+  position: absolute;
+  inset: 5px 0;
+  overflow: hidden;
+  border: 1px solid rgba(72, 80, 92, 0.14);
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(128, 132, 138, 0.2), rgba(128, 132, 138, 0.48));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.48), 0 1px 2px rgba(17, 25, 38, 0.08);
+  backdrop-filter: blur(8px) saturate(135%);
+  -webkit-backdrop-filter: blur(8px) saturate(135%);
+}
+
+.faceauth-settings-popup .liquid-glass-slider-thumb {
+  position: absolute;
+  top: 50%;
+  left: 62%;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(72, 80, 92, 0.16);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+  transition: left 45ms linear, width 160ms cubic-bezier(0.22, 1, 0.36, 1), transform 160ms cubic-bezier(0.22, 1, 0.36, 1), border-radius 160ms ease, box-shadow 160ms ease;
+}
+
+.faceauth-settings-popup .liquid-glass-slider.is-dragging .liquid-glass-slider-thumb {
+  width: 26px;
+  border-radius: 999px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.94);
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scaleX(var(--liquid-glass-drag-stretch, 1.1));
+}
+
+.faceauth-settings-popup .liquid-glass-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(32, 36, 44, 0.65);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.faceauth-settings-popup .settings-switch-label {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faceauth-settings-popup .settings-panel {
+    transition-duration: 0.01ms;
+  }
+}
+
 .faceauth-settings-popup .language-options {
   padding: 0 2px;
 }
@@ -314,7 +656,10 @@ body.faceauth-nav-enabled {
   background: transparent;
   color: #20242c;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
   text-align: left;
   cursor: pointer;
 }
@@ -368,11 +713,14 @@ body.faceauth-nav-enabled {
   padding: 0 10px;
   border-bottom: 1px solid rgba(72, 80, 92, 0.08);
   color: #20242c;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
 .faceauth-settings-popup .appearance-setting-label {
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .faceauth-settings-popup .appearance-switch {
@@ -660,6 +1008,20 @@ html[data-theme="dark"] .faceauth-settings-popup .language-submenu-header {
   border-bottom-color: rgba(255, 255, 255, 0.12) !important;
 }
 
+html[data-theme="dark"] .faceauth-settings-popup .liquid-glass-slider-track {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.34));
+}
+
+html[data-theme="dark"] .faceauth-settings-popup .liquid-glass-slider-thumb {
+  border-color: rgba(255, 255, 255, 0.34) !important;
+  background: rgba(247, 249, 252, 0.96);
+}
+
+html[data-theme="dark"] .faceauth-settings-popup .liquid-glass-slider-labels {
+  color: rgba(242, 244, 247, 0.68) !important;
+}
+
 html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-settings-popup, .faceauth-glass-notice) .lg-refract {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 2px rgba(0, 0, 0, 0.24) !important;
 }
@@ -689,7 +1051,7 @@ html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-settings-popup,
   display: flex;
   align-items: center;
   border: 1px solid rgba(72, 80, 92, 0.12);
-  border-radius: 999px;
+  border-radius: 24px;
   background: rgba(128, 128, 128, 0.1);
   box-shadow: 0 8px 22px rgba(17, 25, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.16);
   backdrop-filter: none;
@@ -797,7 +1159,7 @@ html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-settings-popup,
   height: calc(100% - 10px);
   overflow: hidden;
   border: 1px solid rgba(0, 128, 255, 0.28);
-  border-radius: 999px;
+  border-radius: 16px;
   background: transparent;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54), inset 0 -1px 0 rgba(255, 255, 255, 0.08), 0 5px 16px rgba(0, 0, 0, 0.08), inset 0 0 2px rgba(0, 128, 255, 0.2), -4px -4px 12px rgba(255, 255, 255, 0.12);
   opacity: 0;
@@ -1224,5 +1586,29 @@ html.faceauth-ios-safari .faceauth-glass-notice-close {
   #faceauth-site-nav .glass-indicator,
   #faceauth-site-nav .language-menu {
     transition-duration: 0.01ms;
+  }
+}
+
+html.faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner > .lg-layer {
+  display: block !important;
+}
+
+html.faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner {
+  background-color: rgba(128, 128, 128, var(--faceauth-nav-glass-light-opacity, 0.323125)) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-theme="dark"].faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner {
+  background-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) !important;
+}
+
+html.motion-blur-enabled body > main {
+  filter: url(#faceauth-motion-blur-filter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.motion-blur-enabled body > main {
+    filter: none !important;
   }
 }

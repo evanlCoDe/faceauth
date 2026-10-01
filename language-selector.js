@@ -259,7 +259,7 @@
   };
 
   const setSettingsRowsHidden = (popup, hidden) => {
-    popup?.querySelectorAll('.language-toggle, .appearance-toggle, .scroll-smoothing-toggle, .liquid-glass-toggle').forEach((toggle) => {
+    popup?.querySelectorAll('.language-toggle, .appearance-toggle, .scroll-smoothing-toggle').forEach((toggle) => {
       if (hidden) {
         toggle.setAttribute('aria-hidden', 'true');
         toggle.tabIndex = -1;
@@ -271,23 +271,202 @@
   };
 
   const returnToLanguageRow = (selector, focusRow = false) => {
-    const toggle = selector.querySelector('.language-toggle');
-    const popup = selector.closest('.faceauth-settings-popup');
-    selector.classList.remove('is-open');
-    popup?.classList.remove('has-submenu');
-    toggle.setAttribute('aria-expanded', 'false');
-    setSettingsRowsHidden(popup, false);
-    if (focusRow) requestAnimationFrame(() => toggle.focus());
+    showSettingsPanel('general', true, focusRow ? selector.querySelector('.language-toggle') : null);
   };
 
   const returnToAppearanceRow = (selector, focusRow = false) => {
-    const toggle = selector.querySelector('.appearance-toggle');
-    const popup = selector.closest('.faceauth-settings-popup');
-    selector.classList.remove('is-open');
-    popup?.classList.remove('has-submenu');
-    toggle.setAttribute('aria-expanded', 'false');
-    setSettingsRowsHidden(popup, false);
-    if (focusRow) requestAnimationFrame(() => toggle.focus());
+    showSettingsPanel('settings', true, focusRow ? selector.querySelector('.appearance-toggle') : null);
+  };
+
+  const showSettingsPanel = (panelId, goingBack = false, focusTarget = null) => {
+    const popup = document.querySelector('.faceauth-settings-popup');
+    if (!popup) return;
+    const current = popup.querySelector('.settings-panel.is-active');
+    const target = popup.querySelector(`[data-settings-panel="${panelId}"]`);
+    if (!target) return;
+    popup.querySelectorAll('[data-opens-panel]').forEach((control) => {
+      control.setAttribute('aria-expanded', String(control.dataset.opensPanel === panelId));
+    });
+    if (current === target) return;
+
+    popup.querySelectorAll('.settings-panel').forEach((panel) => {
+      panel.classList.remove('is-active', 'is-before', 'is-after');
+      panel.setAttribute('aria-hidden', 'true');
+      panel.inert = true;
+    });
+    if (current) current.classList.add(goingBack ? 'is-after' : 'is-before');
+    target.classList.add('is-active');
+    target.setAttribute('aria-hidden', 'false');
+    target.inert = false;
+    popup.dataset.panel = panelId;
+    const nextFocus = focusTarget || target.querySelector('.settings-panel-back') || target.querySelector('.settings-navigation-row');
+    if (nextFocus) window.setTimeout(() => nextFocus.focus(), 260);
+  };
+
+  const createSettingsPanelHeader = (panel, title, parentId) => {
+    const header = document.createElement('div');
+    header.className = 'settings-panel-header';
+    const back = document.createElement('button');
+    back.className = 'settings-panel-back';
+    back.type = 'button';
+    back.setAttribute('aria-label', translated('Go Back'));
+    back.innerHTML = `<span aria-hidden="true">‹</span><span>${translated(parentId === 'settings' ? 'Settings' : 'General')}</span>`;
+    back.addEventListener('click', () => showSettingsPanel(parentId, true));
+    const heading = document.createElement('h2');
+    heading.textContent = translated(title);
+    header.append(back, heading);
+    panel.prepend(header);
+  };
+
+  const createSettingsIcon = (paths) => {
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.classList.add('language-globe');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = paths;
+    return icon;
+  };
+
+  const createSettingsRow = (label, panelId) => {
+    const row = document.createElement('button');
+    row.className = 'settings-navigation-row';
+    row.type = 'button';
+    row.dataset.opensPanel = panelId;
+    row.setAttribute('aria-controls', `settings-panel-${panelId}`);
+    row.setAttribute('aria-expanded', 'false');
+    const copy = document.createElement('span');
+    copy.className = 'settings-row-copy';
+    if (label === 'Reset Settings') {
+      copy.append(createSettingsIcon('<path d="M20 11a8 8 0 0 0-14.9-4M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 4M20 20v-4h-4"/>'));
+    }
+    const text = document.createElement('span');
+    text.textContent = translated(label);
+    copy.append(text);
+    const chevron = document.createElement('span');
+    chevron.className = 'settings-row-chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    chevron.textContent = '›';
+    row.append(copy, chevron);
+    row.addEventListener('click', () => showSettingsPanel(panelId));
+    return row;
+  };
+
+  const createSettingsHierarchy = () => {
+    const popup = document.querySelector('.faceauth-settings-popup');
+    const languageSelector = popup?.querySelector('.language-selector');
+    const appearanceSelector = popup?.querySelector('.appearance-selector');
+    const liquidGlassSetting = popup?.querySelector('.liquid-glass-setting');
+    if (!popup || !languageSelector || !appearanceSelector || !liquidGlassSetting) return;
+
+    const languageToggle = languageSelector.querySelector('.language-toggle');
+    const languageMenu = languageSelector.querySelector('.language-menu');
+    const appearanceToggle = appearanceSelector.querySelector('.appearance-toggle');
+    const appearanceMenu = appearanceSelector.querySelector('.appearance-menu');
+    const languageList = languageMenu.querySelector('.language-options');
+    const darkSetting = appearanceMenu.querySelector('.appearance-setting-row');
+
+    const glassLayers = Array.from(popup.children).filter((child) => child.classList.contains('lg-layer'));
+    popup.replaceChildren(...glassLayers);
+    const settingsPanel = document.createElement('section');
+    settingsPanel.className = 'settings-panel is-active';
+    settingsPanel.dataset.settingsPanel = 'settings';
+    settingsPanel.id = 'settings-panel-settings';
+    settingsPanel.setAttribute('aria-hidden', 'false');
+    settingsPanel.inert = false;
+    const settingsHeading = document.createElement('h2');
+    settingsHeading.className = 'settings-root-heading';
+    settingsHeading.tabIndex = -1;
+    settingsHeading.textContent = translated('Settings');
+    settingsPanel.append(settingsHeading, createSettingsRow('General', 'general'));
+    appearanceToggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      showSettingsPanel('appearance');
+    }, true);
+    appearanceToggle.dataset.opensPanel = 'appearance';
+    appearanceToggle.setAttribute('aria-controls', 'settings-panel-appearance');
+    appearanceToggle.setAttribute('aria-expanded', 'false');
+    settingsPanel.append(appearanceToggle);
+    settingsPanel.append(createSettingsRow('Website Performance', 'website-performance'));
+
+    const generalPanel = document.createElement('section');
+    generalPanel.className = 'settings-panel';
+    generalPanel.dataset.settingsPanel = 'general';
+    generalPanel.id = 'settings-panel-general';
+    generalPanel.setAttribute('aria-hidden', 'true');
+    generalPanel.inert = true;
+    createSettingsPanelHeader(generalPanel, 'General', 'settings');
+    languageToggle.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      showSettingsPanel('language');
+    }, true);
+    languageToggle.dataset.opensPanel = 'language';
+    languageToggle.setAttribute('aria-controls', 'settings-panel-language');
+    languageToggle.setAttribute('aria-expanded', 'false');
+    generalPanel.append(languageSelector, createSettingsRow('Reset Settings', 'reset'));
+
+    const languagePanel = document.createElement('section');
+    languagePanel.className = 'settings-panel settings-language-panel';
+    languagePanel.dataset.settingsPanel = 'language';
+    languagePanel.id = 'settings-panel-language';
+    languagePanel.setAttribute('aria-hidden', 'true');
+    languagePanel.inert = true;
+    languagePanel.append(languageList);
+    createSettingsPanelHeader(languagePanel, 'Language', 'general');
+    languageMenu.replaceChildren();
+
+    appearanceSelector.classList.add('settings-panel');
+    appearanceSelector.dataset.settingsPanel = 'appearance';
+    appearanceSelector.id = 'settings-panel-appearance';
+    appearanceSelector.setAttribute('aria-hidden', 'true');
+    appearanceSelector.inert = true;
+    appearanceSelector.replaceChildren(darkSetting, liquidGlassSetting);
+    createSettingsPanelHeader(appearanceSelector, 'Appearance', 'settings');
+
+    const websitePerformancePanel = document.createElement('section');
+    websitePerformancePanel.className = 'settings-panel';
+    websitePerformancePanel.dataset.settingsPanel = 'website-performance';
+    websitePerformancePanel.id = 'settings-panel-website-performance';
+    websitePerformancePanel.setAttribute('aria-hidden', 'true');
+    websitePerformancePanel.inert = true;
+    createSettingsPanelHeader(websitePerformancePanel, 'Website Performance', 'settings');
+    createScrollingSetting(websitePerformancePanel);
+    createMotionBlurSetting(websitePerformancePanel);
+
+    const resetPanel = document.createElement('section');
+    resetPanel.className = 'settings-panel settings-reset-panel';
+    resetPanel.dataset.settingsPanel = 'reset';
+    resetPanel.id = 'settings-panel-reset';
+    resetPanel.setAttribute('aria-hidden', 'true');
+    resetPanel.inert = true;
+    createSettingsPanelHeader(resetPanel, 'Reset Settings', 'general');
+    const resetContent = document.createElement('div');
+    resetContent.className = 'settings-reset-content';
+    const resetHeading = document.createElement('h3');
+    resetHeading.textContent = translated('Reset to Default Settings');
+    const resetDescription = document.createElement('p');
+    resetDescription.textContent = translated("This will restore the website's settings to their original defaults.");
+    const resetButton = document.createElement('button');
+    resetButton.className = 'settings-reset-button';
+    resetButton.type = 'button';
+    resetButton.textContent = translated('Reset');
+    resetButton.addEventListener('click', () => {
+      selectedLanguage = 'en';
+      document.querySelectorAll('.language-selector').forEach((item) => { item.dataset.language = 'en'; });
+      window.faceAuthAppearance?.setMode('day');
+      window.faceAuthLiquidGlass?.setEnabled(true);
+      window.faceAuthNavigationGlass?.setIntensity(0.25);
+      window.faceAuthScrolling?.setUltraSmoothEnabled(true);
+      window.faceAuthMotionBlur?.setEnabled(false);
+      applyTranslations();
+      updateSelectors();
+    });
+    resetContent.append(resetHeading, resetDescription);
+    resetPanel.append(resetContent, resetButton);
+
+    popup.append(settingsPanel, generalPanel, languagePanel, resetPanel, appearanceSelector, websitePerformancePanel);
+    popup.dataset.panel = 'settings';
   };
 
   const prepareSelector = (selector) => {
@@ -427,13 +606,13 @@
   const updateSelectors = () => {
     document.querySelectorAll('.language-selector').forEach((selector) => {
       const toggle = selector.querySelector('.language-toggle');
-      const menu = selector.querySelector('.language-menu');
+      const menu = document.querySelector('.settings-language-panel');
       const selectedIndex = languageOrder.indexOf(selectedLanguage);
       toggle.querySelector('.language-setting-label').textContent = translated('Language');
       toggle.setAttribute('aria-label', translated('Language'));
       const list = menu.querySelector('.language-options');
       list.setAttribute('aria-label', translated('Language'));
-      menu.querySelector('.language-back').setAttribute('aria-label', translated('Go Back'));
+      menu.querySelector('.settings-panel-back').setAttribute('aria-label', translated('Go Back'));
       menu.querySelectorAll('.language-option').forEach((option, index) => {
         option.textContent = languageNames[index];
         option.classList.toggle('is-selected', index === selectedIndex);
@@ -442,7 +621,7 @@
     });
     document.querySelectorAll('.appearance-selector').forEach(updateAppearanceSelector);
     document.querySelectorAll('.scroll-smoothing-setting').forEach(updateScrollingSetting);
-    document.querySelectorAll('.liquid-glass-setting').forEach(updateLiquidGlassSetting);
+    document.querySelectorAll('.motion-blur-setting').forEach(updateMotionBlurSetting);
   };
 
   const updateScrollingSetting = (setting) => {
@@ -454,21 +633,23 @@
     toggle.setAttribute('aria-label', translated('Ultra Smooth Scrolling'));
   };
 
-  const updateLiquidGlassSetting = (setting) => {
-    const toggle = setting.querySelector('.liquid-glass-toggle');
-    const isEnabled = window.faceAuthLiquidGlass?.enabled !== false;
-    setting.querySelector('.settings-switch-label').textContent = translated('Liquid Glass');
+  const updateMotionBlurSetting = (setting) => {
+    const toggle = setting.querySelector('.motion-blur-toggle');
+    const isEnabled = window.faceAuthMotionBlur?.enabled === true;
+    setting.querySelector('.settings-switch-label').textContent = translated('Pro Motion');
     toggle.classList.toggle('is-on', isEnabled);
     toggle.setAttribute('aria-checked', String(isEnabled));
-    toggle.setAttribute('aria-label', translated('Liquid Glass'));
+    toggle.setAttribute('aria-label', translated('Pro Motion'));
   };
 
   const updateAppearanceSelector = (selector) => {
     const toggle = selector.querySelector('.appearance-switch');
     const selectedMode = window.faceAuthAppearance?.mode || 'day';
-    selector.querySelector('.appearance-toggle .appearance-setting-label').textContent = translated('Appearance');
+    const appearanceLabel = selector.querySelector('.appearance-toggle .appearance-setting-label');
+    if (appearanceLabel) appearanceLabel.textContent = translated('Appearance');
     selector.querySelector('.appearance-setting-row .appearance-setting-label').textContent = translated('Dark');
-    selector.querySelector('.appearance-back').setAttribute('aria-label', translated('Go Back'));
+    const back = selector.querySelector('.settings-panel-back');
+    if (back) back.setAttribute('aria-label', translated('Go Back'));
     toggle.classList.toggle('is-night', selectedMode === 'night');
     toggle.setAttribute('aria-checked', String(selectedMode === 'night'));
     toggle.setAttribute('aria-label', translated('Dark'));
@@ -500,13 +681,16 @@
     setting.className = 'appearance-setting-row';
     const label = document.createElement('span');
     label.className = 'appearance-setting-label';
+    const settingCopy = document.createElement('span');
+    settingCopy.className = 'appearance-setting-copy';
+    settingCopy.append(createSettingsIcon('<path d="M20.1 15.6A8.8 8.8 0 0 1 8.4 3.9 8.8 8.8 0 1 0 20.1 15.6Z"/>'), label);
     const darkSwitch = document.createElement('button');
     darkSwitch.className = 'appearance-switch';
     darkSwitch.type = 'button';
     darkSwitch.setAttribute('role', 'switch');
     darkSwitch.setAttribute('aria-checked', 'false');
     darkSwitch.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
-    setting.append(label, darkSwitch);
+    setting.append(settingCopy, darkSwitch);
     menu.append(header, setting);
     selector.append(toggle, menu);
     popup.append(selector);
@@ -534,7 +718,7 @@
     updateAppearanceSelector(selector);
   };
 
-  const createScrollingSetting = () => {
+  const createScrollingSetting = (container = document.querySelector('.faceauth-settings-popup')) => {
     const popup = document.querySelector('.faceauth-settings-popup');
     if (!popup || popup.querySelector('.scroll-smoothing-setting')) return;
 
@@ -544,21 +728,60 @@
     row.className = 'settings-switch-row';
     const label = document.createElement('span');
     label.className = 'settings-switch-label';
+    const settingCopy = document.createElement('span');
+    settingCopy.className = 'settings-switch-copy';
+    settingCopy.append(
+      createSettingsIcon('<path d="M3 8h11a2.5 2.5 0 1 0-2.5-2.5"/><path d="M2 12h17a2.5 2.5 0 1 1-2.5 2.5"/><path d="M4 16h8"/>'),
+      label
+    );
     const toggle = document.createElement('button');
     toggle.className = 'appearance-switch scroll-smoothing-toggle';
     toggle.type = 'button';
     toggle.setAttribute('role', 'switch');
     toggle.setAttribute('aria-checked', 'true');
     toggle.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
-    row.append(label, toggle);
+    row.append(settingCopy, toggle);
     setting.append(row);
-    popup.append(setting);
+    container.append(setting);
     toggle.addEventListener('click', () => {
       const isEnabled = window.faceAuthScrolling?.ultraSmoothEnabled !== false;
       window.faceAuthScrolling?.setUltraSmoothEnabled(!isEnabled);
       updateScrollingSetting(setting);
     });
     updateScrollingSetting(setting);
+    return setting;
+  };
+
+  const createMotionBlurSetting = (container = document.querySelector('.faceauth-settings-popup')) => {
+    const popup = document.querySelector('.faceauth-settings-popup');
+    if (!popup || container.querySelector('.motion-blur-setting')) return;
+
+    const setting = document.createElement('div');
+    setting.className = 'motion-blur-setting';
+    const row = document.createElement('div');
+    row.className = 'settings-switch-row';
+    const label = document.createElement('span');
+    label.className = 'settings-switch-label';
+    const settingCopy = document.createElement('span');
+    settingCopy.className = 'settings-switch-copy';
+    settingCopy.append(
+      createSettingsIcon('<circle cx="16" cy="4.5" r="1.8"/><path d="m13.2 8-2.6 3.6 3.2 1.8.8 5.1m-4-6.9-3.8.7-2 3m8.2-5.3 3.7 1.2 2.2 2.1m-8.3 0-3.3 2.8-1.5 2.4"/>'),
+      label
+    );
+    const toggle = document.createElement('button');
+    toggle.className = 'appearance-switch motion-blur-toggle';
+    toggle.type = 'button';
+    toggle.setAttribute('role', 'switch');
+    toggle.setAttribute('aria-checked', 'false');
+    toggle.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
+    row.append(settingCopy, toggle);
+    setting.append(row);
+    container.append(setting);
+    toggle.addEventListener('click', () => {
+      window.faceAuthMotionBlur?.setEnabled(!window.faceAuthMotionBlur.enabled);
+      updateMotionBlurSetting(setting);
+    });
+    updateMotionBlurSetting(setting);
   };
 
   const createLiquidGlassSetting = () => {
@@ -567,33 +790,88 @@
 
     const setting = document.createElement('div');
     setting.className = 'liquid-glass-setting';
-    const row = document.createElement('div');
-    row.className = 'settings-switch-row';
     const label = document.createElement('span');
-    label.className = 'settings-switch-label';
-    const toggle = document.createElement('button');
-    toggle.className = 'appearance-switch liquid-glass-toggle';
-    toggle.type = 'button';
-    toggle.setAttribute('role', 'switch');
-    toggle.setAttribute('aria-checked', 'true');
-    toggle.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
-    row.append(label, toggle);
-    setting.append(row);
-    popup.append(setting);
-    toggle.addEventListener('click', () => {
-      const isEnabled = window.faceAuthLiquidGlass?.enabled !== false;
-      window.faceAuthLiquidGlass?.setEnabled(!isEnabled);
-      updateLiquidGlassSetting(setting);
+    label.className = 'liquid-glass-label';
+    label.textContent = translated('Liquid Glass');
+    const slider = document.createElement('div');
+    slider.className = 'liquid-glass-slider';
+    slider.setAttribute('aria-hidden', 'true');
+    slider.innerHTML = '<span class="liquid-glass-slider-track"></span><span class="liquid-glass-slider-thumb"></span>';
+    const thumb = slider.querySelector('.liquid-glass-slider-thumb');
+    let currentIntensity = window.faceAuthNavigationGlass?.intensity ?? 0.25;
+    let activePointerId = null;
+    let pointerOffset = 0;
+    let previousPointerX = 0;
+
+    const renderThumbPosition = (intensity) => {
+      currentIntensity = Math.min(1, Math.max(0, intensity));
+      const thumbRadius = (thumb.offsetHeight || 18) / 2;
+      thumb.style.left = `calc(${currentIntensity * 100}% - ${thumbRadius}px)`;
+    };
+
+    const setThumbPosition = (clientX) => {
+      const track = slider.getBoundingClientRect();
+      const thumbRadius = thumb.offsetHeight / 2;
+      const travel = Math.max(0, track.width - thumbRadius * 2);
+      const nextLeft = Math.min(travel, Math.max(0, clientX - pointerOffset - track.left - thumbRadius));
+      const intensity = travel ? nextLeft / travel : 0;
+      renderThumbPosition(intensity);
+      window.faceAuthNavigationGlass?.setIntensity(currentIntensity, false);
+    };
+
+    renderThumbPosition(currentIntensity);
+
+    const finishDrag = (event) => {
+      if (event.pointerId !== activePointerId) return;
+      window.faceAuthNavigationGlass?.setIntensity(currentIntensity);
+      activePointerId = null;
+      slider.classList.remove('is-dragging');
+      thumb.style.removeProperty('--liquid-glass-drag-stretch');
+      if (slider.hasPointerCapture(event.pointerId)) slider.releasePointerCapture(event.pointerId);
+    };
+
+    thumb.addEventListener('pointerdown', (event) => {
+      if (activePointerId !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
+      const thumbBounds = thumb.getBoundingClientRect();
+      activePointerId = event.pointerId;
+      pointerOffset = event.clientX - (thumbBounds.left + thumbBounds.width / 2);
+      previousPointerX = event.clientX;
+      slider.classList.add('is-dragging');
+      slider.setPointerCapture(event.pointerId);
+      event.preventDefault();
     });
-    updateLiquidGlassSetting(setting);
+    slider.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== activePointerId) return;
+      setThumbPosition(event.clientX);
+      const movement = Math.abs(event.clientX - previousPointerX);
+      const stretch = Math.min(1.4, 1.1 + movement * 0.035);
+      thumb.style.setProperty('--liquid-glass-drag-stretch', String(stretch));
+      previousPointerX = event.clientX;
+    });
+    slider.addEventListener('pointerup', finishDrag);
+    slider.addEventListener('pointercancel', finishDrag);
+    slider.addEventListener('lostpointercapture', finishDrag);
+    window.addEventListener('faceauth-navigation-glass-intensity-change', (event) => {
+      if (activePointerId === null && Number.isFinite(event.detail?.intensity)) renderThumbPosition(event.detail.intensity);
+    });
+    const endpoints = document.createElement('div');
+    endpoints.className = 'liquid-glass-slider-labels';
+    endpoints.setAttribute('aria-hidden', 'true');
+    endpoints.innerHTML = `<span>${translated('Clear')}</span><span>${translated('Blur')}</span>`;
+    setting.append(label, slider, endpoints);
+    popup.append(setting);
   };
 
   document.querySelectorAll('body > nav .nav-inner').forEach(createSelector);
   createAppearanceSelector();
-  createScrollingSetting();
   createLiquidGlassSetting();
+  createSettingsHierarchy();
   updateSelectors();
   applyTranslations();
+
+  document.querySelector('.faceauth-settings-popup')?.addEventListener('faceauth-settings-open', () => {
+    showSettingsPanel('settings', true);
+  });
 
   const observer = new MutationObserver((mutations) => {
     if (selectedLanguage === 'en') return;

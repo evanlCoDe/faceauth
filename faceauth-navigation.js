@@ -43,6 +43,19 @@
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
+  function navigationGlassConfig() {
+    const intensity = clamp(window.faceAuthNavigationGlass?.intensity ?? 0.25, 0, 1);
+    return {
+      ...SWITCHER_CONFIG,
+      scaleRatio: (0.45 + intensity * 0.55) * 5,
+      blur: intensity * 2.6,
+      specularOpacity: 0.36 + intensity * 0.34,
+      tintOpacity: intensity * 0.04,
+      innerShadow: 'rgba(255,255,255,0.22)',
+      innerShadowBlur: 0.5 + intensity * 1.5
+    };
+  }
+
   function surfaceFn(x) {
     return Math.pow(1 - Math.pow(1 - x, 4), 0.25);
   }
@@ -217,6 +230,7 @@
       primitiveUnits: 'userSpaceOnUse',
       'color-interpolation-filters': 'sRGB'
     });
+    filter.dataset.maxDisplacement = String(maxDisplacement);
 
     const blur = svgElement('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: config.blur, result: 'blurred' });
     const displacementImage = svgElement('feImage', { href: displacementUrl, x: 0, y: 0, width, height, result: 'displacement-map' });
@@ -274,7 +288,8 @@
     }
 
     function rebuild() {
-      if (document.documentElement.classList.contains('liquid-glass-disabled')) {
+      const isIntensityControlledNavigation = element.matches('#faceauth-site-nav .nav-inner');
+      if (document.documentElement.classList.contains('liquid-glass-disabled') && !isIntensityControlledNavigation) {
         if (filterNode) filterNode.remove();
         filterNode = null;
         refractiveLayer.style.removeProperty('backdrop-filter');
@@ -316,6 +331,22 @@
       elevateContent();
     }
 
+    function updateConfig(config = configGetter()) {
+      if (filterNode) {
+        const blur = filterNode.querySelector('feGaussianBlur');
+        const displacement = filterNode.querySelector('feDisplacementMap');
+        const specularAlpha = filterNode.querySelector('feFuncA');
+        const saturation = filterNode.querySelector('feColorMatrix');
+        const maxDisplacement = Number(filterNode.dataset.maxDisplacement) || 0;
+        blur?.setAttribute('stdDeviation', String(config.blur));
+        displacement?.setAttribute('scale', String(maxDisplacement * config.scaleRatio));
+        specularAlpha?.setAttribute('slope', String(config.specularOpacity));
+        saturation?.setAttribute('values', String(config.specularSat));
+      }
+      tintLayer.style.backgroundColor = `rgba(${config.tintColor},${config.tintOpacity})`;
+      tintLayer.style.boxShadow = `inset 0 0 ${config.innerShadowBlur}px ${config.innerShadowSpread}px ${config.innerShadow}`;
+    }
+
     function scheduleRebuild() {
       clearTimeout(timer);
       timer = setTimeout(rebuild, 16);
@@ -325,6 +356,7 @@
     resizeObserver.observe(element);
     const instance = {
       rebuild,
+      updateConfig,
       destroy() {
         clearTimeout(timer);
         resizeObserver.disconnect();
@@ -347,8 +379,8 @@
     nav.id = 'faceauth-site-nav';
     nav.setAttribute('aria-label', 'Primary navigation');
     nav.innerHTML = `
-      <div class="nav-inner" data-radius="999">
-        <div class="glass-indicator" aria-hidden="true"></div>
+      <div class="nav-inner" data-radius="24">
+        <div class="glass-indicator" data-radius="16" aria-hidden="true"></div>
         <div class="nav-actions">
           <div class="nav-links">
             <a class="glass-nav-link" data-nav="home" href="index.html#top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 3l8.5 7.5v8.2a1.8 1.8 0 0 1-1.8 1.8H5.3a1.8 1.8 0 0 1-1.8-1.8v-8.2Z"/><path d="M9 20.5v-6h6v6"/></svg><span>Home</span></a>
@@ -391,6 +423,7 @@
       const isOpen = popup.classList.toggle('is-open');
       button.setAttribute('aria-expanded', String(isOpen));
       popup.setAttribute('aria-hidden', String(!isOpen));
+      if (isOpen) popup.dispatchEvent(new Event('faceauth-settings-open'));
     });
     document.addEventListener('click', (event) => {
       if (!popup.classList.contains('is-open') || popup.contains(event.target) || button.contains(event.target)) return;
@@ -797,6 +830,9 @@
     });
 
     window.addEventListener('resize', () => moveIndicator(focusedTarget || links.find((link) => link.dataset.nav === selected), true));
+    window.addEventListener('faceauth-navigation-glass-intensity-change', () => {
+      targets.get(surface)?.updateConfig(navigationGlassConfig());
+    });
     window.addEventListener('scroll', handlePageScroll, { passive: true });
     window.addEventListener('scrollend', finishScrollToDestination);
     window.addEventListener('wheel', cancelPendingScrollDestination, { passive: true });
@@ -820,7 +856,7 @@
 
     indicator.style.zIndex = '2';
     nav.querySelector('.nav-actions').style.zIndex = '3';
-    applyGlass(surface, () => SWITCHER_CONFIG);
+    applyGlass(surface, navigationGlassConfig);
     moveIndicator(links.find((link) => link.dataset.nav === selected), true);
     applyGlass(indicator, () => ACTIVE_BUBBLE_CONFIG);
     document.fonts?.ready.then(() => moveIndicator(links.find((link) => link.dataset.nav === selected), true));
