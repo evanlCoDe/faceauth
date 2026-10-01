@@ -9,7 +9,7 @@
   let mode = 'day';
   let ultraSmoothScrolling = true;
   let liquidGlassEnabled = true;
-  let motionBlurEnabled = false;
+  let motionBlurEnabled = true;
   let navigationGlassIntensity = defaultNavigationGlassIntensity;
   let fallbackFrame = 0;
   let fallbackTimeout = 0;
@@ -30,7 +30,7 @@
   } catch {}
 
   try {
-    motionBlurEnabled = localStorage.getItem(motionBlurStorageKey) === 'true';
+    motionBlurEnabled = localStorage.getItem(motionBlurStorageKey) !== 'false';
   } catch {}
 
   const applyMode = (nextMode, persist = false) => {
@@ -224,7 +224,7 @@
     const currentScrollY = window.scrollY;
     const elapsed = Math.max(8, now - lastScrollTime);
     const velocity = Math.abs(currentScrollY - lastScrollY) / elapsed;
-    motionBlurTarget = Math.min(3.75, Math.max(0, (velocity - 0.12) * 0.96));
+    motionBlurTarget = Math.min(3.75, Math.max(0, (velocity - 0.06) * 1.35));
     lastScrollY = currentScrollY;
     lastScrollTime = now;
     lastMotionScrollTime = now;
