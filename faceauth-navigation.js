@@ -8,8 +8,13 @@
     /iPhone|iPad/i.test(userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   );
+  const isMobileOrTablet = /Android|iPhone|iPad|iPod|Tablet|PlayBook|Silk|Kindle|Mobile|Windows Phone|IEMobile|BlackBerry/i.test(userAgent)
+    || navigator.userAgentData?.mobile === true
+    || navigator.userAgentData?.formFactors?.includes('Tablet')
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (isSafari) document.documentElement.classList.add('faceauth-safari-glass');
   if (isMobileSafari) document.documentElement.classList.add('faceauth-ios-safari');
+  if (isMobileOrTablet) document.documentElement.classList.add('faceauth-mobile-device');
 
   const SWITCHER_CONFIG = Object.freeze({
     glassThickness: 30,
@@ -935,6 +940,47 @@
       notice.classList.remove('is-visible');
       notice.classList.add('is-dismissed');
     });
+    if (isMobileOrTablet) {
+      document.documentElement.classList.add('faceauth-safari-notice-active');
+      notice.addEventListener('transitionend', (event) => {
+        if (event.propertyName === 'opacity' && notice.classList.contains('is-dismissed')) {
+          document.documentElement.classList.remove('faceauth-safari-notice-active');
+        }
+      });
+    }
+
+    document.body.appendChild(notice);
+    applyGlass(notice, () => SWITCHER_CONFIG);
+    requestAnimationFrame(() => notice.classList.add('is-visible'));
+  }
+
+  function injectMobileNotice() {
+    if (!isMobileOrTablet) return;
+
+    const dismissalKey = 'faceauth-mobile-device-notice-dismissed';
+    try {
+      if (sessionStorage.getItem(dismissalKey) === 'true') return;
+    } catch {}
+
+    const notice = document.createElement('aside');
+    notice.className = 'faceauth-glass-notice faceauth-mobile-notice';
+    notice.dataset.radius = '24';
+    notice.setAttribute('aria-label', 'Mobile and tablet experience recommendation');
+    notice.innerHTML = `
+      <button class="faceauth-glass-notice-close" type="button" aria-label="Dismiss mobile experience notice">×</button>
+      <div class="faceauth-glass-notice-copy">
+        <strong>For the best experience</strong>
+        <p>FaceAuth is designed for a computer. For the best experience, we recommend viewing this website on a Mac, PC, or other computer.</p>
+      </div>`;
+    const dismissButton = notice.querySelector('.faceauth-glass-notice-close');
+    dismissButton.style.zIndex = '3';
+    dismissButton.addEventListener('click', () => {
+      try {
+        sessionStorage.setItem(dismissalKey, 'true');
+      } catch {}
+      notice.classList.remove('is-visible');
+      notice.classList.add('is-dismissed');
+    });
 
     document.body.appendChild(notice);
     applyGlass(notice, () => SWITCHER_CONFIG);
@@ -965,4 +1011,5 @@
   initializeAssistantGlass();
   initializeAssistantToggleGlass();
   injectSafariNotice();
+  injectMobileNotice();
 })();
