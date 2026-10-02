@@ -1685,6 +1685,15 @@ html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-
   color: var(--faceauth-glass-foreground, #000) !important;
 }
 
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel .assistant-message.user .assistant-bubble,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel .assistant-message.user .assistant-bubble :where(*),
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel .assistant-message.ai .assistant-bubble,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel .assistant-message.ai .assistant-bubble :where(*),
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel .assistant-suggestion,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel .assistant-suggestion :where(*) {
+  color: #111111 !important;
+}
+
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-toggle,
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-toggle :where(*) {
   color: var(--faceauth-glass-foreground, #000) !important;

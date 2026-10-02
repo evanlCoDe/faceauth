@@ -675,6 +675,8 @@
       }
 
       .unlock-flow-track {
+        width: 100%;
+        min-width: 0;
         display: flex;
         gap: 16px;
         margin-top: 24px;
@@ -682,7 +684,19 @@
         overflow-x: auto;
         border-radius: 32px;
         scroll-snap-type: x mandatory;
+        scroll-snap-stop: always;
+        scroll-padding-inline: 2px;
+        scroll-behavior: smooth;
+        overscroll-behavior-x: contain;
         scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        cursor: grab;
+      }
+
+      .unlock-flow-track.is-dragging {
+        cursor: grabbing;
+        scroll-snap-type: none;
+        user-select: none;
       }
 
       .unlock-flow-track::-webkit-scrollbar {
@@ -690,7 +704,7 @@
       }
 
       .unlock-flow-card {
-        flex: 0 0 300px;
+        flex: 0 0 min(320px, calc(100% - 36px));
         min-height: 250px;
         padding: 28px;
         border: 1px solid var(--card-border);
@@ -1718,6 +1732,24 @@
         letter-spacing: -0.03em;
       }
 
+      .assistant-welcome-line {
+        display: inline-block;
+        white-space: nowrap;
+      }
+
+      .assistant-panel-content.is-typing .assistant-welcome-title {
+        animation: assistant-welcome-type 0.48s steps(11, end) both;
+      }
+
+      .assistant-panel-content.is-typing .assistant-welcome-copy {
+        animation: assistant-welcome-type 0.58s steps(15, end) 0.12s both;
+      }
+
+      @keyframes assistant-welcome-type {
+        from { clip-path: inset(0 100% 0 0); }
+        to { clip-path: inset(0); }
+      }
+
       .assistant-panel > p {
         margin-top: 5px;
         color: var(--muted);
@@ -1772,6 +1804,70 @@
         border-bottom-left-radius: 5px;
         background: #f1f3f5;
         color: var(--text);
+      }
+
+      .assistant-message.ai.assistant-typing .assistant-bubble {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 34px;
+        padding: 8px 12px;
+      }
+
+      .assistant-typing-dots {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: opacity 0.16s ease, transform 0.16s ease;
+      }
+
+      .assistant-bubble.is-replacing .assistant-typing-dots {
+        opacity: 0;
+        transform: translateY(-2px);
+      }
+
+      .assistant-typing-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.42;
+        animation: assistant-typing-pulse 0.9s ease-in-out infinite;
+      }
+
+      .assistant-typing-dot:nth-child(2) { animation-delay: 0.14s; }
+      .assistant-typing-dot:nth-child(3) { animation-delay: 0.28s; }
+
+      @keyframes assistant-typing-pulse {
+        0%, 60%, 100% { opacity: 0.38; transform: translateY(0); }
+        30% { opacity: 0.9; transform: translateY(-2px); }
+      }
+
+      .assistant-response-copy {
+        animation: assistant-response-in 0.2s ease both;
+      }
+
+      @keyframes assistant-response-in {
+        from { opacity: 0; transform: translateY(2px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .assistant-panel-content.is-typing .assistant-welcome-line {
+          animation: none;
+          clip-path: none;
+        }
+
+        .assistant-typing-dot {
+          animation: none;
+          opacity: 0.65;
+        }
+
+        .assistant-typing-dots,
+        .assistant-response-copy {
+          animation: none;
+          transition: none;
+        }
       }
 
       @keyframes assistant-message-in {
@@ -2366,8 +2462,8 @@
       <section class="assistant-panel" id="assistant-panel" aria-labelledby="assistant-title" aria-hidden="true">
         <button class="assistant-close" id="assistant-close" type="button" aria-label="Close Ask FaceAuth AI" onclick="const widget = this.closest('.assistant-widget'); const panel = this.closest('.assistant-panel'); widget.classList.remove('is-open', 'is-closing'); panel.style.display = 'none'; panel.setAttribute('aria-hidden', 'true'); widget.querySelector('#assistant-toggle').setAttribute('aria-expanded', 'false');">&times;</button>
         <div class="assistant-panel-content">
-          <h2 id="assistant-title">✦ Ask FaceAuth AI</h2>
-          <p>Questions about FaceAuth?</p>
+          <h2 id="assistant-title"><span class="assistant-welcome-line assistant-welcome-title">FaceAuth AI</span></h2>
+          <p class="assistant-welcome"><em class="assistant-welcome-line assistant-welcome-copy">How can I help?</em></p>
           <div class="assistant-messages" id="assistant-messages" role="log" aria-live="polite">
             <div class="assistant-suggestions" aria-label="Suggested questions">
               <button class="assistant-suggestion" type="button">Does it work offline?</button>
@@ -2662,6 +2758,8 @@
       const assistantForm = document.querySelector('#assistant-form');
       const assistantInput = document.querySelector('#assistant-input');
       const assistantMessages = document.querySelector('#assistant-messages');
+      const assistantPanelContent = document.querySelector('.assistant-panel-content');
+      const assistantWelcomeTitle = document.querySelector('.assistant-welcome-title');
       const assistantFooter = document.querySelector('footer');
       const assistantDefaultBottom = 100;
       const assistantFooterGap = 28;
@@ -2831,12 +2929,61 @@
         assistantMessages.scrollTop = assistantMessages.scrollHeight;
       };
 
+      const addAssistantTypingIndicator = () => {
+        const typingElement = document.createElement('div');
+        const bubbleElement = document.createElement('div');
+        const dotsElement = document.createElement('span');
+        typingElement.className = 'assistant-message ai assistant-typing';
+        typingElement.setAttribute('role', 'status');
+        typingElement.setAttribute('aria-label', 'FaceAuth AI is typing');
+        bubbleElement.className = 'assistant-bubble';
+        dotsElement.className = 'assistant-typing-dots';
+        dotsElement.setAttribute('aria-hidden', 'true');
+        for (let index = 0; index < 3; index += 1) {
+          const dotElement = document.createElement('span');
+          dotElement.className = 'assistant-typing-dot';
+          dotsElement.appendChild(dotElement);
+        }
+        bubbleElement.appendChild(dotsElement);
+        typingElement.appendChild(bubbleElement);
+        assistantMessages.appendChild(typingElement);
+        assistantMessages.scrollTop = assistantMessages.scrollHeight;
+        return { typingElement, bubbleElement };
+      };
+
+      const showAssistantResponse = (typingIndicator, response) => {
+        typingIndicator.bubbleElement.classList.add('is-replacing');
+        window.setTimeout(() => {
+          typingIndicator.typingElement.classList.remove('assistant-typing');
+          typingIndicator.typingElement.removeAttribute('role');
+          typingIndicator.typingElement.removeAttribute('aria-label');
+          const responseElement = document.createElement('span');
+          responseElement.className = 'assistant-response-copy';
+          responseElement.textContent = response;
+          typingIndicator.bubbleElement.replaceChildren(responseElement);
+          assistantMessages.scrollTop = assistantMessages.scrollHeight;
+        }, 160);
+      };
+
+      const playAssistantWelcome = () => {
+        assistantPanelContent.classList.remove('is-typing');
+        assistantWelcomeTitle.style.animation = 'none';
+        requestAnimationFrame(() => {
+          assistantWelcomeTitle.style.animation = '';
+          assistantPanelContent.classList.add('is-typing');
+        });
+      };
+
       const submitAssistantQuestion = (question) => {
         const trimmedQuestion = question.trim();
         if (!trimmedQuestion) return;
         addAssistantMessage(trimmedQuestion, 'user');
         assistantInput.value = '';
-        assistantFaqReady.then(() => addAssistantMessage(answerQuestion(trimmedQuestion), 'ai'));
+        const typingIndicator = addAssistantTypingIndicator();
+        Promise.all([
+          assistantFaqReady,
+          new Promise((resolve) => window.setTimeout(resolve, 1000))
+        ]).then(() => showAssistantResponse(typingIndicator, answerQuestion(trimmedQuestion)));
       };
 
       const closeAssistant = (event) => {
@@ -2856,6 +3003,7 @@
         assistantWidget.classList.remove('is-closing');
         assistantWidget.classList.add('is-open');
         assistantPanel.style.display = 'block';
+        playAssistantWelcome();
         assistantToggle.setAttribute('aria-expanded', 'true');
         assistantPanel.setAttribute('aria-hidden', 'false');
         assistantInput.focus();
@@ -2900,6 +3048,40 @@
           unsuccessfulUnlockVideo.play();
         }, 2500);
       });
+
+      const unlockFlowTrack = document.querySelector('.unlock-flow-track');
+      let unlockFlowPointerId = null;
+      let unlockFlowStartX = 0;
+      let unlockFlowStartScrollLeft = 0;
+
+      unlockFlowTrack?.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'mouse' || event.button !== 0) return;
+        unlockFlowPointerId = event.pointerId;
+        unlockFlowStartX = event.clientX;
+        unlockFlowStartScrollLeft = unlockFlowTrack.scrollLeft;
+        unlockFlowTrack.style.scrollBehavior = 'auto';
+        unlockFlowTrack.classList.add('is-dragging');
+        unlockFlowTrack.setPointerCapture(event.pointerId);
+      });
+
+      unlockFlowTrack?.addEventListener('pointermove', (event) => {
+        if (event.pointerId !== unlockFlowPointerId) return;
+        const dragDistance = event.clientX - unlockFlowStartX;
+        if (Math.abs(dragDistance) > 3) {
+          unlockFlowTrack.scrollLeft = unlockFlowStartScrollLeft - dragDistance;
+        }
+      });
+
+      const finishUnlockFlowDrag = (event) => {
+        if (event.pointerId !== unlockFlowPointerId) return;
+        unlockFlowPointerId = null;
+        unlockFlowTrack.classList.remove('is-dragging');
+        unlockFlowTrack.style.removeProperty('scroll-behavior');
+      };
+
+      unlockFlowTrack?.addEventListener('pointerup', finishUnlockFlowDrag);
+      unlockFlowTrack?.addEventListener('pointercancel', finishUnlockFlowDrag);
+      unlockFlowTrack?.addEventListener('lostpointercapture', finishUnlockFlowDrag);
     </script>
     <script>
       (() => {
