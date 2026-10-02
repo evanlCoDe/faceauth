@@ -51,6 +51,7 @@
     const updateTheme = () => {
       root.dataset.theme = theme;
       root.style.colorScheme = theme;
+      updateNavigationGlassVariables();
     };
 
     if (persist) {
@@ -307,7 +308,9 @@
     const solidSurfaceOpacity = (1 - navigationGlassStrength) * 0.85 * (1 - opacityCurve * 0.15);
     const lightOpacity = Math.min(0.98, opacityCurve * 0.94 + solidSurfaceOpacity);
     const darkOpacity = Math.min(0.98, opacityCurve * 0.96 + solidSurfaceOpacity);
-    const foregroundChannel = navigationGlassIntensity < 0.5 ? 0 : 255;
+    const foregroundChannel = mode === 'night'
+      ? Math.round(204 + navigationGlassIntensity * 51)
+      : navigationGlassIntensity < 0.5 ? 0 : 255;
     root.classList.add('faceauth-navigation-glass-intensity');
     root.style.setProperty('--faceauth-glass-foreground', `rgb(${foregroundChannel}, ${foregroundChannel}, ${foregroundChannel})`);
     root.style.setProperty('--faceauth-nav-glass-light-opacity', String(lightOpacity));
