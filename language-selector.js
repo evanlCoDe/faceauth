@@ -282,7 +282,7 @@
   };
 
   const showSettingsPanel = (panelId, goingBack = false, focusTarget = null) => {
-    const popup = document.querySelector('.faceauth-settings-popup');
+    const popup = document.querySelector('#faceauth-settings-popup');
     if (!popup) return;
     const current = popup.querySelector('.settings-panel.is-active');
     const target = popup.querySelector(`[data-settings-panel="${panelId}"]`);
@@ -355,7 +355,7 @@
   };
 
   const createSettingsHierarchy = () => {
-    const popup = document.querySelector('.faceauth-settings-popup');
+    const popup = document.querySelector('#faceauth-settings-popup');
     const languageSelector = popup?.querySelector('.language-selector');
     const appearanceSelector = popup?.querySelector('.appearance-selector');
     const liquidGlassSetting = popup?.querySelector('.liquid-glass-setting');
@@ -547,7 +547,7 @@
       navChildren.slice(1).forEach((child) => navActions.append(child));
       navInner.append(navActions);
     }
-    const selectorContainer = document.querySelector('.faceauth-settings-popup') || navActions;
+    const selectorContainer = document.querySelector('#faceauth-settings-popup') || navActions;
     const existingSelector = navActions.querySelector('.language-selector');
     if (existingSelector) {
       prepareSelector(existingSelector);
@@ -661,7 +661,7 @@
   };
 
   const createAppearanceSelector = () => {
-    const popup = document.querySelector('.faceauth-settings-popup');
+    const popup = document.querySelector('#faceauth-settings-popup');
     if (!popup || popup.querySelector('.appearance-selector')) return;
 
     const selector = document.createElement('div');
@@ -723,8 +723,8 @@
     updateAppearanceSelector(selector);
   };
 
-  const createScrollingSetting = (container = document.querySelector('.faceauth-settings-popup')) => {
-    const popup = document.querySelector('.faceauth-settings-popup');
+  const createScrollingSetting = (container = document.querySelector('#faceauth-settings-popup')) => {
+    const popup = document.querySelector('#faceauth-settings-popup');
     if (!popup || popup.querySelector('.scroll-smoothing-setting')) return;
 
     const setting = document.createElement('div');
@@ -757,8 +757,8 @@
     return setting;
   };
 
-  const createMotionBlurSetting = (container = document.querySelector('.faceauth-settings-popup')) => {
-    const popup = document.querySelector('.faceauth-settings-popup');
+  const createMotionBlurSetting = (container = document.querySelector('#faceauth-settings-popup')) => {
+    const popup = document.querySelector('#faceauth-settings-popup');
     if (!popup || container.querySelector('.motion-blur-setting')) return;
 
     const setting = document.createElement('div');
@@ -790,7 +790,7 @@
   };
 
   const createLiquidGlassSetting = () => {
-    const popup = document.querySelector('.faceauth-settings-popup');
+    const popup = document.querySelector('#faceauth-settings-popup');
     if (!popup || popup.querySelector('.liquid-glass-setting')) return;
 
     const setting = document.createElement('div');
@@ -873,7 +873,7 @@
   };
 
   const createLiquidGlassStrengthSetting = () => {
-    const popup = document.querySelector('.faceauth-settings-popup');
+    const popup = document.querySelector('#faceauth-settings-popup');
     if (!popup || popup.querySelector('.liquid-glass-strength-setting')) return;
 
     const setting = document.createElement('div');
@@ -962,7 +962,7 @@
   updateSelectors();
   applyTranslations();
 
-  document.querySelector('.faceauth-settings-popup')?.addEventListener('faceauth-settings-open', () => {
+  document.querySelector('#faceauth-settings-popup')?.addEventListener('faceauth-settings-open', () => {
     showSettingsPanel('settings', true);
   });
 

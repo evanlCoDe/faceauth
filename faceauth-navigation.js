@@ -473,6 +473,174 @@
     });
   }
 
+  function injectCompatibilityButton() {
+    const button = document.createElement('button');
+    const popup = document.createElement('div');
+    button.type = 'button';
+    button.className = 'faceauth-settings-button faceauth-compatibility-button';
+    button.dataset.radius = '999';
+    button.setAttribute('aria-label', 'Check Compatibility');
+    button.setAttribute('aria-controls', 'faceauth-compatibility-popup');
+    button.setAttribute('aria-expanded', 'false');
+    button.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M3 12h4l2-6 4 12 2-6h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>`;
+    popup.id = 'faceauth-compatibility-popup';
+    popup.className = 'faceauth-settings-popup faceauth-compatibility-popup';
+    popup.dataset.radius = '18';
+    popup.setAttribute('role', 'dialog');
+    popup.setAttribute('aria-label', 'Check Compatibility');
+    popup.setAttribute('aria-hidden', 'true');
+    popup.innerHTML = `
+      <div class="faceauth-compatibility-content">
+        <div class="faceauth-compatibility-heading">
+          <h2>Check Compatibility</h2>
+          <button class="faceauth-compatibility-close" type="button" aria-label="Close Check Compatibility">×</button>
+        </div>
+        <p class="faceauth-compatibility-checking" role="status" aria-live="polite">Checking your Mac…</p>
+        <div class="faceauth-compatibility-results" aria-live="polite">
+          <p><span class="faceauth-compatibility-symbol" aria-hidden="true">✓</span>macOS detected</p>
+          <p><span class="faceauth-compatibility-symbol" aria-hidden="true">⚠</span>macOS version unavailable</p>
+        </div>
+        <section class="faceauth-compatibility-requirements" aria-labelledby="faceauth-compatibility-requirements-title">
+          <h3 id="faceauth-compatibility-requirements-title">System requirements</h3>
+          <ul>
+            <li>macOS 15 Sequoia or later</li>
+            <li>Apple silicon or Intel Mac</li>
+            <li>Built-in or external camera</li>
+            <li>FaceAuth app installed</li>
+            <li>Not available for Windows</li>
+          </ul>
+        </section>
+      </div>`;
+    const settingsButton = document.querySelector('.faceauth-settings-button:not(.faceauth-compatibility-button)');
+    if (settingsButton) {
+      settingsButton.insertAdjacentElement('afterend', button);
+    } else {
+      document.body.insertAdjacentElement('afterbegin', button);
+    }
+    document.body.insertAdjacentElement('afterbegin', popup);
+
+    const checking = popup.querySelector('.faceauth-compatibility-checking');
+    const results = popup.querySelector('.faceauth-compatibility-results');
+    const closeButton = popup.querySelector('.faceauth-compatibility-close');
+    let checkRequestId = 0;
+
+    function detectMacPlatform() {
+      const hintedPlatform = navigator.userAgentData?.platform;
+      if (hintedPlatform) return /^macOS$/i.test(hintedPlatform);
+
+      const isIPad = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+      return !isIPad && (
+        /^Mac/i.test(navigator.platform)
+        || /Macintosh|Mac OS X/i.test(navigator.userAgent)
+      );
+    }
+
+    async function detectMacVersion() {
+      if (typeof navigator.userAgentData?.getHighEntropyValues !== 'function') return null;
+      try {
+        const { platformVersion } = await navigator.userAgentData.getHighEntropyValues(['platformVersion']);
+        if (typeof platformVersion !== 'string' || !/^\d+(?:\.\d+){0,2}$/.test(platformVersion)) return null;
+        return {
+          version: platformVersion,
+          compatible: Number(platformVersion.split('.')[0]) >= 15
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    function addResult(symbol, message) {
+      const row = document.createElement('p');
+      const indicator = document.createElement('span');
+      indicator.className = 'faceauth-compatibility-symbol';
+      indicator.setAttribute('aria-hidden', 'true');
+      indicator.textContent = symbol;
+      row.append(indicator, document.createTextNode(message));
+      results.appendChild(row);
+    }
+
+    function showLoadingSpinner() {
+      const spinner = document.createElement('span');
+      spinner.className = 'faceauth-compatibility-spinner';
+      spinner.setAttribute('role', 'status');
+      spinner.setAttribute('aria-label', 'Checking compatibility');
+      results.replaceChildren(spinner);
+      results.hidden = false;
+    }
+
+    async function runCompatibilityCheck(requestId) {
+      await new Promise((resolve) => window.setTimeout(resolve, 2000));
+      if (requestId !== checkRequestId || !popup.classList.contains('is-open')) return;
+
+      results.replaceChildren();
+      const isMac = detectMacPlatform();
+      if (!isMac) {
+        addResult('✕', 'macOS detected');
+        addResult('⚠', 'macOS version unavailable');
+        const note = document.createElement('p');
+        note.className = 'faceauth-compatibility-note';
+        note.textContent = 'FaceAuth is designed exclusively for Mac.';
+        results.appendChild(note);
+      } else {
+        addResult('✓', 'macOS detected');
+        const detectedVersion = await detectMacVersion();
+        if (requestId !== checkRequestId || !popup.classList.contains('is-open')) return;
+        if (!detectedVersion) {
+          addResult('⚠', 'macOS version unavailable');
+        } else if (detectedVersion.compatible) {
+          addResult('✓', 'macOS version compatible');
+        } else {
+          addResult('✕', 'macOS version not compatible');
+        }
+      }
+
+      checking.hidden = true;
+      results.hidden = false;
+    }
+
+    function closePopup(returnFocus = false) {
+      popup.classList.remove('is-open');
+      button.setAttribute('aria-expanded', 'false');
+      popup.setAttribute('aria-hidden', 'true');
+      if (returnFocus) button.focus();
+    }
+
+    button.addEventListener('click', () => {
+      const isOpen = popup.classList.toggle('is-open');
+      button.setAttribute('aria-expanded', String(isOpen));
+      popup.setAttribute('aria-hidden', String(!isOpen));
+      if (!isOpen) {
+        checkRequestId += 1;
+        return;
+      }
+      checkRequestId += 1;
+      checking.hidden = false;
+      showLoadingSpinner();
+      runCompatibilityCheck(checkRequestId);
+    });
+    closeButton.addEventListener('click', () => closePopup(true));
+    document.addEventListener('click', (event) => {
+      if (!popup.classList.contains('is-open') || popup.contains(event.target) || button.contains(event.target)) return;
+      closePopup();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !popup.classList.contains('is-open')) return;
+      checkRequestId += 1;
+      closePopup(true);
+    });
+
+    applyGlass(button, navigationGlassConfig);
+    applyGlass(popup, navigationGlassConfig);
+    window.addEventListener('faceauth-navigation-glass-intensity-change', () => {
+      const config = navigationGlassConfig();
+      targets.get(button)?.updateConfig(config);
+      targets.get(popup)?.updateConfig(config);
+    });
+  }
+
   function initializeNavigation(nav) {
     const surface = nav.querySelector('.nav-inner');
     const indicator = nav.querySelector('.glass-indicator');
@@ -1014,6 +1182,7 @@
   const nav = injectSharedNavigation();
   initializeNavigation(nav);
   injectSettingsButton();
+  injectCompatibilityButton();
   initializeAssistantGlass();
   initializeAssistantToggleGlass();
   injectSafariNotice();
