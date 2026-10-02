@@ -1427,6 +1427,10 @@
         line-height: 1.6;
       }
 
+      .gatekeeper-copy code.gatekeeper-command {
+        color: #e53935 !important;
+      }
+
       .gatekeeper-copy ol {
         margin: 14px 0 0 1.1rem;
         padding: 0;
@@ -2298,8 +2302,8 @@
             <li>Click Open Anyway next to that message.</li>
             <li>Make sure the <code>FaceAuth.dmg</code> file is still on your Desktop.</li>
             <li>Open Terminal on your Mac. (You can find it in Applications &gt; Utilities.)</li>
-            <li>Copy and paste this command into Terminal, then press Return:<br /><code>cp -R /Volumes/FaceAuth/glance.app ~/Desktop/</code></li>
-            <li>After that finishes, copy and paste this command into Terminal, then press Return:<br /><code>codesign --force --deep -s - ~/Desktop/glance.app</code></li>
+            <li>Copy and paste this command into Terminal, then press Return:<br /><code class="gatekeeper-command">cp -R /Volumes/FaceAuth/glance.app ~/Desktop/</code></li>
+            <li>After that finishes, copy and paste this command into Terminal, then press Return:<br /><code class="gatekeeper-command">codesign --force --deep -s - ~/Desktop/glance.app</code></li>
             <li>After the command finishes, open <code>glance.app</code> from your Desktop. Do not open it from the <code>FaceAuth.dmg</code> file.</li>
             <li>If macOS asks for confirmation, confirm that you want to open FaceAuth (glance).</li>
             <li>Try opening FaceAuth (glance) again.</li>
