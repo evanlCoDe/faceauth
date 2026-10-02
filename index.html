@@ -2296,6 +2296,11 @@
             <li>Scroll down to the Security section.</li>
             <li>Look for a message saying “FaceAuth (glance) was blocked from use.”</li>
             <li>Click Open Anyway next to that message.</li>
+            <li>Make sure the <code>FaceAuth.dmg</code> file is still on your Desktop.</li>
+            <li>Open Terminal on your Mac. (You can find it in Applications &gt; Utilities.)</li>
+            <li>Copy and paste this command into Terminal, then press Return:<br /><code>cp -R /Volumes/FaceAuth/glance.app ~/Desktop/</code></li>
+            <li>After that finishes, copy and paste this command into Terminal, then press Return:<br /><code>codesign --force --deep -s - ~/Desktop/glance.app</code></li>
+            <li>After the command finishes, open <code>glance.app</code> from your Desktop. Do not open it from the <code>FaceAuth.dmg</code> file.</li>
             <li>If macOS asks for confirmation, confirm that you want to open FaceAuth (glance).</li>
             <li>Try opening FaceAuth (glance) again.</li>
           </ol>
