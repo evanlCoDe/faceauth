@@ -1652,6 +1652,10 @@ html.faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner > .lg-lay
   display: block !important;
 }
 
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-glass-notice > .lg-layer {
+  display: block !important;
+}
+
 html.faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner {
   background-color: rgba(128, 128, 128, var(--faceauth-nav-glass-light-opacity, 0.323125)) !important;
   -webkit-backdrop-filter: none !important;
@@ -1662,11 +1666,11 @@ html[data-theme="dark"].faceauth-navigation-glass-intensity #faceauth-site-nav .
   background-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) !important;
 }
 
-html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceauth-settings-button, .faceauth-settings-popup) {
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceauth-settings-button, .faceauth-settings-popup, .faceauth-glass-notice) {
   background-color: rgba(128, 128, 128, var(--faceauth-nav-glass-light-opacity, 0.323125)) !important;
 }
 
-html[data-theme="dark"].faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceauth-settings-button, .faceauth-settings-popup) {
+html[data-theme="dark"].faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceauth-settings-button, .faceauth-settings-popup, .faceauth-glass-notice) {
   background-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) !important;
 }
 
@@ -1683,6 +1687,14 @@ html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-
 
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-toggle,
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-toggle :where(*) {
+  color: var(--faceauth-glass-foreground, #000) !important;
+}
+
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-glass-notice,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-glass-notice-copy,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-glass-notice-copy strong,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-glass-notice-copy p,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-glass-notice-close {
   color: var(--faceauth-glass-foreground, #000) !important;
 }
 

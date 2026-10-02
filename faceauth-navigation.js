@@ -950,7 +950,10 @@
     }
 
     document.body.appendChild(notice);
-    applyGlass(notice, () => SWITCHER_CONFIG);
+    applyGlass(notice, navigationGlassConfig);
+    window.addEventListener('faceauth-navigation-glass-intensity-change', () => {
+      targets.get(notice)?.updateConfig(navigationGlassConfig());
+    });
     requestAnimationFrame(() => notice.classList.add('is-visible'));
   }
 
@@ -983,7 +986,10 @@
     });
 
     document.body.appendChild(notice);
-    applyGlass(notice, () => SWITCHER_CONFIG);
+    applyGlass(notice, navigationGlassConfig);
+    window.addEventListener('faceauth-navigation-glass-intensity-change', () => {
+      targets.get(notice)?.updateConfig(navigationGlassConfig());
+    });
     requestAnimationFrame(() => notice.classList.add('is-visible'));
   }
 
