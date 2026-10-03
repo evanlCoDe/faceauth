@@ -370,7 +370,8 @@
     const darkSetting = appearanceMenu.querySelector('.appearance-setting-row');
 
     const glassLayers = Array.from(popup.children).filter((child) => child.classList.contains('lg-layer'));
-    popup.replaceChildren(...glassLayers);
+    const windowControls = Array.from(popup.children).filter((child) => child.classList.contains('assistant-window-controls'));
+    popup.replaceChildren(...glassLayers, ...windowControls);
     const settingsPanel = document.createElement('section');
     settingsPanel.className = 'settings-panel is-active';
     settingsPanel.dataset.settingsPanel = 'settings';

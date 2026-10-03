@@ -235,7 +235,7 @@
     const currentScrollY = window.scrollY;
     const elapsed = Math.max(8, now - lastScrollTime);
     const velocity = Math.abs(currentScrollY - lastScrollY) / elapsed;
-    motionBlurTarget = Math.min(3.75, Math.max(0, (velocity - 0.06) * 1.35));
+    motionBlurTarget = Math.min(22.5, Math.max(0, (velocity - 0.06) * 8.1));
     lastScrollY = currentScrollY;
     lastScrollTime = now;
     lastMotionScrollTime = now;

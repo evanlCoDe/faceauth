@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="appearance-theme.js?v=20261001-13"></script>
     <title>FaceAuth — Face ID for Mac</title>
-    <link rel="stylesheet" href="faceauth-navigation.css?v=20261002-1" />
+    <link rel="stylesheet" href="faceauth-navigation.css?v=20261002-2" />
     <link rel="icon" type="image/svg+xml" href="logo.svg?v=20260921-1" />
     <link rel="apple-touch-icon" href="logo.svg?v=20260921-1" />
     <style>
@@ -662,76 +662,210 @@
       }
 
       .unlock-flow {
-        max-width: 1100px;
-        margin: 54px auto 0;
-        padding: 0 20px;
-      }
-
-      .unlock-flow h2 {
-        max-width: 620px;
-        font-size: clamp(2.1rem, 4.5vw, 3.25rem);
-        line-height: 1.06;
-        letter-spacing: -0.055em;
-      }
-
-      .unlock-flow-track {
         width: 100%;
-        min-width: 0;
-        display: flex;
-        gap: 16px;
-        margin-top: 24px;
-        padding: 4px 2px 18px;
-        overflow-x: auto;
-        border-radius: 32px;
-        scroll-snap-type: x mandatory;
-        scroll-snap-stop: always;
-        scroll-padding-inline: 2px;
-        scroll-behavior: smooth;
-        overscroll-behavior-x: contain;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-        cursor: grab;
+        max-width: 1280px;
+        margin: 32px auto 0;
+        padding: 0 clamp(20px, 7vw, 104px);
+        overflow-x: clip;
       }
 
-      .unlock-flow-track.is-dragging {
-        cursor: grabbing;
-        scroll-snap-type: none;
-        user-select: none;
+      .unlock-flow-opening {
+        display: grid;
+        min-height: 76svh;
+        align-content: center;
+        justify-items: center;
+        gap: 18px;
+        padding: 54px 0;
+        text-align: center;
       }
 
-      .unlock-flow-track::-webkit-scrollbar {
-        display: none;
-      }
-
-      .unlock-flow-card {
-        flex: 0 0 min(320px, calc(100% - 36px));
-        min-height: 250px;
-        padding: 28px;
-        border: 1px solid var(--card-border);
-        border-radius: 32px;
-        background: #f0f4f9;
-        scroll-snap-align: start;
-      }
-
-      .unlock-flow-number {
+      .unlock-flow-kicker {
         color: var(--blue);
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
+        font-size: 0.76rem;
+        font-weight: 650;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
       }
 
-      .unlock-flow-card h3 {
-        margin-top: 34px;
-        font-size: 1.35rem;
-        line-height: 1.1;
-        letter-spacing: -0.03em;
+      .unlock-flow-title {
+        max-width: 840px;
+        font-size: clamp(3.25rem, 9vw, 8.5rem);
+        font-weight: 650;
+        line-height: 0.98;
+        letter-spacing: -0.075em;
       }
 
-      .unlock-flow-card p {
-        margin-top: 14px;
+      .unlock-flow-story {
+        position: relative;
+        width: 100%;
+      }
+
+      .unlock-story-item {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(54px, 0.18fr) minmax(0, 1fr);
+        align-items: center;
+        column-gap: clamp(20px, 5vw, 72px);
+        min-height: 70svh;
+        padding: 72px 0;
+        border-top: 1px solid var(--card-border);
+      }
+
+      .unlock-story-number {
+        color: var(--blue);
+        align-self: start;
+        padding-top: 0.7em;
+        font-size: clamp(0.8rem, 1vw, 0.96rem);
+        font-weight: 650;
+        letter-spacing: 0.08em;
+      }
+
+      .unlock-story-copy {
+        width: min(100%, 660px);
+      }
+
+      .unlock-story-item:nth-child(even) .unlock-story-copy {
+        justify-self: end;
+        text-align: right;
+      }
+
+      .unlock-story-title {
+        max-width: 660px;
+        font-size: clamp(2.75rem, 7.1vw, 6.6rem);
+        font-weight: 620;
+        line-height: 0.99;
+        letter-spacing: -0.07em;
+        text-wrap: balance;
+      }
+
+      .unlock-story-description {
+        max-width: 560px;
+        margin-top: clamp(20px, 3vw, 34px);
         color: var(--muted);
-        font-size: 0.94rem;
-        line-height: 1.5;
+        font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+        line-height: 1.55;
+        text-wrap: pretty;
+      }
+
+      .unlock-story-item:nth-child(even) .unlock-story-description {
+        margin-left: auto;
+      }
+
+      [data-scroll-text] {
+        opacity: 0;
+        filter: blur(10px);
+        transform: translate3d(0, 28px, 0);
+        transition: opacity 820ms cubic-bezier(0.2, 0.75, 0.25, 1),
+          filter 820ms cubic-bezier(0.2, 0.75, 0.25, 1),
+          transform 820ms cubic-bezier(0.2, 0.75, 0.25, 1);
+        will-change: opacity, filter, transform;
+      }
+
+      [data-scroll-text][data-direction="left"] {
+        transform: translate3d(-42px, 0, 0);
+      }
+
+      [data-scroll-text][data-direction="right"] {
+        transform: translate3d(42px, 0, 0);
+      }
+
+      [data-scroll-text][data-direction="up"] {
+        transform: translate3d(0, 28px, 0);
+      }
+
+      [data-scroll-text][data-direction="down"] {
+        transform: translate3d(0, -28px, 0);
+      }
+
+      [data-scroll-text].is-visible {
+        opacity: 1;
+        filter: blur(0);
+        transform: translate3d(0, 0, 0);
+        will-change: auto;
+      }
+
+      [data-letter-anime] .unlock-story-letter {
+        display: inline-block;
+        white-space: pre;
+        opacity: 0;
+        filter: blur(4px);
+        transform: translate3d(0, 0.65em, 0);
+        transition: opacity 560ms cubic-bezier(0.2, 0.75, 0.25, 1),
+          filter 560ms cubic-bezier(0.2, 0.75, 0.25, 1),
+          transform 560ms cubic-bezier(0.2, 0.75, 0.25, 1);
+        transition-delay: calc(var(--letter-index) * 18ms);
+      }
+
+      [data-letter-anime].is-visible .unlock-story-letter {
+        opacity: 1;
+        filter: blur(0);
+        transform: translate3d(0, 0, 0);
+      }
+
+      .unlock-story-word {
+        display: inline-block;
+        white-space: nowrap;
+      }
+
+      [data-line-anime] .unlock-story-line-mask {
+        display: block;
+        overflow: hidden;
+      }
+
+      [data-line-anime] .unlock-story-line {
+        display: block;
+        filter: blur(4px);
+        transform: translate3d(0, 110%, 0);
+        transition: filter 700ms cubic-bezier(0.2, 0.75, 0.25, 1),
+          transform 700ms cubic-bezier(0.2, 0.75, 0.25, 1);
+      }
+
+      [data-line-anime].is-visible .unlock-story-line {
+        filter: blur(0);
+        transform: translate3d(0, 0, 0);
+      }
+
+      @media (max-width: 760px) {
+        .unlock-flow {
+          margin-top: 18px;
+          padding-inline: 24px;
+        }
+
+        .unlock-flow-opening {
+          min-height: 68svh;
+          gap: 14px;
+        }
+
+        .unlock-flow-title {
+          font-size: clamp(3.1rem, 13vw, 6rem);
+        }
+
+        .unlock-story-item {
+          grid-template-columns: 38px minmax(0, 1fr);
+          column-gap: 16px;
+          min-height: 64svh;
+          padding: 56px 0;
+        }
+
+        .unlock-story-title {
+          font-size: clamp(2.5rem, 10vw, 4.8rem);
+        }
+
+        .unlock-story-description {
+          font-size: clamp(1rem, 4.2vw, 1.2rem);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        [data-scroll-text],
+        [data-letter-anime] .unlock-story-letter,
+        [data-line-anime] .unlock-story-line {
+          opacity: 1;
+          filter: none;
+          transform: none;
+          transition: none;
+          will-change: auto;
+        }
       }
 
       .how-it-works {
@@ -1656,7 +1790,7 @@
         flex-direction: column;
         align-items: flex-end;
         gap: 10px;
-        transition: opacity 0.25s ease, visibility 0.25s ease, bottom 0.14s ease-out;
+        transition: opacity 0.25s ease, visibility 0.25s ease, top 0.46s cubic-bezier(0.22, 1, 0.36, 1), right 0.46s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.46s cubic-bezier(0.22, 1, 0.36, 1), left 0.46s cubic-bezier(0.22, 1, 0.36, 1);
         will-change: bottom;
       }
 
@@ -1676,54 +1810,197 @@
         box-shadow: 0 18px 48px rgba(0,0,0,0.14);
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
+        height: auto;
         opacity: 0;
         visibility: hidden;
         overflow: hidden;
-        transform: translateY(4px);
-        transition: opacity 0.46s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.46s, transform 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+        overscroll-behavior-y: contain;
+        transform: translateY(4px) scale(0.985);
+        transition: opacity 0.46s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.46s, transform 0.46s cubic-bezier(0.22, 1, 0.36, 1), height 0.52s cubic-bezier(0.22, 1, 0.36, 1);
       }
 
-      .assistant-close {
+      .assistant-window-controls {
         position: absolute;
-        top: 10px;
-        right: 12px;
-        z-index: 3;
-        width: 24px;
-        height: 24px;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        color: #8a929d;
-        font: inherit;
-        font-size: 18px;
-        font-weight: 400;
-        line-height: 1;
-        cursor: pointer;
-        transition: color 0.2s ease, opacity 0.2s ease;
+        top: 13px;
+        left: 13px;
+        z-index: 3 !important;
+        display: flex;
+        align-items: center;
+        gap: 3.5px;
       }
 
-      .assistant-close:hover,
-      .assistant-close:focus-visible {
-        color: var(--text);
-        opacity: 0.8;
+      .assistant-window-control {
+        position: relative;
+        flex: 0 0 12px;
+        width: 12px;
+        height: 12px;
+        padding: 0;
+        border: 1px solid rgba(0,0,0,0.06) !important;
+        border-radius: 50%;
+        box-sizing: border-box;
+        cursor: pointer;
+        transition: background-color 0.12s ease;
+      }
+
+      .assistant-window-control::before,
+      .assistant-window-control::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin: auto;
+        border-radius: 1px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.12s ease, visibility 0.12s ease;
+      }
+
+      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-controls:hover .assistant-window-control::after,
+      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-controls:hover .assistant-window-control::before {
+        opacity: 0.72;
+        visibility: visible;
+      }
+
+      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close::after {
+        width: 8px;
+        height: 1px;
+        content: "";
+        background: #4d0000 !important;
+        transform: rotate(45deg);
+      }
+
+      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close::before {
+        width: 8px;
+        height: 1px;
+        content: "";
+        background: #4d0000 !important;
+        transform: rotate(-45deg);
+      }
+
+      #assistant-panel .assistant-window-control-minimize::before {
+        width: 8px;
+        height: 1px;
+        content: "";
+        background: #995700 !important;
+      }
+
+      #assistant-panel .assistant-window-control-expand::before {
+        width: 6px;
+        height: 6px;
+        content: "";
+        background: #006500 !important;
+      }
+
+      #assistant-panel .assistant-window-control-expand::after {
+        width: 10px;
+        height: 2px;
+        content: "";
+        background: #28c941 !important;
+        transform: rotate(45deg);
+      }
+
+      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close {
+        background-color: #ff6159 !important;
+        background-image: none !important;
+      }
+
+      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close:active:hover {
+        background-color: #bf4942 !important;
+      }
+
+      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close:active:hover::before,
+      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close:active:hover::after {
+        background: #190000 !important;
+      }
+
+      #assistant-panel .assistant-window-control-minimize {
+        background-color: #ffbd2e !important;
+        background-image: none !important;
+      }
+
+      #assistant-panel .assistant-window-control-minimize:active:hover {
+        background-color: #bf8e22 !important;
+      }
+
+      #assistant-panel .assistant-window-control-minimize:active:hover::before {
+        background: #592800 !important;
+      }
+
+      #assistant-panel .assistant-window-control-expand {
+        background-color: #28c941 !important;
+        background-image: none !important;
+      }
+
+      #assistant-panel .assistant-window-control-expand:active:hover {
+        background-color: #1d9730 !important;
+      }
+
+      #assistant-panel .assistant-window-control-expand:active:hover::before,
+      #assistant-panel .assistant-window-control-expand:active:hover::after {
+        background: #003200 !important;
       }
 
       .assistant-widget.is-open .assistant-panel {
         opacity: 1;
         visibility: visible;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
         transition-delay: 0s;
       }
 
       .assistant-widget.is-closing .assistant-panel {
         opacity: 0;
-        visibility: hidden;
-        transform: translateY(4px);
+        transform: translateY(5px) scale(0.97);
+      }
+
+      .assistant-widget.is-minimizing .assistant-panel {
+        opacity: 0;
+        transform: translate(var(--assistant-minimize-x, 0px), var(--assistant-minimize-y, 70px)) scale(0.08);
+        transform-origin: top left;
+        transition-duration: 0.44s;
+      }
+
+      .assistant-widget.is-genie-minimizing .assistant-panel {
+        visibility: hidden !important;
+      }
+
+      .assistant-widget.is-minimized .assistant-toggle {
+        box-shadow: 0 0 22px 7px rgba(255,189,46,0.16), 0 8px 22px rgba(0,0,0,0.16);
+        animation: assistant-minimized-glass-flow 20s ease-in-out infinite;
+      }
+
+      @keyframes assistant-minimized-glass-flow {
+        0%, 100% {
+          box-shadow: 0 0 22px 7px rgba(255,189,46,0.16), 0 8px 22px rgba(0,0,0,0.16),
+            -10px -5px 22px 5px rgba(255,189,46,0.10), -2px -8px 25px 5px rgba(255,189,46,0.28), 10px -1px 20px 5px rgba(255,189,46,0.12), 3px 8px 23px 5px rgba(255,189,46,0.18);
+        }
+        25% {
+          box-shadow: 0 0 22px 7px rgba(255,189,46,0.16), 0 8px 22px rgba(0,0,0,0.16),
+            -5px -9px 24px 5px rgba(255,189,46,0.18), 6px -5px 20px 5px rgba(255,189,46,0.10), 9px 5px 25px 5px rgba(255,189,46,0.28), -1px 8px 21px 5px rgba(255,189,46,0.12);
+        }
+        50% {
+          box-shadow: 0 0 22px 7px rgba(255,189,46,0.16), 0 8px 22px rgba(0,0,0,0.16),
+            2px -8px 20px 5px rgba(255,189,46,0.12), 9px -2px 24px 5px rgba(255,189,46,0.20), 5px 8px 20px 5px rgba(255,189,46,0.10), -8px 2px 25px 5px rgba(255,189,46,0.28);
+        }
+        75% {
+          box-shadow: 0 0 22px 7px rgba(255,189,46,0.16), 0 8px 22px rgba(0,0,0,0.16),
+            8px -4px 25px 5px rgba(255,189,46,0.28), 5px 6px 20px 5px rgba(255,189,46,0.12), -5px 8px 24px 5px rgba(255,189,46,0.18), -9px -2px 20px 5px rgba(255,189,46,0.10);
+        }
+      }
+
+      .assistant-widget.is-expanded .assistant-panel {
+        visibility: visible;
+        transition-delay: 0s;
+      }
+
+      .assistant-panel-content {
+        min-height: 0;
       }
 
       .assistant-panel-content {
         position: relative;
-        padding: 18px;
+        padding: 42px 18px 18px;
       }
 
       .assistant-panel h2 {
@@ -1761,6 +2038,21 @@
         margin-top: 16px;
         overflow-y: auto;
         scrollbar-width: thin;
+        overscroll-behavior-y: contain;
+      }
+
+      @media (min-width: 521px) {
+        .assistant-widget.is-expanded .assistant-panel-content {
+          display: flex;
+          height: 100%;
+          flex-direction: column;
+        }
+
+        .assistant-widget.is-expanded .assistant-messages {
+          min-height: 0;
+          max-height: none;
+          flex: 1;
+        }
       }
 
       .assistant-messages:empty {
@@ -1853,6 +2145,13 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
+        .assistant-widget,
+        .assistant-panel,
+        .assistant-window-control,
+        .assistant-toggle {
+          transition-duration: 0.01ms !important;
+        }
+
         .assistant-panel-content.is-typing .assistant-welcome-line {
           animation: none;
           clip-path: none;
@@ -1953,6 +2252,10 @@
         color: var(--text);
       }
 
+      html[data-theme="dark"] body #assistant-panel .assistant-suggestion {
+        color: #f2f4f7 !important;
+      }
+
       .assistant-toggle {
         isolation: isolate;
         overflow: hidden;
@@ -2019,8 +2322,42 @@
           bottom: 100px;
         }
 
+        .assistant-widget.is-expanded {
+          top: max(12px, env(safe-area-inset-top));
+          right: 12px;
+          bottom: max(12px, env(safe-area-inset-bottom)) !important;
+          left: 12px;
+          align-items: stretch;
+          gap: 10px;
+        }
+
+        .assistant-widget.is-expanded .assistant-panel {
+          min-height: 0;
+          flex: 1;
+        }
+
+        .assistant-widget.is-expanded .assistant-panel-content {
+          display: flex;
+          height: 100%;
+          flex-direction: column;
+        }
+
+        .assistant-widget.is-expanded .assistant-messages {
+          min-height: 0;
+          max-height: none;
+          flex: 1;
+        }
+
+        .assistant-widget.is-expanded .assistant-toggle {
+          align-self: flex-end;
+        }
+
         .assistant-panel-content {
           padding: 17px;
+        }
+
+        .assistant-widget.is-expanded .assistant-panel-content {
+          padding-top: 42px;
         }
       }
     </style>
@@ -2186,32 +2523,45 @@
       </section>
 
       <section class="unlock-flow" aria-label="A more natural way to unlock">
-        <h2>A more natural way to unlock.</h2>
-        <div class="unlock-flow-track">
-          <article class="unlock-flow-card">
-            <div class="unlock-flow-number">01</div>
-            <h3>Just look.</h3>
-            <p>FaceAuth recognizes you through your Mac's camera and starts the unlock process automatically.</p>
+        <header class="unlock-flow-opening">
+          <p class="unlock-flow-kicker" data-scroll-text data-direction="down">FaceAuth, at a glance</p>
+          <h2 class="unlock-flow-title" data-scroll-text data-direction="up">A more natural way to unlock.</h2>
+        </header>
+        <div class="unlock-flow-story">
+          <article class="unlock-story-item">
+            <div class="unlock-story-number" data-scroll-text data-direction="left">01</div>
+            <div class="unlock-story-copy">
+              <h3 class="unlock-story-title" data-scroll-text data-direction="right" data-letter-anime>Just look.</h3>
+              <p class="unlock-story-description" data-scroll-text data-direction="up" data-line-anime>FaceAuth uses your Mac's camera to recognize your enrolled face and begin the unlock process automatically.</p>
+            </div>
           </article>
-          <article class="unlock-flow-card">
-            <div class="unlock-flow-number">02</div>
-            <h3>Fast enough to feel instant.</h3>
-            <p>Designed to recognize you and unlock your Mac in about the same time as Touch ID.</p>
+          <article class="unlock-story-item">
+            <div class="unlock-story-number" data-scroll-text data-direction="right">02</div>
+            <div class="unlock-story-copy">
+              <h3 class="unlock-story-title" data-scroll-text data-direction="left" data-letter-anime>Fast enough to feel instant.</h3>
+              <p class="unlock-story-description" data-scroll-text data-direction="down" data-line-anime>Designed for a quick, seamless experience, so unlocking feels natural instead of interrupting your workflow.</p>
+            </div>
           </article>
-          <article class="unlock-flow-card">
-            <div class="unlock-flow-number">03</div>
-            <h3>Your face stays yours.</h3>
-            <p>FaceAuth is designed to keep face-recognition processing close to your Mac, rather than relying on the cloud.</p>
+          <article class="unlock-story-item">
+            <div class="unlock-story-number" data-scroll-text data-direction="left">03</div>
+            <div class="unlock-story-copy">
+              <h3 class="unlock-story-title" data-scroll-text data-direction="right" data-letter-anime>Your face stays yours.</h3>
+              <p class="unlock-story-description" data-scroll-text data-direction="up" data-line-anime>FaceAuth is designed to keep face-recognition processing on your Mac, helping keep your biometric data closer to you.</p>
+            </div>
           </article>
-          <article class="unlock-flow-card">
-            <div class="unlock-flow-number">04</div>
-            <h3>More than one face.</h3>
-            <p>Enroll multiple identities and choose which ones FaceAuth should recognize.</p>
+          <article class="unlock-story-item">
+            <div class="unlock-story-number" data-scroll-text data-direction="right">04</div>
+            <div class="unlock-story-copy">
+              <h3 class="unlock-story-title" data-scroll-text data-direction="left" data-letter-anime>More than one face.</h3>
+              <p class="unlock-story-description" data-scroll-text data-direction="down" data-line-anime>Enroll multiple identities, making it possible for FaceAuth to recognize more than one authorized person.</p>
+            </div>
           </article>
-          <article class="unlock-flow-card">
-            <div class="unlock-flow-number">05</div>
-            <h3>When it doesn't recognize you.</h3>
-            <p>No problem. FaceAuth doesn't replace your password. You can always unlock your Mac the usual way.</p>
+          <article class="unlock-story-item">
+            <div class="unlock-story-number" data-scroll-text data-direction="left">05</div>
+            <div class="unlock-story-copy">
+              <h3 class="unlock-story-title" data-scroll-text data-direction="right" data-letter-anime>When it doesn't recognize you.</h3>
+              <p class="unlock-story-description" data-scroll-text data-direction="up" data-line-anime>FaceAuth doesn't replace your password. If recognition doesn't work, you can still use your normal Mac password to unlock.</p>
+            </div>
           </article>
         </div>
       </section>
@@ -2460,7 +2810,11 @@
     </div>
     <aside class="assistant-widget" id="assistant-widget">
       <section class="assistant-panel" id="assistant-panel" aria-labelledby="assistant-title" aria-hidden="true">
-        <button class="assistant-close" id="assistant-close" type="button" aria-label="Close Ask FaceAuth AI" onclick="const widget = this.closest('.assistant-widget'); const panel = this.closest('.assistant-panel'); widget.classList.remove('is-open', 'is-closing'); panel.style.display = 'none'; panel.setAttribute('aria-hidden', 'true'); widget.querySelector('#assistant-toggle').setAttribute('aria-expanded', 'false');">&times;</button>
+        <div class="assistant-window-controls" role="group" aria-label="FaceAuth AI window controls">
+          <button class="assistant-window-control assistant-window-control-close" id="assistant-close" type="button" aria-label="Close FaceAuth AI"></button>
+          <button class="assistant-window-control assistant-window-control-minimize" id="assistant-minimize" type="button" aria-label="Minimize FaceAuth AI"></button>
+          <button class="assistant-window-control assistant-window-control-expand" id="assistant-expand" type="button" aria-label="Expand FaceAuth AI" aria-pressed="false"></button>
+        </div>
         <div class="assistant-panel-content">
           <h2 id="assistant-title"><span class="assistant-welcome-line assistant-welcome-title">FaceAuth AI</span></h2>
           <p class="assistant-welcome"><em class="assistant-welcome-line assistant-welcome-copy">How can I help?</em></p>
@@ -2754,6 +3108,8 @@
       const assistantWidget = document.querySelector('#assistant-widget');
       const assistantToggle = document.querySelector('#assistant-toggle');
       const assistantClose = document.querySelector('#assistant-close');
+      const assistantMinimize = document.querySelector('#assistant-minimize');
+      const assistantExpand = document.querySelector('#assistant-expand');
       const assistantPanel = document.querySelector('#assistant-panel');
       const assistantForm = document.querySelector('#assistant-form');
       const assistantInput = document.querySelector('#assistant-input');
@@ -2764,6 +3120,16 @@
       const assistantDefaultBottom = 100;
       const assistantFooterGap = 28;
       let assistantFooterFrame = 0;
+      let assistantTransitionTimer = 0;
+
+      assistantPanel.addEventListener('wheel', (event) => {
+        const scrollRegion = event.target instanceof Element
+          ? event.target.closest('.assistant-messages')
+          : null;
+        if (!scrollRegion || scrollRegion.scrollHeight <= scrollRegion.clientHeight) {
+          event.preventDefault();
+        }
+      }, { passive: false });
 
       const updateAssistantFooterSpacing = () => {
         if (!assistantFooter) return;
@@ -2986,31 +3352,382 @@
         ]).then(() => showAssistantResponse(typingIndicator, answerQuestion(trimmedQuestion)));
       };
 
+      const clampAssistantAnimation = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
+      const easeAssistantInOut = (value) => value < 0.5
+        ? 4 * value * value * value
+        : 1 - Math.pow(-2 * value + 2, 3) / 2;
+      const easeAssistantIn = (value) => value * value;
+      const easeAssistantOut = (value) => 1 - (1 - value) * (1 - value);
+      let assistantGenieRequestId = 0;
+      let assistantGenieCancel = null;
+      let assistantGenieSnapshot = null;
+      let assistantGenieWindowRect = null;
+      let assistantGenieDockPosition = null;
+      let assistantGenieWindowState = null;
+
+      const snapshotAssistantPanel = (panelElement, panelRect) => {
+        const clone = panelElement.cloneNode(true);
+        const sourceNodes = [panelElement, ...panelElement.querySelectorAll('*')];
+        const cloneNodes = [clone, ...clone.querySelectorAll('*')];
+
+        sourceNodes.forEach((sourceNode, nodeIndex) => {
+          const computedStyle = getComputedStyle(sourceNode);
+          const clonedStyle = cloneNodes[nodeIndex].style;
+          for (let index = 0; index < computedStyle.length; index += 1) {
+            const property = computedStyle[index];
+            if (sourceNode.classList.contains('assistant-welcome-line') && property.startsWith('animation')) continue;
+            clonedStyle.setProperty(property, computedStyle.getPropertyValue(property), computedStyle.getPropertyPriority(property));
+          }
+          if (sourceNode instanceof HTMLInputElement) {
+            cloneNodes[nodeIndex].setAttribute('value', sourceNode.value);
+          } else if (sourceNode instanceof HTMLTextAreaElement) {
+            cloneNodes[nodeIndex].textContent = sourceNode.value;
+          }
+        });
+        clone.querySelector('.assistant-panel-content')?.classList.remove('is-typing');
+
+        clone.style.setProperty('position', 'relative');
+        clone.style.setProperty('top', '0');
+        clone.style.setProperty('left', '0');
+        clone.style.setProperty('width', `${panelRect.width}px`);
+        clone.style.setProperty('height', `${panelRect.height}px`);
+        clone.style.setProperty('min-height', '0');
+        clone.style.setProperty('max-height', 'none');
+        clone.style.setProperty('margin', '0');
+        clone.style.setProperty('transform', 'none');
+        clone.style.setProperty('opacity', '1');
+        clone.style.setProperty('visibility', 'visible');
+
+        const svgContent = new XMLSerializer().serializeToString(clone);
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${panelRect.width}" height="${panelRect.height}" viewBox="0 0 ${panelRect.width} ${panelRect.height}"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:${panelRect.width}px;height:${panelRect.height}px;overflow:hidden">${svgContent}</div></foreignObject></svg>`;
+        const imageUrl = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
+        const image = new Image();
+        const imageReady = new Promise((resolve, reject) => {
+          image.onload = () => resolve();
+          image.onerror = () => reject(new Error('The FaceAuth AI window snapshot could not be rendered.'));
+        });
+        image.src = imageUrl;
+
+        return imageReady.then(() => {
+          const pixelRatio = window.devicePixelRatio || 1;
+          const snapshot = document.createElement('canvas');
+          snapshot.width = Math.ceil(panelRect.width * pixelRatio);
+          snapshot.height = Math.ceil(panelRect.height * pixelRatio);
+          const context = snapshot.getContext('2d');
+          if (!context) throw new Error('A 2D canvas context is unavailable for the FaceAuth AI snapshot.');
+          context.scale(pixelRatio, pixelRatio);
+          context.drawImage(image, 0, 0, panelRect.width, panelRect.height);
+          return snapshot;
+        }).finally(() => URL.revokeObjectURL(imageUrl));
+      };
+
+      const startAssistantGenie = (snapshot, windowRect, dockPosition, direction, onComplete) => {
+        const canvas = document.createElement('canvas');
+        const pixelRatio = window.devicePixelRatio || 1;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        canvas.width = Math.ceil(viewportWidth * pixelRatio);
+        canvas.height = Math.ceil(viewportHeight * pixelRatio);
+        canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;z-index:60;pointer-events:none;';
+        canvas.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(canvas);
+
+        const context = canvas.getContext('2d');
+        if (!context) {
+          canvas.remove();
+          throw new Error('A 2D canvas context is unavailable for the FaceAuth AI Genie animation.');
+        }
+        context.scale(pixelRatio, pixelRatio);
+
+        let animationFrame = 0;
+        let animationStart = null;
+        let completed = false;
+        const duration = 500;
+        const renderFrame = (timestamp) => {
+          if (animationStart === null) animationStart = timestamp;
+          const rawProgress = clampAssistantAnimation((timestamp - animationStart) / duration, 0, 1);
+          context.clearRect(0, 0, viewportWidth, viewportHeight);
+
+          for (let y = 0; y < windowRect.height; y += 1) {
+            const rowRatio = y / windowRect.height;
+            const xStart = direction === 'minimize' ? (1 - rowRatio) * 0.65 : rowRatio * 0.65;
+            const xProgress = clampAssistantAnimation((rawProgress - xStart) / (1 - xStart), 0, 1);
+            const xEase = easeAssistantInOut(xProgress);
+            const yStart = direction === 'minimize' ? (1 - rowRatio) * 0.2 : rowRatio * 0.2;
+            const yProgress = clampAssistantAnimation((rawProgress - yStart) / (1 - yStart), 0, 1);
+            const yEase = easeAssistantIn(yProgress);
+            const left = direction === 'minimize'
+              ? windowRect.left + (dockPosition.x - windowRect.left) * xEase
+              : dockPosition.x + (windowRect.left - dockPosition.x) * xEase;
+            const right = direction === 'minimize'
+              ? windowRect.right + (dockPosition.x - windowRect.right) * xEase
+              : dockPosition.x + (windowRect.right - dockPosition.x) * xEase;
+            const windowRowY = windowRect.top + y;
+            const destinationY = direction === 'minimize'
+              ? windowRowY + (dockPosition.y - windowRowY) * yEase
+              : dockPosition.y + (windowRowY - dockPosition.y) * yEase;
+            const rowWidth = right - left;
+            if (rowWidth < 0.8) continue;
+            const sourceY = y * pixelRatio;
+            const sourceHeight = Math.min(pixelRatio, snapshot.height - sourceY);
+            if (sourceHeight <= 0) continue;
+            context.drawImage(snapshot, 0, sourceY, snapshot.width, sourceHeight, left, destinationY, rowWidth, 1);
+          }
+
+          const glowProgress = direction === 'minimize' ? rawProgress : 1 - rawProgress;
+          if (glowProgress > 0.75) {
+            const alpha = easeAssistantOut((glowProgress - 0.75) / 0.25) * 0.3;
+            const alphaHex = Math.round(alpha * 255).toString(16).padStart(2, '0');
+            const glow = context.createRadialGradient(dockPosition.x, dockPosition.y, 0, dockPosition.x, dockPosition.y, 55);
+            glow.addColorStop(0, `#ffffff${alphaHex}`);
+            glow.addColorStop(1, 'transparent');
+            context.fillStyle = glow;
+            context.fillRect(0, 0, viewportWidth, viewportHeight);
+          }
+
+          if (rawProgress < 1) {
+            animationFrame = requestAnimationFrame(renderFrame);
+          } else {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.remove();
+            completed = true;
+            onComplete();
+          }
+        };
+
+        animationFrame = requestAnimationFrame(renderFrame);
+        return () => {
+          if (completed) return;
+          completed = true;
+          cancelAnimationFrame(animationFrame);
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          canvas.remove();
+        };
+      };
+
       const closeAssistant = (event) => {
         event?.preventDefault();
         event?.stopPropagation();
-        assistantWidget.classList.remove('is-open', 'is-closing');
-        assistantPanel.style.display = 'none';
+        window.clearTimeout(assistantTransitionTimer);
+        assistantGenieRequestId += 1;
+        assistantGenieCancel?.();
+        assistantGenieSnapshot = null;
+        assistantGenieWindowRect = null;
+        assistantGenieDockPosition = null;
+        assistantGenieWindowState = null;
+        assistantWidget.classList.remove('is-minimizing', 'is-genie-pending', 'is-genie-minimizing', 'is-minimized');
+        assistantPanel.style.removeProperty('visibility');
+        assistantWidget.classList.add('is-closing');
         assistantToggle.setAttribute('aria-expanded', 'false');
-        assistantPanel.setAttribute('aria-hidden', 'true');
+        assistantExpand.setAttribute('aria-pressed', 'false');
+        assistantTransitionTimer = window.setTimeout(() => {
+          assistantWidget.classList.remove('is-open', 'is-closing', 'is-expanded');
+          assistantPanel.style.display = 'none';
+          assistantPanel.style.height = '';
+          assistantPanel.setAttribute('aria-hidden', 'true');
+          assistantTransitionTimer = 0;
+        }, 470);
       };
 
       assistantToggle.addEventListener('click', () => {
-        if (assistantWidget.classList.contains('is-open')) {
+        if (assistantWidget.classList.contains('is-genie-pending')
+          || assistantWidget.classList.contains('is-genie-minimizing')) {
+          return;
+        }
+        if (assistantWidget.classList.contains('is-minimized')
+          && assistantGenieSnapshot
+          && assistantGenieWindowRect
+          && assistantGenieDockPosition
+          && assistantGenieWindowState) {
+          window.clearTimeout(assistantTransitionTimer);
+          assistantGenieCancel?.();
+          const genieRequestId = ++assistantGenieRequestId;
+          assistantPanel.style.display = 'block';
+          assistantPanel.style.height = `${assistantGenieWindowRect.height}px`;
+          assistantPanel.style.setProperty('transition', 'none', 'important');
+          assistantPanel.style.setProperty('visibility', 'hidden', 'important');
+          assistantPanel.setAttribute('aria-hidden', 'true');
+          assistantWidget.classList.add('is-minimizing', 'is-genie-minimizing');
+
+          try {
+            startAssistantGenie(
+              assistantGenieSnapshot,
+              assistantGenieWindowRect,
+              assistantGenieDockPosition,
+              'restore',
+              () => {
+                if (genieRequestId !== assistantGenieRequestId) return;
+                assistantWidget.classList.remove('is-minimizing', 'is-genie-minimizing', 'is-genie-pending', 'is-minimized');
+                assistantWidget.classList.add('is-open');
+                assistantPanel.style.setProperty('opacity', '1');
+                assistantPanel.style.setProperty('transition', 'none', 'important');
+                assistantPanel.style.removeProperty('visibility');
+                assistantPanel.style.height = assistantGenieWindowState.panelHeight;
+                assistantPanel.style.display = 'block';
+                assistantPanel.setAttribute('aria-hidden', 'false');
+                assistantToggle.setAttribute('aria-expanded', 'true');
+                assistantExpand.setAttribute('aria-pressed', String(assistantGenieWindowState.expanded));
+                requestAnimationFrame(() => {
+                  assistantPanel.style.removeProperty('opacity');
+                  assistantPanel.style.removeProperty('transition');
+                });
+                assistantGenieSnapshot = null;
+                assistantGenieWindowRect = null;
+                assistantGenieDockPosition = null;
+                assistantGenieWindowState = null;
+                assistantInput.focus();
+              }
+            );
+          } catch (error) {
+            assistantWidget.classList.remove('is-open', 'is-minimizing', 'is-genie-minimizing');
+            assistantPanel.style.display = 'none';
+            assistantPanel.style.removeProperty('transition');
+            assistantPanel.style.removeProperty('visibility');
+            assistantPanel.style.height = '';
+            assistantPanel.setAttribute('aria-hidden', 'true');
+            assistantToggle.setAttribute('aria-expanded', 'false');
+            console.error('FaceAuth AI Genie restore animation failed.', error);
+          }
+          return;
+        }
+
+        if (assistantWidget.classList.contains('is-open')
+          && !assistantWidget.classList.contains('is-minimizing')
+          && !assistantWidget.classList.contains('is-genie-pending')) {
           closeAssistant();
           return;
         }
-        assistantWidget.classList.remove('is-closing');
-        assistantWidget.classList.add('is-open');
+        assistantGenieRequestId += 1;
+        assistantGenieCancel?.();
+        window.clearTimeout(assistantTransitionTimer);
         assistantPanel.style.display = 'block';
+        assistantPanel.style.height = '';
+        assistantPanel.style.removeProperty('transition');
+        assistantPanel.style.removeProperty('visibility');
+        assistantWidget.classList.remove('is-closing', 'is-minimizing', 'is-genie-pending', 'is-genie-minimizing', 'is-minimized', 'is-expanded');
+        assistantPanel.offsetHeight;
+        assistantWidget.classList.add('is-open');
         playAssistantWelcome();
+        assistantExpand.setAttribute('aria-pressed', 'false');
         assistantToggle.setAttribute('aria-expanded', 'true');
         assistantPanel.setAttribute('aria-hidden', 'false');
         assistantInput.focus();
       });
 
       assistantClose.addEventListener('click', closeAssistant);
-      assistantClose.addEventListener('pointerdown', closeAssistant);
+      assistantMinimize.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!assistantWidget.classList.contains('is-open')
+          || assistantWidget.classList.contains('is-genie-pending')
+          || assistantWidget.classList.contains('is-genie-minimizing')
+          || assistantWidget.classList.contains('is-minimized')) {
+          return;
+        }
+        window.clearTimeout(assistantTransitionTimer);
+        const panelRect = assistantPanel.getBoundingClientRect();
+        const toggleRect = assistantToggle.getBoundingClientRect();
+        const dockPosition = {
+          x: toggleRect.left + toggleRect.width / 2,
+          y: toggleRect.top + toggleRect.height / 2
+        };
+        const genieRequestId = ++assistantGenieRequestId;
+        const windowState = {
+          expanded: assistantWidget.classList.contains('is-expanded'),
+          panelHeight: assistantPanel.style.height
+        };
+        assistantWidget.classList.remove('is-closing', 'is-genie-minimizing');
+        assistantWidget.classList.add('is-genie-pending', 'is-minimized');
+        assistantToggle.setAttribute('aria-expanded', 'false');
+        assistantExpand.setAttribute('aria-pressed', 'false');
+        assistantPanel.setAttribute('aria-hidden', 'true');
+
+        try {
+          const snapshot = await snapshotAssistantPanel(assistantPanel, panelRect);
+          if (genieRequestId !== assistantGenieRequestId) return;
+          assistantWidget.classList.remove('is-genie-pending');
+          assistantWidget.classList.add('is-minimizing', 'is-genie-minimizing');
+          assistantPanel.style.setProperty('transition', 'none', 'important');
+          assistantPanel.style.setProperty('visibility', 'hidden', 'important');
+          const windowRect = {
+            left: panelRect.left,
+            top: panelRect.top,
+            width: panelRect.width,
+            height: panelRect.height,
+            right: panelRect.right
+          };
+          assistantGenieSnapshot = snapshot;
+          assistantGenieWindowRect = windowRect;
+          assistantGenieDockPosition = dockPosition;
+          assistantGenieWindowState = windowState;
+          startAssistantGenie(snapshot, windowRect, dockPosition, 'minimize', () => {
+            if (genieRequestId !== assistantGenieRequestId) return;
+            assistantWidget.classList.remove('is-open', 'is-minimizing', 'is-genie-minimizing');
+            assistantWidget.classList.add('is-minimized');
+            assistantPanelContent.classList.remove('is-typing');
+            assistantPanel.style.display = 'none';
+            assistantPanel.style.height = windowState.panelHeight;
+            assistantPanel.style.removeProperty('transition');
+            assistantPanel.style.removeProperty('visibility');
+            assistantTransitionTimer = 0;
+          });
+        } catch (error) {
+          if (genieRequestId !== assistantGenieRequestId) return;
+          assistantWidget.classList.remove('is-minimizing', 'is-genie-pending', 'is-genie-minimizing', 'is-minimized');
+          assistantPanel.style.removeProperty('transition');
+          assistantPanel.style.removeProperty('visibility');
+          assistantToggle.setAttribute('aria-expanded', 'true');
+          assistantPanel.setAttribute('aria-hidden', 'false');
+          console.error('FaceAuth AI Genie minimize animation failed.', error);
+        }
+      });
+
+      assistantExpand.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const isExpanded = assistantWidget.classList.contains('is-expanded');
+        if (window.matchMedia('(max-width: 520px)').matches) {
+          assistantWidget.classList.toggle('is-expanded', !isExpanded);
+          assistantExpand.setAttribute('aria-pressed', String(!isExpanded));
+          return;
+        }
+
+        if (!isExpanded) {
+          const targetHeight = Math.max(240, Math.min(window.innerHeight - 36, assistantToggle.getBoundingClientRect().top - 28));
+          assistantPanel.style.height = `${assistantPanel.getBoundingClientRect().height}px`;
+          assistantPanel.offsetHeight;
+          assistantWidget.classList.add('is-expanded');
+          requestAnimationFrame(() => {
+            assistantPanel.style.height = `${targetHeight}px`;
+          });
+        } else {
+          const currentHeight = assistantPanel.getBoundingClientRect().height;
+          assistantWidget.classList.remove('is-expanded');
+          assistantPanel.style.height = 'auto';
+          const targetHeight = assistantPanel.getBoundingClientRect().height;
+          assistantPanel.style.height = `${currentHeight}px`;
+          assistantPanel.offsetHeight;
+          requestAnimationFrame(() => {
+            assistantPanel.style.height = `${targetHeight}px`;
+            assistantPanel.addEventListener('transitionend', (transitionEvent) => {
+              if (transitionEvent.target === assistantPanel && transitionEvent.propertyName === 'height' && !assistantWidget.classList.contains('is-expanded')) {
+                assistantPanel.style.height = '';
+              }
+            }, { once: true });
+          });
+        }
+        assistantExpand.setAttribute('aria-pressed', String(!isExpanded));
+      });
+
+      window.addEventListener('resize', () => {
+        if (!assistantWidget.classList.contains('is-expanded')) return;
+        if (window.matchMedia('(max-width: 520px)').matches) {
+          assistantPanel.style.height = '';
+          return;
+        }
+        const targetHeight = Math.max(240, Math.min(window.innerHeight - 36, assistantToggle.getBoundingClientRect().top - 28));
+        assistantPanel.style.height = `${targetHeight}px`;
+      });
 
       assistantForm.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -3049,39 +3766,58 @@
         }, 2500);
       });
 
-      const unlockFlowTrack = document.querySelector('.unlock-flow-track');
-      let unlockFlowPointerId = null;
-      let unlockFlowStartX = 0;
-      let unlockFlowStartScrollLeft = 0;
+      const scrollTextElements = document.querySelectorAll('.unlock-flow [data-scroll-text]');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      unlockFlowTrack?.addEventListener('pointerdown', (event) => {
-        if (event.pointerType !== 'mouse' || event.button !== 0) return;
-        unlockFlowPointerId = event.pointerId;
-        unlockFlowStartX = event.clientX;
-        unlockFlowStartScrollLeft = unlockFlowTrack.scrollLeft;
-        unlockFlowTrack.style.scrollBehavior = 'auto';
-        unlockFlowTrack.classList.add('is-dragging');
-        unlockFlowTrack.setPointerCapture(event.pointerId);
-      });
-
-      unlockFlowTrack?.addEventListener('pointermove', (event) => {
-        if (event.pointerId !== unlockFlowPointerId) return;
-        const dragDistance = event.clientX - unlockFlowStartX;
-        if (Math.abs(dragDistance) > 3) {
-          unlockFlowTrack.scrollLeft = unlockFlowStartScrollLeft - dragDistance;
+      scrollTextElements.forEach((element) => {
+        if (element.hasAttribute('data-letter-anime')) {
+          const text = element.textContent;
+          element.setAttribute('aria-label', text);
+          let characterIndex = 0;
+          const visualContent = document.createDocumentFragment();
+          text.split(/(\s+)/).filter(Boolean).forEach((part) => {
+            if (/^\s+$/.test(part)) {
+              visualContent.append(document.createTextNode(part));
+              return;
+            }
+            const word = document.createElement('span');
+            word.className = 'unlock-story-word';
+            word.setAttribute('aria-hidden', 'true');
+            Array.from(part).forEach((character) => {
+              const letter = document.createElement('span');
+              letter.className = 'unlock-story-letter';
+              letter.style.setProperty('--letter-index', String(characterIndex));
+              letter.textContent = character;
+              characterIndex += 1;
+              word.append(letter);
+            });
+            visualContent.append(word);
+          });
+          element.replaceChildren(visualContent);
+        } else if (element.hasAttribute('data-line-anime')) {
+          const lineMask = document.createElement('span');
+          const line = document.createElement('span');
+          lineMask.className = 'unlock-story-line-mask';
+          line.className = 'unlock-story-line';
+          line.setAttribute('aria-hidden', 'true');
+          line.textContent = element.textContent;
+          element.setAttribute('aria-label', element.textContent);
+          lineMask.append(line);
+          element.replaceChildren(lineMask);
         }
       });
 
-      const finishUnlockFlowDrag = (event) => {
-        if (event.pointerId !== unlockFlowPointerId) return;
-        unlockFlowPointerId = null;
-        unlockFlowTrack.classList.remove('is-dragging');
-        unlockFlowTrack.style.removeProperty('scroll-behavior');
-      };
+      if (reducedMotion || !('IntersectionObserver' in window)) {
+        scrollTextElements.forEach((element) => element.classList.add('is-visible'));
+      } else {
+        const scrollTextObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach((entry) => {
+            entry.target.classList.toggle('is-visible', entry.isIntersecting);
+          });
+        }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
 
-      unlockFlowTrack?.addEventListener('pointerup', finishUnlockFlowDrag);
-      unlockFlowTrack?.addEventListener('pointercancel', finishUnlockFlowDrag);
-      unlockFlowTrack?.addEventListener('lostpointercapture', finishUnlockFlowDrag);
+        scrollTextElements.forEach((element) => scrollTextObserver.observe(element));
+      }
     </script>
     <script>
       (() => {

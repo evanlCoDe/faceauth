@@ -440,26 +440,35 @@
     popup.setAttribute('role', 'dialog');
     popup.setAttribute('aria-label', 'Settings');
     popup.setAttribute('aria-hidden', 'true');
+    const controls = document.createElement('div');
+    controls.className = 'assistant-window-controls';
+    controls.setAttribute('role', 'group');
+    controls.setAttribute('aria-label', 'Settings window controls');
+    controls.innerHTML = '<button class="assistant-window-control assistant-window-control-close" type="button" aria-label="Close Settings"></button>';
+    const [redButton] = controls.children;
+    popup.append(controls);
     document.body.insertAdjacentElement('afterbegin', button);
     document.body.insertAdjacentElement('afterbegin', popup);
+    const closeWindow = (returnFocus = false) => {
+      popup.classList.remove('is-open');
+      button.setAttribute('aria-expanded', 'false');
+      popup.setAttribute('aria-hidden', 'true');
+      if (returnFocus) button.focus();
+    };
     button.addEventListener('click', () => {
       const isOpen = popup.classList.toggle('is-open');
       button.setAttribute('aria-expanded', String(isOpen));
       popup.setAttribute('aria-hidden', String(!isOpen));
       if (isOpen) popup.dispatchEvent(new Event('faceauth-settings-open'));
     });
+    redButton.addEventListener('click', () => closeWindow(true));
     document.addEventListener('click', (event) => {
       if (!popup.classList.contains('is-open') || popup.contains(event.target) || button.contains(event.target)) return;
-      popup.classList.remove('is-open');
-      popup.setAttribute('aria-hidden', 'true');
-      button.setAttribute('aria-expanded', 'false');
+      closeWindow();
     });
     document.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape' || !popup.classList.contains('is-open')) return;
-      popup.classList.remove('is-open');
-      popup.setAttribute('aria-hidden', 'true');
-      button.setAttribute('aria-expanded', 'false');
-      button.focus();
+      closeWindow(true);
     });
     applyGlass(button, navigationGlassConfig);
     applyGlass(popup, navigationGlassConfig);
@@ -496,7 +505,6 @@
       <div class="faceauth-compatibility-content">
         <div class="faceauth-compatibility-heading">
           <h2>Check Compatibility</h2>
-          <button class="faceauth-compatibility-close" type="button" aria-label="Close Check Compatibility">×</button>
         </div>
         <p class="faceauth-compatibility-checking" role="status" aria-live="polite">Checking your Mac…</p>
         <div class="faceauth-compatibility-results" aria-live="polite">
@@ -514,6 +522,13 @@
           </ul>
         </section>
       </div>`;
+    const controls = document.createElement('div');
+    controls.className = 'assistant-window-controls';
+    controls.setAttribute('role', 'group');
+    controls.setAttribute('aria-label', 'Check Compatibility window controls');
+    controls.innerHTML = '<button class="assistant-window-control assistant-window-control-close" type="button" aria-label="Close Check Compatibility"></button>';
+    const [redButton] = controls.children;
+    popup.append(controls);
     const settingsButton = document.querySelector('.faceauth-settings-button:not(.faceauth-compatibility-button)');
     if (settingsButton) {
       settingsButton.insertAdjacentElement('afterend', button);
@@ -524,7 +539,6 @@
 
     const checking = popup.querySelector('.faceauth-compatibility-checking');
     const results = popup.querySelector('.faceauth-compatibility-results');
-    const closeButton = popup.querySelector('.faceauth-compatibility-close');
     let checkRequestId = 0;
 
     function detectMacPlatform() {
@@ -605,6 +619,7 @@
       popup.classList.remove('is-open');
       button.setAttribute('aria-expanded', 'false');
       popup.setAttribute('aria-hidden', 'true');
+      checkRequestId += 1;
       if (returnFocus) button.focus();
     }
 
@@ -621,7 +636,7 @@
       showLoadingSpinner();
       runCompatibilityCheck(checkRequestId);
     });
-    closeButton.addEventListener('click', () => closePopup(true));
+    redButton.addEventListener('click', () => closePopup(true));
     document.addEventListener('click', (event) => {
       if (!popup.classList.contains('is-open') || popup.contains(event.target) || button.contains(event.target)) return;
       closePopup();
