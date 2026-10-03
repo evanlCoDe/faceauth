@@ -155,6 +155,16 @@ body.faceauth-nav-enabled {
   overflow-wrap: anywhere;
 }
 
+#faceauth-compatibility-popup .faceauth-compatibility-ready {
+  color: #00a000 !important;
+  transition: none !important;
+}
+
+#faceauth-compatibility-popup .faceauth-compatibility-ready .faceauth-compatibility-symbol {
+  color: #00a000 !important;
+  transition: none !important;
+}
+
 .faceauth-compatibility-results > p + p {
   margin-top: 6px;
 }
@@ -185,6 +195,11 @@ body.faceauth-nav-enabled {
 
 .faceauth-compatibility-note {
   margin-top: 8px !important;
+}
+
+#faceauth-compatibility-popup .faceauth-compatibility-unavailable {
+  color: #d00000 !important;
+  transition: none !important;
 }
 
 .faceauth-compatibility-requirements {

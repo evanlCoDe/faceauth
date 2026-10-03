@@ -566,8 +566,9 @@
       }
     }
 
-    function addResult(symbol, message) {
+    function addResult(symbol, message, className = '') {
       const row = document.createElement('p');
+      row.className = className;
       const indicator = document.createElement('span');
       indicator.className = 'faceauth-compatibility-symbol';
       indicator.setAttribute('aria-hidden', 'true');
@@ -591,13 +592,10 @@
 
       results.replaceChildren();
       const isMac = detectMacPlatform();
+      let isSupportedMac = false;
       if (!isMac) {
         addResult('✕', 'macOS detected');
         addResult('⚠', 'macOS version unavailable');
-        const note = document.createElement('p');
-        note.className = 'faceauth-compatibility-note';
-        note.textContent = 'FaceAuth is designed exclusively for Mac.';
-        results.appendChild(note);
       } else {
         addResult('✓', 'macOS detected');
         const detectedVersion = await detectMacVersion();
@@ -606,9 +604,18 @@
           addResult('⚠', 'macOS version unavailable');
         } else if (detectedVersion.compatible) {
           addResult('✓', 'macOS version compatible');
+          addResult('✓', 'Ready To Install', 'faceauth-compatibility-ready');
+          isSupportedMac = true;
         } else {
           addResult('✕', 'macOS version not compatible');
         }
+      }
+
+      if (!isSupportedMac) {
+        const note = document.createElement('p');
+        note.className = 'faceauth-compatibility-note faceauth-compatibility-unavailable';
+        note.textContent = 'FaceAuth is not available on this device.';
+        results.appendChild(note);
       }
 
       checking.hidden = true;
