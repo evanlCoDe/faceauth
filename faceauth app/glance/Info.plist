@@ -6,8 +6,6 @@
 	<false/>
 	<key>SUEnableInstallerLauncherService</key>
 	<false/>
-	<key>SUFeedURL</key>
-	<string>https://tryglance.app/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>o9uQmlzKzh7NZvFtVktVh/wqw4Ie6WshX8K8NFDweWY=</string>
 </dict>

@@ -19,7 +19,7 @@ struct AboutSettingsPage: View {
     private let tapResetInterval: TimeInterval = 1.0
 
     private var versionString: String {
-        "Version 1.0 Beta 1"
+        "Version 1.0"
     }
 
     var body: some View {

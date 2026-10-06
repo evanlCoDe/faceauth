@@ -1,8 +1,8 @@
 //
-//  glanceApp.swift
-//  glance
 //
-//  Created by Jonathan Zhou on 2026-07-21.
+//
+//
+//  Created by Evan Lin on 2026-09-18.
 //
 
 import SwiftUI

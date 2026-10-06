@@ -488,7 +488,7 @@
       voiceFooter.setAttribute('aria-hidden', String(!isVoiceID));
       const faqLink = document.querySelector('#faceauth-site-nav [data-nav="faq"]');
       if (faqLink) faqLink.href = isVoiceID ? 'faq.html?product=voice' : 'faq.html';
-      document.title = isVoiceID ? 'VoiceID — In Progress' : originalTitle;
+      document.title = isVoiceID ? 'FaceAuth - Voice ID for Mac' : originalTitle;
       moveIndicator(selectedOption);
       window.dispatchEvent(new Event('faceauth-product-change'));
     };
