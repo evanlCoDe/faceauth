@@ -401,6 +401,7 @@
 
     nav.id = 'faceauth-site-nav';
     nav.setAttribute('aria-label', 'Primary navigation');
+    const faqHref = document.body.dataset.product === 'voice' ? 'faq.html?product=voice' : 'faq.html';
     nav.innerHTML = `
       <div class="nav-inner" data-radius="24">
         <div class="glass-indicator" data-radius="16" aria-hidden="true"></div>
@@ -410,7 +411,7 @@
             <a class="glass-nav-link" data-nav="design" href="index.html#design"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg><span>Design</span></a>
             <a class="glass-nav-link" data-nav="security" href="index.html#security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5.5c0 4.5-3.2 7.7-8 9.5-4.8-1.8-8-5-8-9.5V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/></svg><span>Security</span></a>
             <a class="glass-nav-link" data-nav="support" href="index.html#support"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.8 7.3L3.5 20l1.2-4.1a8.5 8.5 0 1 1 15.8-4.4Z"/><path d="M9.7 9.2a2.3 2.3 0 0 1 4.5.7c0 1.7-2.2 1.9-2.2 3.4m0 2.2h.01"/></svg><span>Support</span></a>
-            <a class="glass-nav-link" data-nav="faq" href="faq.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.3 9.2c.2-1.4 1.3-2.3 2.8-2.3 1.7 0 2.9 1 2.9 2.5 0 1.3-.7 2.1-1.8 2.8-.9.6-1.3 1.1-1.3 2.2"/><circle cx="12" cy="17.7" r=".8" fill="currentColor" stroke="none"/></svg><span>FAQ</span></a>
+            <a class="glass-nav-link" data-nav="faq" href="${faqHref}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.3 9.2c.2-1.4 1.3-2.3 2.8-2.3 1.7 0 2.9 1 2.9 2.5 0 1.3-.7 2.1-1.8 2.8-.9.6-1.3 1.1-1.3 2.2"/><circle cx="12" cy="17.7" r=".8" fill="currentColor" stroke="none"/></svg><span>FAQ</span></a>
           </div>
         </div>
       </div>`;
@@ -418,6 +419,197 @@
     document.body.classList.add('faceauth-nav-enabled');
 
     return nav;
+  }
+
+  function injectProductSwitcher() {
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    const pageName = location.pathname.endsWith('/') ? 'index.html' : pathParts.pop()?.toLowerCase() || 'index.html';
+    const main = document.querySelector('main');
+    if (pageName !== 'index.html' || !main) return;
+
+    const originalTitle = document.title;
+    const voiceView = document.querySelector('#voiceid-main');
+    const voiceFooter = document.querySelector('#voiceid-footer');
+    if (!voiceView || !voiceFooter) return;
+    const switcher = document.createElement('div');
+    switcher.id = 'faceauth-product-switcher';
+    switcher.className = 'faceauth-product-switcher';
+    switcher.dataset.radius = '999';
+    switcher.setAttribute('role', 'group');
+    switcher.setAttribute('aria-label', 'Product switcher');
+    switcher.innerHTML = `
+      <span class="faceauth-product-indicator" data-radius="999" aria-hidden="true"></span>
+      <button class="faceauth-product-option is-active" type="button" data-product="face" aria-pressed="true">FaceAuth for Mac</button>
+      <span class="faceauth-product-separator" aria-hidden="true"></span>
+      <button class="faceauth-product-option" type="button" data-product="voice" aria-pressed="false">VoiceID for Mac</button>`;
+    document.body.insertAdjacentElement('afterbegin', switcher);
+
+    const indicator = switcher.querySelector('.faceauth-product-indicator');
+    const options = Array.from(switcher.querySelectorAll('.faceauth-product-option'));
+    let selectedProduct = 'face';
+    let pointerId = null;
+    let pressX = 0;
+    let pressY = 0;
+    let pressWidth = 0;
+    let dragTarget = null;
+    let isDragging = false;
+    let suppressClick = false;
+    let glassRebuildQueued = false;
+    const activeOption = () => options.find((option) => option.dataset.product === selectedProduct);
+    const setActiveOption = (option) => {
+      if (!option) return;
+      options.forEach((item) => {
+        const isActive = item === option;
+        item.classList.toggle('is-active', isActive);
+        item.setAttribute('aria-pressed', String(isActive));
+      });
+    };
+    const moveIndicator = (option, immediate = false) => {
+      if (!option) return;
+      const switcherRect = switcher.getBoundingClientRect();
+      const optionRect = option.getBoundingClientRect();
+      indicator.style.opacity = '1';
+      if (immediate) indicator.style.transition = 'none';
+      indicator.style.left = `${optionRect.left - switcherRect.left - switcher.clientLeft}px`;
+      indicator.style.width = `${optionRect.width}px`;
+      if (immediate) {
+        indicator.offsetWidth;
+        indicator.style.transition = '';
+      }
+    };
+    const selectProduct = (product) => {
+      const selectedOption = options.find((option) => option.dataset.product === product);
+      if (!selectedOption) return;
+      selectedProduct = product;
+      const isVoiceID = product === 'voice';
+      setActiveOption(selectedOption);
+      document.body.classList.toggle('faceauth-voiceid-active', isVoiceID);
+      voiceView.setAttribute('aria-hidden', String(!isVoiceID));
+      voiceFooter.setAttribute('aria-hidden', String(!isVoiceID));
+      const faqLink = document.querySelector('#faceauth-site-nav [data-nav="faq"]');
+      if (faqLink) faqLink.href = isVoiceID ? 'faq.html?product=voice' : 'faq.html';
+      document.title = isVoiceID ? 'VoiceID — In Progress' : originalTitle;
+      moveIndicator(selectedOption);
+      window.dispatchEvent(new Event('faceauth-product-change'));
+    };
+
+    const nearestOption = (clientX) => {
+      const switcherRect = switcher.getBoundingClientRect();
+      const localX = clientX - switcherRect.left;
+      return options.reduce((nearest, option) => {
+        if (!nearest) return option;
+        const optionRect = option.getBoundingClientRect();
+        const nearestRect = nearest.getBoundingClientRect();
+        const center = optionRect.left - switcherRect.left + optionRect.width / 2;
+        const nearestCenter = nearestRect.left - switcherRect.left + nearestRect.width / 2;
+        return Math.abs(center - localX) < Math.abs(nearestCenter - localX) ? option : nearest;
+      }, null);
+    };
+    const queueGlassRebuild = () => {
+      if (glassRebuildQueued) return;
+      glassRebuildQueued = true;
+      requestAnimationFrame(() => {
+        glassRebuildQueued = false;
+        targets.get(indicator)?.rebuild();
+      });
+    };
+    const dragIndicator = (clientX) => {
+      const switcherRect = switcher.getBoundingClientRect();
+      const width = pressWidth;
+      const localX = clientX - switcherRect.left;
+      const left = clamp(localX - width / 2, 0, Math.max(0, switcher.clientWidth - width));
+      indicator.style.left = `${left}px`;
+      indicator.style.width = `${width}px`;
+      const nextTarget = nearestOption(switcherRect.left + left + width / 2);
+      if (nextTarget !== dragTarget) {
+        dragTarget = nextTarget;
+        setActiveOption(dragTarget);
+      }
+      queueGlassRebuild();
+    };
+
+    switcher.addEventListener('pointerdown', (event) => {
+      const option = event.target.closest('.faceauth-product-option');
+      if (!option || option !== activeOption() || !event.isPrimary || event.button !== 0 || pointerId !== null) return;
+      event.preventDefault();
+      pointerId = event.pointerId;
+      pressX = event.clientX;
+      pressY = event.clientY;
+      pressWidth = indicator.getBoundingClientRect().width;
+      dragTarget = option;
+      isDragging = false;
+      switcher.setPointerCapture?.(pointerId);
+      option.classList.add('is-pressed');
+      indicator.classList.add('is-pressed');
+    });
+    switcher.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== pointerId) return;
+      const moved = Math.hypot(event.clientX - pressX, event.clientY - pressY);
+      if (!isDragging && moved > 6) {
+        isDragging = true;
+        switcher.classList.add('is-dragging');
+        indicator.classList.remove('is-pressed');
+        dragTarget = null;
+      }
+      if (isDragging) dragIndicator(event.clientX);
+    });
+    const finishProductPointer = (event, cancelled = false) => {
+      if (event.pointerId !== pointerId) return;
+      switcher.releasePointerCapture?.(pointerId);
+      options.forEach((option) => option.classList.remove('is-pressed'));
+      indicator.classList.remove('is-pressed');
+      switcher.classList.remove('is-dragging');
+      if (cancelled) {
+        const option = activeOption();
+        setActiveOption(option);
+        moveIndicator(option);
+        queueGlassRebuild();
+      } else {
+        suppressClick = true;
+        const option = isDragging ? dragTarget : nearestOption(pressX);
+        if (option) {
+          selectProduct(option.dataset.product);
+          queueGlassRebuild();
+        }
+      }
+      pointerId = null;
+      isDragging = false;
+      dragTarget = null;
+    };
+    switcher.addEventListener('pointerup', (event) => finishProductPointer(event));
+    switcher.addEventListener('pointercancel', (event) => finishProductPointer(event, true));
+    switcher.addEventListener('click', (event) => {
+      if (suppressClick) {
+        suppressClick = false;
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      const option = event.target.closest('.faceauth-product-option');
+      if (option) selectProduct(option.dataset.product);
+    }, true);
+    const alignmentObserver = new ResizeObserver(() => {
+      if (pointerId === null) moveIndicator(activeOption(), true);
+    });
+    alignmentObserver.observe(switcher);
+    options.forEach((option) => alignmentObserver.observe(option));
+    window.addEventListener('resize', () => {
+      if (pointerId === null) moveIndicator(activeOption(), true);
+    });
+    window.addEventListener('faceauth-navigation-glass-intensity-change', () => {
+      targets.get(switcher)?.updateConfig(navigationGlassConfig());
+    });
+
+    applyGlass(switcher, navigationGlassConfig);
+    applyGlass(indicator, () => ACTIVE_BUBBLE_CONFIG);
+    if (new URLSearchParams(location.search).get('product') === 'voice') {
+      selectProduct('voice');
+    } else {
+      moveIndicator(activeOption(), true);
+    }
+    document.fonts?.ready.then(() => {
+      if (pointerId === null) moveIndicator(activeOption(), true);
+    });
   }
 
   function injectSettingsButton() {
@@ -850,14 +1042,19 @@
 
     function positionForUrl(url) {
       const targetId = decodeURIComponent(url.hash.slice(1));
+      const activeMain = document.body.classList.contains('faceauth-voiceid-active')
+        ? document.querySelector('#voiceid-main')
+        : document.querySelector('body > main:not(#voiceid-main)');
+      if (!activeMain) return null;
       const textTargets = {
         design: '[data-design-target]',
         security: '[data-security-target]'
       };
-      return document.querySelector(textTargets[targetId]) || document.getElementById(targetId);
+      const textTarget = textTargets[targetId] && activeMain.querySelector(textTargets[targetId]);
+      return textTarget || activeMain.querySelector(`#voiceid-${CSS.escape(targetId)}`) || activeMain.querySelector(`#${CSS.escape(targetId)}`);
     }
 
-    const scrollSections = pageName === 'index.html'
+    const scrollSections = () => pageName === 'index.html'
       ? links
         .filter((link) => link.dataset.nav !== 'faq')
         .map((link) => ({ link, target: positionForUrl(new URL(link.href, location.href)) }))
@@ -866,20 +1063,21 @@
       : [];
 
     function updateActiveSectionFromScroll() {
-      if (!scrollSections.length || pendingScrollDestination || isDragging || pointerId !== null) return;
+      const sections = scrollSections();
+      if (!sections.length || pendingScrollDestination || isDragging || pointerId !== null) return;
 
       const scrollLine = window.scrollY + window.innerHeight * 0.42;
       const hysteresis = Math.min(48, window.innerHeight * 0.06);
-      const positions = scrollSections.map((section) => section.target.getBoundingClientRect().top + window.scrollY);
+      const positions = sections.map((section) => section.target.getBoundingClientRect().top + window.scrollY);
       const isAtBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
-      let candidateIndex = isAtBottom ? scrollSections.length - 1 : 0;
+      let candidateIndex = isAtBottom ? sections.length - 1 : 0;
       if (!isAtBottom) {
         positions.forEach((position, index) => {
           if (position <= scrollLine) candidateIndex = index;
         });
       }
 
-      let activeIndex = scrollSections.findIndex((section) => section.link.dataset.nav === selected);
+      let activeIndex = sections.findIndex((section) => section.link.dataset.nav === selected);
       if (activeIndex < 0) activeIndex = candidateIndex;
       if (candidateIndex > activeIndex) {
         while (activeIndex < candidateIndex && positions[activeIndex + 1] <= scrollLine - hysteresis) activeIndex += 1;
@@ -887,7 +1085,7 @@
         while (activeIndex > candidateIndex && positions[activeIndex] > scrollLine + hysteresis) activeIndex -= 1;
       }
 
-      const activeSection = scrollSections[activeIndex];
+      const activeSection = sections[activeIndex];
       if (!activeSection || activeSection.link.dataset.nav === selected) return;
       selected = activeSection.link.dataset.nav;
       focusedTarget = null;
@@ -1068,6 +1266,10 @@
     });
     window.addEventListener('popstate', updateCurrentState);
     window.addEventListener('hashchange', updateCurrentState);
+    window.addEventListener('faceauth-product-change', () => {
+      updateCurrentState();
+      queueScrollSectionUpdate();
+    });
 
     alignmentObserver = new ResizeObserver(() => {
       moveIndicator(focusedTarget || links.find((link) => link.dataset.nav === selected), true);
@@ -1203,6 +1405,7 @@
 
   const nav = injectSharedNavigation();
   initializeNavigation(nav);
+  injectProductSwitcher();
   injectSettingsButton();
   injectCompatibilityButton();
   initializeAssistantGlass();

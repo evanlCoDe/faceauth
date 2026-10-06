@@ -595,6 +595,10 @@
         height: 74.88px !important;
       }
 
+      html[data-theme="dark"] #voiceid-main .liveness-icon[src="voice-verification-microphone.svg"] {
+        filter: invert(1);
+      }
+
       .iphone-wallpaper {
         position: relative;
         overflow: hidden;
@@ -2708,6 +2712,279 @@
         <div class="footer-copyright">&copy; 2026 FaceAuth. All rights reserved.</div>
       </div>
     </footer>
+    <script>
+      (() => {
+        const faceMain = document.querySelector('body > main');
+        const faceFooter = document.querySelector('body > footer');
+        if (!faceMain || !faceFooter) return;
+
+        const voiceMain = faceMain.cloneNode(true);
+        const voiceFooter = faceFooter.cloneNode(true);
+        const idMap = new Map();
+        voiceMain.id = 'voiceid-main';
+        voiceMain.setAttribute('aria-label', 'VoiceID website content');
+        voiceMain.setAttribute('aria-hidden', 'true');
+        voiceFooter.id = 'voiceid-footer';
+        voiceFooter.setAttribute('aria-hidden', 'true');
+        voiceFooter.querySelectorAll('.footer-links a').forEach((link) => {
+          if (!/^(faq|support|release-notes|release-notes-web)\.html(?:$|[?#])/.test(link.getAttribute('href') || '')) return;
+          const url = new URL(link.getAttribute('href'), location.href);
+          url.searchParams.set('product', 'voice');
+          link.href = `${url.pathname.split('/').pop()}${url.search}${url.hash}`;
+        });
+
+        voiceMain.querySelectorAll('[id]').forEach((element) => {
+          const originalId = element.id;
+          const voiceId = `voiceid-${originalId}`;
+          idMap.set(originalId, voiceId);
+          element.id = voiceId;
+        });
+
+        voiceMain.querySelectorAll('*').forEach((element) => {
+          ['for', 'aria-labelledby', 'aria-describedby', 'aria-controls'].forEach((attribute) => {
+            const value = element.getAttribute(attribute);
+            if (!value) return;
+            element.setAttribute(attribute, value.split(/\s+/).map((id) => idMap.get(id) || id).join(' '));
+          });
+          const href = element.getAttribute('href');
+          if (href?.startsWith('#') && idMap.has(href.slice(1))) {
+            element.setAttribute('href', `#${idMap.get(href.slice(1))}`);
+          }
+        });
+
+        const setText = (selector, text) => {
+          const element = voiceMain.querySelector(selector);
+          if (element) element.textContent = text;
+        };
+        const setHTML = (selector, html) => {
+          const element = voiceMain.querySelector(selector);
+          if (element) element.innerHTML = html;
+        };
+
+        const voiceHeroLogo = voiceMain.querySelector('.hero-logo');
+        if (voiceHeroLogo) voiceHeroLogo.src = 'voiceid_white.png';
+        setHTML('.hero h1', 'Your voice.<br />Your<img src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" class="hero-apple-icon" alt="Apple logo" />Mac.');
+        setText('.hero .eyebrow', 'Voice ID for Mac');
+        setText('.hero-subtitle', 'A simple, private way to unlock your Mac using your voice. Built to feel like it belongs on macOS.');
+        setText('.scroll-intro-copy[data-about-target]', 'The world’s first Voice ID for Mac');
+        setHTML('.scroll-intro-column .feature-item strong', 'Before voice authentication came to Mac, we imagined what it could be.<br />We built a seamless way to unlock your Mac with just your voice.');
+        const introCopy = Array.from(voiceMain.querySelectorAll('.scroll-intro-column .feature-item strong'));
+        if (introCopy[1]) introCopy[1].textContent = "VoiceID is designed to recognize your voice and unlock your Mac in about the same time as Touch ID. Just speak into your Mac. You're ready to get back to what you were doing.";
+        const designCopy = voiceMain.querySelector('[data-design-target]');
+        if (designCopy) designCopy.innerHTML = 'The convenience<br />of hands-free access';
+        voiceMain.querySelectorAll('video').forEach((video) => {
+          const label = video.getAttribute('aria-label') || '';
+          video.setAttribute('aria-label', label.replace(/FaceAuth/gi, 'VoiceID').replace(/face/gi, 'voice'));
+        });
+        voiceMain.querySelector('.hero-commercial-frame')?.remove();
+        const lockImage = voiceMain.querySelector('.lock-screen-image');
+        if (lockImage) lockImage.alt = 'VoiceID lock screen ready preview';
+        setText('.lock-copy p', 'Works fluidly from your lock screen, with clear feedback as your voice is recognized.');
+        const nativeImage = voiceMain.querySelector('.app-feature-image');
+        if (nativeImage) nativeImage.alt = 'VoiceID native app settings';
+        setText('.identities-copy h3', 'Voice identities');
+        setText('.identities-copy p:first-of-type', 'Enroll separate voice identities for yourself and the people you authorize. VoiceID can recognize different speakers and speaking styles in a range of acoustic environments.');
+        setText('.identities-copy p:last-of-type', 'Each enrolled voice can be individually switched off from recognition without deleting it.');
+        const identitiesImage = voiceMain.querySelector('.identities-image');
+        if (identitiesImage) identitiesImage.alt = 'VoiceID voice identities settings';
+
+        setText('.unlock-flow-kicker', 'VoiceID, at a glance');
+        setText('.unlock-flow-title', 'A more natural way to unlock.');
+        const storyCopy = [
+          ['Just your voice.', "VoiceID listens for your enrolled voice and begins the unlock process when you speak to your Mac."],
+          ['Fast enough to feel instant.', 'Designed for a quick, seamless experience, so unlocking feels natural instead of interrupting your workflow.'],
+          ['Your voice stays yours.', 'VoiceID is designed to keep voice-recognition processing on your Mac, helping keep your voice biometric data close to you.'],
+          ['More than one voice.', 'Enroll multiple voice identities, making it possible for VoiceID to recognize more than one authorized speaker.'],
+          ["When it doesn't recognize your voice.", "VoiceID doesn't replace your password. If voice recognition doesn't work, you can still use your normal Mac password to unlock."]
+        ];
+        voiceMain.querySelectorAll('.unlock-story-item').forEach((item, index) => {
+          const [title, description] = storyCopy[index] || [];
+          if (title) item.querySelector('.unlock-story-title').textContent = title;
+          if (description) item.querySelector('.unlock-story-description').textContent = description;
+        });
+
+        const privacyHeading = voiceMain.querySelector('[data-security-target]');
+        if (privacyHeading) privacyHeading.textContent = 'Your voice. Your Mac. Your privacy.';
+        const privacyCopy = [
+          'VoiceID processes your voice securely on your Mac, keeping recognition close to your device.',
+          "Your voice doesn't need to leave your Mac. VoiceID is designed to keep your personal information where it belongs — with you.",
+          "VoiceID is designed to verify that you're speaking live — helping distinguish a real speaker from a recording before unlocking your Mac.",
+          'VoiceID is designed to process voice recognition locally, keeping your biometric voice data close to you instead of sending it to the cloud.'
+        ];
+        voiceMain.querySelectorAll('.security-note').forEach((paragraph, index) => {
+          if (privacyCopy[index]) paragraph.textContent = privacyCopy[index];
+        });
+        const livenessHeading = voiceMain.querySelector('.liveness-icon + strong');
+        if (livenessHeading) livenessHeading.textContent = 'Live Voice Verification';
+        const voiceVerificationImage = voiceMain.querySelector('.liveness-icon');
+        if (voiceVerificationImage) {
+          voiceVerificationImage.src = 'ChatGPT Image Sep 18, 2026, 11_13_54 AM.png';
+          voiceVerificationImage.alt = '';
+        }
+
+        const voiceExpandedVideo = voiceMain.querySelector('.expanded-video');
+        if (voiceExpandedVideo) {
+          voiceExpandedVideo.src = 'voice.mp4';
+          voiceExpandedVideo.loop = true;
+        }
+        const voiceTopMinimalVideo = voiceMain.querySelector('.unlock-video');
+        if (voiceTopMinimalVideo) {
+          voiceTopMinimalVideo.src = 'voiceunlock.mp4';
+          voiceTopMinimalVideo.setAttribute('aria-label', 'VoiceID unlock animation');
+        }
+        const voiceBottomMinimalVideo = voiceMain.querySelector('.unsuccessful-unlock-video');
+        if (voiceBottomMinimalVideo) {
+          voiceBottomMinimalVideo.src = 'voicelock.mp4';
+          voiceBottomMinimalVideo.setAttribute('aria-label', 'VoiceID lock animation');
+        }
+
+        setText('#voiceid-requirements li:nth-child(3) strong', 'Built-in or external microphone');
+        setText('#voiceid-requirements li:nth-child(4) strong', 'FaceAuth/VoiceID App Installed');
+        setText('#voiceid-requirements li:last-child strong', 'Not available for Windows. VoiceID is built exclusively for Mac.');
+        const cta = voiceMain.querySelector('.final-cta');
+        if (cta) {
+          cta.setAttribute('aria-label', 'VoiceID availability');
+          cta.querySelector('h2').textContent = 'Ready to unlock with your voice?';
+          cta.querySelector('p').textContent = 'VoiceID for Mac is in progress';
+        }
+        voiceMain.querySelectorAll('.beta-launch-trigger').forEach((button) => {
+          button.classList.remove('beta-launch-trigger');
+          button.classList.add('voiceid-coming-soon-trigger');
+        });
+        voiceMain.querySelectorAll('[data-waitlist-trigger]').forEach((button) => {
+          button.textContent = 'Join the VoiceID Waitlist';
+        });
+        const supportCopy = voiceMain.querySelector('.support-intro p');
+        if (supportCopy) supportCopy.textContent = "If you have questions about VoiceID, we'd be happy to help.";
+        voiceMain.querySelector('.support-section h2').textContent = 'VoiceID Support';
+        voiceFooter.querySelector('.footer-brand').textContent = 'VoiceID';
+        voiceFooter.querySelector('.footer-title').textContent = 'Voice ID for Mac';
+        voiceFooter.querySelector('.footer-copyright').innerHTML = '&copy; 2026 VoiceID. All rights reserved.';
+        voiceMain.querySelectorAll('img[alt]').forEach((image) => {
+          image.alt = image.alt.replace(/FaceAuth/gi, 'VoiceID').replace(/Face ID/gi, 'Voice ID').replace(/\bface\b/gi, 'voice');
+        });
+        const voiceLogo = voiceMain.querySelector('.hero-logo');
+        if (voiceLogo) voiceLogo.alt = 'VoiceID logo';
+
+        const rewriteTextNodes = (root) => {
+          root.querySelectorAll('[aria-label], [title], [alt]').forEach((element) => {
+            ['aria-label', 'title', 'alt'].forEach((attribute) => {
+              const value = element.getAttribute(attribute);
+              if (!value) return;
+              element.setAttribute(attribute, value
+                .replace(/FaceAuth/gi, 'VoiceID')
+                .replace(/Face ID/gi, 'Voice ID')
+                .replace(/facial recognition|face recognition|face-recognition/gi, 'voice recognition')
+                .replace(/biometric face data/gi, 'voice biometric data')
+                .replace(/facial data/gi, 'voice data')
+                .replace(/recognize your face/gi, 'recognize your voice')
+                .replace(/\bfaces\b/gi, 'voices')
+                .replace(/\bface\b/gi, 'voice')
+                .replace(/look at your screen/gi, 'speak into your Mac')
+                .replace(/looking/gi, 'listening')
+                .replace(/look at/gi, 'speak into'));
+            });
+          });
+          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+          let node;
+          while ((node = walker.nextNode())) {
+            node.textContent = node.textContent
+              .replace(/FaceAuth/gi, 'VoiceID')
+              .replace(/Face ID/gi, 'Voice ID')
+              .replace(/facial recognition|face recognition|face-recognition/gi, 'voice recognition')
+              .replace(/biometric face data/gi, 'voice biometric data')
+              .replace(/facial data/gi, 'voice data')
+              .replace(/recognize your face/gi, 'recognize your voice')
+              .replace(/\bfaces\b/gi, 'voices')
+              .replace(/\bface\b/gi, 'voice')
+              .replace(/look at your screen/gi, 'speak into your Mac')
+              .replace(/looking/gi, 'listening')
+              .replace(/look at/gi, 'speak into')
+              .replace(/FaceAuth/g, 'VoiceID');
+          }
+        };
+        rewriteTextNodes(voiceMain);
+        rewriteTextNodes(voiceFooter);
+
+        const renamedRequirements = voiceMain.querySelector('#voiceid-requirements');
+        if (renamedRequirements) {
+          const items = renamedRequirements.querySelectorAll('li strong');
+          if (items[2]) items[2].textContent = 'Built-in or external microphone';
+          if (items[3]) items[3].textContent = 'FaceAuth/VoiceID App Installed';
+        }
+        const supportEmail = voiceMain.querySelector('.support-block a[href^="mailto:"]');
+        if (supportEmail) supportEmail.textContent = 'Contact VoiceID Support';
+
+        const voiceVideoLoop = (video) => {
+          video.addEventListener('ended', () => {
+            window.setTimeout(() => {
+              video.currentTime = 0;
+              video.play().catch((error) => console.warn('VoiceID preview playback was rejected.', error));
+            }, 2500);
+          });
+        };
+        voiceMain.querySelectorAll('.unlock-video, .unsuccessful-unlock-video').forEach(voiceVideoLoop);
+        const voiceCommercial = voiceMain.querySelector('.hero-commercial');
+        if (voiceCommercial) {
+          let replayTimer = 0;
+          const visibilityObserver = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+              voiceCommercial.play().catch((error) => console.warn('VoiceID preview playback was rejected.', error));
+            } else {
+              voiceCommercial.pause();
+            }
+          }, { threshold: 0.6 });
+          visibilityObserver.observe(voiceCommercial);
+          voiceCommercial.addEventListener('ended', () => {
+            window.clearTimeout(replayTimer);
+            replayTimer = window.setTimeout(() => {
+              voiceCommercial.currentTime = 0;
+              voiceCommercial.play().catch((error) => console.warn('VoiceID preview playback was rejected.', error));
+            }, 5000);
+          });
+        }
+
+        faceMain.insertAdjacentElement('afterend', voiceMain);
+        faceFooter.insertAdjacentElement('afterend', voiceFooter);
+
+        const voiceAvailability = document.createElement('div');
+        voiceAvailability.id = 'voiceid-availability-overlay';
+        voiceAvailability.className = 'modal-overlay';
+        voiceAvailability.setAttribute('aria-hidden', 'true');
+        voiceAvailability.innerHTML = `
+          <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="voiceid-availability-title">
+            <div class="beta-modal-state">
+              <h2 id="voiceid-availability-title">VoiceID for Mac isn’t ready yet.</h2>
+              <p>VoiceID is currently in development. We’re working to make voice authentication feel as simple, private, and seamless as possible on Mac.</p>
+              <p>VoiceID for Mac is coming soon.</p>
+              <div class="beta-modal-actions">
+                <button class="beta-back voiceid-availability-close" type="button">Go Back</button>
+              </div>
+            </div>
+          </section>`;
+        document.body.appendChild(voiceAvailability);
+        const closeVoiceAvailability = () => {
+          voiceAvailability.classList.remove('is-open');
+          voiceAvailability.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        };
+        voiceAvailability.querySelector('.voiceid-availability-close').addEventListener('click', closeVoiceAvailability);
+        voiceAvailability.addEventListener('click', (event) => {
+          if (event.target === voiceAvailability) closeVoiceAvailability();
+        });
+        voiceMain.querySelectorAll('.voiceid-coming-soon-trigger').forEach((button) => {
+          button.addEventListener('click', (event) => {
+            event.preventDefault();
+            voiceAvailability.classList.add('is-open');
+            voiceAvailability.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+          });
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && voiceAvailability.classList.contains('is-open')) closeVoiceAvailability();
+        });
+      })();
+    </script>
     <div class="modal-overlay" id="official-download-overlay" aria-hidden="true">
       <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="official-download-title">
         <div class="beta-modal-state" id="official-download-unavailable-state">
@@ -3020,12 +3297,28 @@
       const betaWaitlistForm = document.querySelector('#beta-waitlist-form');
       const betaWaitlistError = document.querySelector('#beta-waitlist-error');
       const betaWaitlistSubmitButton = betaWaitlistForm.querySelector('button[type="submit"]');
+      let betaWaitlistForVoiceID = false;
       const betaWaitlistRequiredFields = [
         document.querySelector('#waitlist-first-name'),
         document.querySelector('#waitlist-last-name'),
         document.querySelector('#waitlist-email')
       ];
       const betaWaitlistEndpoint = 'https://script.google.com/macros/s/AKfycbx4gs9m3mRL-rZYNlCHx9EN8Dt4Alb8P-95Bhxs5jRA9lUqxDMQ-FESBe8_ZiJToihi/exec';
+
+      const updateBetaWaitlistCopy = () => {
+        document.querySelector('#beta-waitlist-form-title').textContent = betaWaitlistForVoiceID
+          ? 'Join the VoiceID Waitlist'
+          : 'Join the FaceAuth Beta Waitlist';
+        document.querySelector('#beta-waitlist-form-state > p').textContent = betaWaitlistForVoiceID
+          ? "Be notified when VoiceID for Mac is ready."
+          : 'Be notified when the FaceAuth beta is ready.';
+        document.querySelector('#beta-waitlist-confirmation-title').textContent = betaWaitlistForVoiceID
+          ? "You're on the VoiceID list."
+          : "You're on the list.";
+        document.querySelector('#beta-waitlist-confirmation-state > p').textContent = betaWaitlistForVoiceID
+          ? "We'll let you know when VoiceID is ready."
+          : "We'll let you know when the FaceAuth beta is ready.";
+      };
 
       const closeBetaWaitlist = () => {
         betaWaitlistOverlay.classList.remove('is-open');
@@ -3034,6 +3327,8 @@
         betaWaitlistForm.reset();
         betaWaitlistRequiredFields.forEach((field) => field.setAttribute('aria-invalid', 'false'));
         document.body.style.overflow = '';
+        betaWaitlistForVoiceID = false;
+        updateBetaWaitlistCopy();
       };
 
       const showBetaWaitlistForm = () => {
@@ -3057,6 +3352,8 @@
       document.querySelectorAll('[data-waitlist-trigger]').forEach((button) => {
         button.addEventListener('click', (event) => {
           event.preventDefault();
+          betaWaitlistForVoiceID = Boolean(button.closest('#voiceid-main'));
+          updateBetaWaitlistCopy();
           betaWaitlistOverlay.classList.add('is-open');
           betaWaitlistOverlay.setAttribute('aria-hidden', 'false');
           showBetaWaitlistForm();
@@ -3116,7 +3413,43 @@
       const assistantMessages = document.querySelector('#assistant-messages');
       const assistantPanelContent = document.querySelector('.assistant-panel-content');
       const assistantWelcomeTitle = document.querySelector('.assistant-welcome-title');
-      const assistantFooter = document.querySelector('footer');
+      const assistantToggleLabel = assistantToggle.querySelector('span');
+      const assistantWindowControls = assistantPanel.querySelector('.assistant-window-controls');
+      const assistantProductSuggestions = {
+        face: ['Does it work offline?', 'Is my face data private?', 'Which Macs are supported?'],
+        voice: ['How does VoiceID recognize my voice?', 'How is my voice data protected?', 'What if VoiceID doesn’t recognize me?']
+      };
+      const updateAssistantProduct = () => {
+        const isVoiceID = document.body.classList.contains('faceauth-voiceid-active');
+        const product = isVoiceID ? 'VoiceID' : 'FaceAuth';
+        assistantWindowControls.setAttribute('aria-label', `${product} AI window controls`);
+        assistantClose.setAttribute('aria-label', `Close ${product} AI`);
+        assistantMinimize.setAttribute('aria-label', `Minimize ${product} AI`);
+        assistantExpand.setAttribute('aria-label', `Expand ${product} AI`);
+        assistantWelcomeTitle.textContent = `${product} AI`;
+        assistantToggleLabel.textContent = `✦ Ask ${product} AI`;
+        assistantInput.placeholder = isVoiceID ? 'Ask VoiceID AI a question...' : 'Ask a question...';
+        if (isVoiceID) {
+          assistantInput.setAttribute('aria-label', 'VoiceID AI question');
+        } else {
+          assistantInput.removeAttribute('aria-label');
+        }
+        const suggestions = document.createElement('div');
+        suggestions.className = 'assistant-suggestions';
+        suggestions.setAttribute('aria-label', 'Suggested questions');
+        assistantProductSuggestions[isVoiceID ? 'voice' : 'face'].forEach((text) => {
+          const suggestion = document.createElement('button');
+          suggestion.className = 'assistant-suggestion';
+          suggestion.type = 'button';
+          suggestion.textContent = text;
+          suggestions.appendChild(suggestion);
+        });
+        assistantMessages.replaceChildren(suggestions);
+        assistantInput.value = '';
+      };
+      const assistantFooter = () => document.body.classList.contains('faceauth-voiceid-active')
+        ? document.querySelector('#voiceid-footer')
+        : document.querySelector('body > footer:not(#voiceid-footer)');
       const assistantDefaultBottom = 100;
       const assistantFooterGap = 28;
       let assistantFooterFrame = 0;
@@ -3132,8 +3465,9 @@
       }, { passive: false });
 
       const updateAssistantFooterSpacing = () => {
-        if (!assistantFooter) return;
-        const footerTop = assistantFooter.getBoundingClientRect().top;
+        const footer = assistantFooter();
+        if (!footer) return;
+        const footerTop = footer.getBoundingClientRect().top;
         const requiredBottom = Math.max(assistantDefaultBottom, window.innerHeight - footerTop + assistantFooterGap);
         assistantWidget.style.bottom = `${requiredBottom}px`;
       };
@@ -3148,16 +3482,22 @@
 
       window.addEventListener('scroll', scheduleAssistantFooterSpacing, { passive: true });
       window.addEventListener('resize', scheduleAssistantFooterSpacing);
+      window.addEventListener('faceauth-product-change', scheduleAssistantFooterSpacing);
       updateAssistantFooterSpacing();
 
       const assistantFaq = [];
+      const voiceAssistantFaq = [];
       const assistantFaqFallback = "I don't have an answer for that yet. Try asking about FaceAuth's features, privacy, compatibility, or setup.";
+      const voiceAssistantFaqFallback = "I don't have an answer for that yet. Try asking about VoiceID's voice recognition, privacy, setup, or Mac compatibility.";
       const assistantFillerWords = new Set('what is are do does can will how why my i it the a an to for of on in with your this that and need still'.split(' '));
       const assistantGenericConcepts = new Set(['faceauth', 'mac', 'work', 'use', 'does', 'face', 'camera']);
       const assistantConceptAliases = {
         wifi: 'offline', internet: 'offline', online: 'offline', cloud: 'cloud',
         dark: 'lighting', light: 'lighting', lighting: 'lighting', webcam: 'external-camera',
         camera: 'camera', external: 'external-camera', password: 'password', passcode: 'password',
+        voiceid: 'voiceid', voice: 'voice', speech: 'voice', spoken: 'voice', speaking: 'voice',
+        microphone: 'microphone', mic: 'microphone', speaker: 'identity', speakers: 'identity',
+        enroll: 'identity', enrolled: 'identity', enrollment: 'identity',
         software: 'requirements', requirement: 'requirements', requirements: 'requirements',
         supported: 'compatibility', support: 'compatibility', compatible: 'compatibility',
         recognize: 'recognition', recognition: 'recognition', unlock: 'unlock',
@@ -3226,14 +3566,14 @@
         return concepts;
       };
 
-      const parseAssistantFaq = (document) => {
+      const parseAssistantFaq = (document, targetFaq) => {
         document.querySelectorAll('.faq-content h3').forEach((questionElement) => {
           const answerElement = questionElement.nextElementSibling;
           if (!answerElement || !/^(P|BLOCKQUOTE|UL)$/.test(answerElement.tagName)) return;
           const answer = answerElement.tagName === 'UL'
             ? Array.from(answerElement.querySelectorAll('li')).map((item) => item.textContent.trim()).join('; ')
             : answerElement.textContent.trim().replace(/\s+/g, ' ');
-          assistantFaq.push({
+          targetFaq.push({
             question: questionElement.textContent.trim(),
             concepts: questionConcepts(questionElement.textContent),
             answer
@@ -3242,22 +3582,28 @@
       };
 
       const assistantFaqSource = document.createElement('iframe');
-      const assistantFaqReady = new Promise((resolve) => {
-        assistantFaqSource.addEventListener('load', () => {
-          parseAssistantFaq(assistantFaqSource.contentDocument);
+      const voiceAssistantFaqSource = document.createElement('iframe');
+      const loadAssistantFaq = (source, faq, url) => new Promise((resolve) => {
+        source.addEventListener('load', () => {
+          parseAssistantFaq(source.contentDocument, faq);
           resolve();
         }, { once: true });
       });
-      assistantFaqSource.hidden = true;
-      assistantFaqSource.src = 'faq.html';
-      document.body.appendChild(assistantFaqSource);
+      const assistantFaqReady = loadAssistantFaq(assistantFaqSource, assistantFaq);
+      const voiceAssistantFaqReady = loadAssistantFaq(voiceAssistantFaqSource, voiceAssistantFaq);
+      [assistantFaqSource, voiceAssistantFaqSource].forEach((source, index) => {
+        source.hidden = true;
+        source.src = index === 0 ? 'faq.html' : 'faq.html?product=voice';
+        document.body.appendChild(source);
+      });
 
-      const answerQuestion = (question) => {
+      const answerQuestion = (question, isVoiceID = document.body.classList.contains('faceauth-voiceid-active')) => {
         const concepts = questionConcepts(question);
         let bestMatch = null;
         let bestScore = 0;
+        const activeFaq = isVoiceID ? voiceAssistantFaq : assistantFaq;
 
-        assistantFaq.forEach((faq) => {
+        activeFaq.forEach((faq) => {
           let score = 0;
           concepts.forEach((concept) => {
             let conceptScore = 0;
@@ -3281,7 +3627,9 @@
           }
         });
 
-        return bestMatch && bestScore >= 2 ? bestMatch.answer : assistantFaqFallback;
+        return bestMatch && bestScore >= 2
+          ? bestMatch.answer
+          : isVoiceID ? voiceAssistantFaqFallback : assistantFaqFallback;
       };
 
       const addAssistantMessage = (message, sender) => {
@@ -3343,13 +3691,14 @@
       const submitAssistantQuestion = (question) => {
         const trimmedQuestion = question.trim();
         if (!trimmedQuestion) return;
+        const isVoiceID = document.body.classList.contains('faceauth-voiceid-active');
         addAssistantMessage(trimmedQuestion, 'user');
         assistantInput.value = '';
         const typingIndicator = addAssistantTypingIndicator();
         Promise.all([
-          assistantFaqReady,
+          isVoiceID ? voiceAssistantFaqReady : assistantFaqReady,
           new Promise((resolve) => window.setTimeout(resolve, 1000))
-        ]).then(() => showAssistantResponse(typingIndicator, answerQuestion(trimmedQuestion)));
+        ]).then(() => showAssistantResponse(typingIndicator, answerQuestion(trimmedQuestion, isVoiceID)));
       };
 
       const clampAssistantAnimation = (value, minimum, maximum) => Math.max(minimum, Math.min(maximum, value));
@@ -3734,12 +4083,15 @@
         submitAssistantQuestion(assistantInput.value);
       });
 
-      document.querySelectorAll('.assistant-suggestion').forEach((suggestion) => {
-        suggestion.addEventListener('click', () => {
+      assistantMessages.addEventListener('click', (event) => {
+        const suggestion = event.target.closest('.assistant-suggestion');
+        if (suggestion) {
           assistantInput.value = suggestion.textContent;
           submitAssistantQuestion(suggestion.textContent);
-        });
+        }
       });
+      window.addEventListener('faceauth-product-change', updateAssistantProduct);
+      updateAssistantProduct();
 
       expandedVideo.addEventListener('ended', () => {
         window.setTimeout(() => {
