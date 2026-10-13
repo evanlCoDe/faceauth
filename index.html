@@ -2847,10 +2847,6 @@
           cta.querySelector('h2').textContent = 'Ready to unlock with your voice?';
           cta.querySelector('p').textContent = 'VoiceID for Mac is in progress';
         }
-        voiceMain.querySelectorAll('.beta-launch-trigger').forEach((button) => {
-          button.classList.remove('beta-launch-trigger');
-          button.classList.add('voiceid-coming-soon-trigger');
-        });
         voiceMain.querySelectorAll('[data-waitlist-trigger]').forEach((button) => {
           button.textContent = 'Join the VoiceID Waitlist';
         });
@@ -2947,42 +2943,6 @@
         faceMain.insertAdjacentElement('afterend', voiceMain);
         faceFooter.insertAdjacentElement('afterend', voiceFooter);
 
-        const voiceAvailability = document.createElement('div');
-        voiceAvailability.id = 'voiceid-availability-overlay';
-        voiceAvailability.className = 'modal-overlay';
-        voiceAvailability.setAttribute('aria-hidden', 'true');
-        voiceAvailability.innerHTML = `
-          <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="voiceid-availability-title">
-            <div class="beta-modal-state">
-              <h2 id="voiceid-availability-title">VoiceID for Mac isn’t ready yet.</h2>
-              <p>VoiceID is currently in development. We’re working to make voice authentication feel as simple, private, and seamless as possible on Mac.</p>
-              <p>VoiceID for Mac is coming soon.</p>
-              <div class="beta-modal-actions">
-                <button class="beta-back voiceid-availability-close" type="button">Go Back</button>
-              </div>
-            </div>
-          </section>`;
-        document.body.appendChild(voiceAvailability);
-        const closeVoiceAvailability = () => {
-          voiceAvailability.classList.remove('is-open');
-          voiceAvailability.setAttribute('aria-hidden', 'true');
-          document.body.style.overflow = '';
-        };
-        voiceAvailability.querySelector('.voiceid-availability-close').addEventListener('click', closeVoiceAvailability);
-        voiceAvailability.addEventListener('click', (event) => {
-          if (event.target === voiceAvailability) closeVoiceAvailability();
-        });
-        voiceMain.querySelectorAll('.voiceid-coming-soon-trigger').forEach((button) => {
-          button.addEventListener('click', (event) => {
-            event.preventDefault();
-            voiceAvailability.classList.add('is-open');
-            voiceAvailability.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-          });
-        });
-        document.addEventListener('keydown', (event) => {
-          if (event.key === 'Escape' && voiceAvailability.classList.contains('is-open')) closeVoiceAvailability();
-        });
       })();
     </script>
     <div class="modal-overlay" id="official-download-overlay" aria-hidden="true">
