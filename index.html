@@ -2977,19 +2977,17 @@
         <h2 id="gatekeeper-title">macOS Security — Gatekeeper May Block FaceAuth</h2>
         <div class="gatekeeper-copy">
           <ol>
-            <li>Try opening FaceAuth (glance) once.<br />macOS may block FaceAuth (glance) the first time.</li>
+            <li>Make sure the <code>FaceAuth.dmg</code> file is still on your Desktop.</li>
+            <li>Open Terminal on your Mac. You can find it in Applications &gt; Utilities.</li>
+            <li>Copy and paste this command into Terminal, then press Return:<br /><code class="gatekeeper-command">cp -R /Volumes/FaceAuth/glance.app ~/Desktop/</code></li>
+            <li>After that finishes, copy and paste this command into Terminal, then press Return:<br /><code class="gatekeeper-command">codesign --force --deep -s - ~/Desktop/glance.app</code></li>
+            <li>After the command finishes, open <code>glance.app</code> from your Desktop. Do not open it from the <code>FaceAuth.dmg</code> file. macOS may display a message saying the app is blocked or cannot be opened.</li>
             <li>Open System Settings on your Mac.</li>
             <li>Select Privacy &amp; Security from the sidebar.</li>
             <li>Scroll down to the Security section.</li>
             <li>Look for a message saying “FaceAuth (glance) was blocked from use.”</li>
-            <li>Click Open Anyway next to that message.</li>
-            <li>Make sure the <code>FaceAuth.dmg</code> file is still on your Desktop.</li>
-            <li>Open Terminal on your Mac. (You can find it in Applications &gt; Utilities.)</li>
-            <li>Copy and paste this command into Terminal, then press Return:<br /><code class="gatekeeper-command">cp -R /Volumes/FaceAuth/glance.app ~/Desktop/</code></li>
-            <li>After that finishes, copy and paste this command into Terminal, then press Return:<br /><code class="gatekeeper-command">codesign --force --deep -s - ~/Desktop/glance.app</code></li>
-            <li>After the command finishes, open <code>glance.app</code> from your Desktop. Do not open it from the <code>FaceAuth.dmg</code> file.</li>
-            <li>If macOS asks for confirmation, confirm that you want to open FaceAuth (glance).</li>
-            <li>Try opening FaceAuth (glance) again.</li>
+            <li>Click Open Anyway next to that message. If prompted, confirm that you want to proceed.</li>
+            <li>Return to your Desktop and open <code>glance.app</code> again.</li>
           </ol>
         </div>
         <div class="gatekeeper-actions">
