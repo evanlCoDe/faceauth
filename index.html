@@ -2776,7 +2776,11 @@
           const label = video.getAttribute('aria-label') || '';
           video.setAttribute('aria-label', label.replace(/FaceAuth/gi, 'VoiceID').replace(/face/gi, 'voice'));
         });
-        voiceMain.querySelector('.hero-commercial-frame')?.remove();
+        const voiceCommercial = voiceMain.querySelector('.hero-commercial');
+        if (voiceCommercial) {
+          voiceCommercial.src = 'voiceid-demo.mp4';
+          voiceCommercial.setAttribute('aria-label', 'VoiceID product commercial');
+        }
         const lockImage = voiceMain.querySelector('.lock-screen-image');
         if (lockImage) lockImage.alt = 'VoiceID lock screen ready preview';
         setText('.lock-copy p', 'Works fluidly from your lock screen, with clear feedback as your voice is recognized.');
@@ -2920,24 +2924,68 @@
           });
         };
         voiceMain.querySelectorAll('.unlock-video, .unsuccessful-unlock-video').forEach(voiceVideoLoop);
-        const voiceCommercial = voiceMain.querySelector('.hero-commercial');
         if (voiceCommercial) {
-          let replayTimer = 0;
+          let commercialStarted = false;
+          let commercialWaiting = false;
+          let commercialReplayTimer = 0;
+          let commercialVisible = false;
+          let commercialVisibilityMeasured = false;
+          let commercialReplayRemaining = 5000;
+          let commercialReplayDeadline = 0;
+
+          const playVoiceCommercial = () => {
+            if (!commercialVisibilityMeasured || !commercialVisible || commercialWaiting) return;
+            voiceCommercial.play().catch(() => {
+              commercialStarted = false;
+              console.warn('VoiceID commercial playback was rejected.');
+            });
+          };
+
+          const scheduleVoiceCommercialReplay = () => {
+            window.clearTimeout(commercialReplayTimer);
+            if (!commercialVisible) return;
+            commercialReplayDeadline = performance.now() + commercialReplayRemaining;
+            commercialReplayTimer = window.setTimeout(() => {
+              commercialReplayTimer = 0;
+              commercialReplayRemaining = 5000;
+              commercialWaiting = false;
+              voiceCommercial.currentTime = 0;
+              playVoiceCommercial();
+            }, commercialReplayRemaining);
+          };
+
+          voiceCommercial.addEventListener('ended', () => {
+            commercialWaiting = true;
+            commercialReplayRemaining = 5000;
+            scheduleVoiceCommercialReplay();
+          });
+
           const visibilityObserver = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
-              voiceCommercial.play().catch((error) => console.warn('VoiceID preview playback was rejected.', error));
-            } else {
+            commercialVisibilityMeasured = true;
+            commercialVisible = entry.isIntersecting && entry.intersectionRatio >= 0.6;
+            if (!commercialVisible) {
               voiceCommercial.pause();
+              if (commercialWaiting) {
+                if (commercialReplayDeadline) {
+                  commercialReplayRemaining = Math.max(0, commercialReplayDeadline - performance.now());
+                }
+                window.clearTimeout(commercialReplayTimer);
+                commercialReplayTimer = 0;
+              }
+              return;
+            }
+
+            if (commercialWaiting) {
+              scheduleVoiceCommercialReplay();
+            } else if (commercialStarted) {
+              playVoiceCommercial();
+            } else {
+              commercialStarted = true;
+              playVoiceCommercial();
             }
           }, { threshold: 0.6 });
+
           visibilityObserver.observe(voiceCommercial);
-          voiceCommercial.addEventListener('ended', () => {
-            window.clearTimeout(replayTimer);
-            replayTimer = window.setTimeout(() => {
-              voiceCommercial.currentTime = 0;
-              voiceCommercial.play().catch((error) => console.warn('VoiceID preview playback was rejected.', error));
-            }, 5000);
-          });
         }
 
         faceMain.insertAdjacentElement('afterend', voiceMain);
