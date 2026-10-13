@@ -87,47 +87,147 @@ private struct EULADeclinedState: View {
     }
 }
 
+// MARK: - 0.5 Select Unlock Method
+
+struct SelectUnlockMethodStepView: View {
+    @Bindable var controller: OnboardingController
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Choose Unlock Method")
+                .font(GlanceTheme.Font.title)
+                .foregroundStyle(GlanceTheme.textPrimary)
+                .padding(.leading, 4)
+
+            Text("Select how you'd like to unlock your Mac:")
+                .font(GlanceTheme.Font.passwordCaption)
+                .foregroundStyle(GlanceTheme.textSecondary)
+                .padding(.leading, 4)
+
+            Spacer(minLength: 2)
+
+            VStack(spacing: 8) {
+                UnlockMethodRow(
+                    icon: "person.fill.viewfinder",
+                    title: "Face ID",
+                    subtitle: "Unlock using your camera and face recognition",
+                    isSelected: controller.isFaceUnlockSelected
+                ) {
+                    controller.isFaceUnlockSelected.toggle()
+                }
+
+                UnlockMethodRow(
+                    icon: "waveform",
+                    title: "Voice ID",
+                    subtitle: "Unlock using your microphone and voice profile",
+                    isSelected: controller.isVoiceUnlockSelected
+                ) {
+                    controller.isVoiceUnlockSelected.toggle()
+                }
+            }
+
+            if !controller.isFaceUnlockSelected && !controller.isVoiceUnlockSelected {
+                Text("Select at least one unlock method to continue.")
+                    .font(GlanceTheme.Font.rowDetail)
+                    .foregroundStyle(GlanceTheme.statusDenied)
+                    .padding(.leading, 4)
+            }
+
+            Spacer(minLength: 2)
+
+            HStack(spacing: 10) {
+                PillButton(title: "Back", style: .secondary) {
+                    controller.back()
+                }
+                PillButton(
+                    title: "Next",
+                    isEnabled: controller.isFaceUnlockSelected || controller.isVoiceUnlockSelected,
+                    isDefault: true
+                ) {
+                    controller.advance()
+                }
+            }
+        }
+        .onboardingContentPadding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(GlanceTheme.panel)
+    }
+}
+
+private struct UnlockMethodRow: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(isSelected ? GlanceTheme.textPrimary : GlanceTheme.textSecondary)
+                    .frame(width: 24)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(GlanceTheme.Font.rowTitle)
+                        .foregroundStyle(GlanceTheme.textPrimary)
+                    Text(subtitle)
+                        .font(GlanceTheme.Font.rowDetail)
+                        .foregroundStyle(GlanceTheme.textSecondary)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 0)
+
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(isSelected ? GlanceTheme.accent : GlanceTheme.textSecondary.opacity(0.5))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(GlanceTheme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(isSelected ? GlanceTheme.accent.opacity(0.4) : Color.clear, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - 1. Intro
 
 struct IntroStepView: View {
     let controller: OnboardingController
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("FaceAuth")
-                    .font(GlanceTheme.Font.title)
-                    .foregroundStyle(GlanceTheme.textPrimary)
-                Text("Face Unlock for Mac")
-                    .font(GlanceTheme.Font.button)
-                    .foregroundStyle(GlanceTheme.textSecondary)
+        VStack(alignment: .center, spacing: 6) {
+            Text("FaceAuth")
+                .font(GlanceTheme.Font.title)
+                .foregroundStyle(GlanceTheme.textPrimary)
+            Text("Face & Voice Unlock for Mac")
+                .font(GlanceTheme.Font.button)
+                .foregroundStyle(GlanceTheme.textSecondary)
 
-                Spacer(minLength: 12)
+            Spacer(minLength: 12)
 
+            HStack {
+                Spacer()
                 PillButton(title: "Next") {
                     controller.advance()
                 }
+                Spacer()
             }
-            .padding(.leading, 4)
-            Spacer(minLength: 4)
-            GlanceLogoView()
-                .frame(width: 106, height: 106)
-                .padding(.top, 4)
         }
         .onboardingContentPadding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(GlanceTheme.panel)
         .onAppear {
             controller.playIntroSweepIfNeeded()
         }
-    }
-}
-
-private struct GlanceLogoView: View {
-    var body: some View {
-        Image("appicon")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
     }
 }
 
@@ -143,27 +243,42 @@ struct PermissionsStepView: View {
                 .foregroundStyle(GlanceTheme.textPrimary)
                 .padding(.leading, 4)
 
-            // Spacer(minLength: 0)
-
             PermissionRow(
                 title: "Accessibility",
                 detail: "Allow FaceAuth to unlock your Mac",
                 granted: controller.accessibilityGranted
             ) { controller.grantAccessibility() }
 
-            PermissionRow(
-                title: "Camera",
-                detail: "Allow FaceAuth to recognize your face",
-                granted: controller.cameraPermission == .granted
-            ) { controller.grantCamera() }
+            if controller.isFaceUnlockSelected {
+                PermissionRow(
+                    title: "Camera",
+                    detail: "Allow FaceAuth to recognize your face",
+                    granted: controller.cameraPermission == .granted
+                ) { controller.grantCamera() }
+            }
 
-            // Spacer(minLength: 0)
+            if controller.isVoiceUnlockSelected {
+                PermissionRow(
+                    title: "Microphone",
+                    detail: "Allow FaceAuth to verify your voice",
+                    granted: controller.microphonePermission == .granted
+                ) { controller.grantMicrophone() }
+            }
+
+            if !controller.accessibilityGranted {
+                Text("If Accessibility still shows as ungranted after switching it on, quit and reopen FaceAuth. Setup will resume here.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(GlanceTheme.textDetail)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
 
             HStack(spacing: 10) {
                 PillButton(title: "Back", style: .secondary) {
                     controller.back()
                 }
-                PillButton(title: "Next", isEnabled: controller.bothPermissionsGranted) {
+                PillButton(title: "Next", isEnabled: controller.allPermissionsGranted) {
                     controller.advance()
                 }
             }
@@ -192,7 +307,7 @@ struct SecurityNoticeStepView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.leading, 4)
 
-            Text("It uses your Mac's standard webcam and is designed for convenience, not high-security authentication.")
+            Text("It uses your Mac's standard hardware and is designed for convenience, not high-security authentication.")
                 .font(GlanceTheme.Font.passwordCaption)
                 .foregroundStyle(GlanceTheme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -202,7 +317,6 @@ struct SecurityNoticeStepView: View {
 
             HStack(spacing: 10) {
                 if controller.isPostUpdateNotice {
-                    // Declining isn't a real option here — see `declinePostUpdateNotice()`.
                     PillButton(title: "No thanks", style: .secondary) {
                         controller.declinePostUpdateNotice()
                     }
@@ -231,7 +345,7 @@ struct PreSetupStepView: View {
         VStack(spacing: 2) {
             HStack(alignment: .top, spacing: 2) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Set up Face\nRecognition")
+                    Text("Set up\nAuthentication")
                         .font(GlanceTheme.Font.title)
                         .foregroundStyle(GlanceTheme.textPrimary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -241,7 +355,6 @@ struct PreSetupStepView: View {
                         .foregroundStyle(GlanceTheme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .padding(.top, 10)
                 .padding(.leading, 4)
                 Spacer(minLength: 0)
                 UnlockGlyphView()
@@ -281,7 +394,6 @@ struct SelectCameraStepView: View {
                 .font(GlanceTheme.Font.title)
                 .foregroundStyle(GlanceTheme.textPrimary)
                 .padding(.leading, 4)
-                .padding(.top, 14)
 
             Text("Used for Face enrollment and for unlocking your Mac")
                 .font(GlanceTheme.Font.passwordCaption)
@@ -414,6 +526,95 @@ struct EnrollStepView: View {
     }
 }
 
+// MARK: - Voice Enrollment Step
+
+struct VoiceEnrollStepView: View {
+    @Bindable var controller: OnboardingController
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Text(controller.voiceShowCheckmark ? "Voice Enrolled!" : "Set up Voice ID")
+                .font(GlanceTheme.Font.title)
+                .foregroundStyle(GlanceTheme.textPrimary)
+
+            ZStack {
+                Circle()
+                    .stroke(GlanceTheme.surface, lineWidth: 6)
+                    .frame(width: 76, height: 76)
+
+                Circle()
+                    .trim(from: 0, to: CGFloat(controller.voiceProgress))
+                    .stroke(GlanceTheme.accent, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                    .frame(width: 76, height: 76)
+                    .rotationEffect(.degrees(-90))
+
+                if controller.voiceShowCheckmark {
+                    AnimatedCheckmark(color: GlanceTheme.accent, lineWidth: 6)
+                        .frame(width: 40, height: 32)
+                } else {
+                    Image(systemName: "mic.fill")
+                        .font(.system(size: 30, weight: .medium))
+                        .foregroundStyle(GlanceTheme.textPrimary)
+                        .scaleEffect(1.0 + CGFloat(controller.voicePipeline.currentAudioLevel) * 0.25)
+                        .animation(.easeInOut(duration: 0.1), value: controller.voicePipeline.currentAudioLevel)
+                }
+            }
+
+            Text(controller.voiceCaptureStarted
+                ? "Say this passphrase clearly into your microphone."
+                : (controller.isPreparingVoiceCapture
+                    ? "Requesting microphone and speech recognition access..."
+                    : "Choose a passphrase you'll say each time you unlock."))
+                .font(GlanceTheme.Font.passwordCaption)
+                .foregroundStyle(GlanceTheme.textSecondary)
+                .multilineTextAlignment(.center)
+
+            TextField("Voice passphrase", text: $controller.voicePassphrase)
+                .textFieldStyle(.roundedBorder)
+                .disabled(controller.isPreparingVoiceCapture || controller.voiceCaptureStarted || controller.voiceShowCheckmark)
+
+            if !controller.voiceCaptureStarted && !controller.voiceShowCheckmark {
+                PillButton(
+                    title: controller.isPreparingVoiceCapture ? "Preparing..." : "Start voice capture",
+                    isEnabled: !controller.isPreparingVoiceCapture
+                        && !controller.voicePassphrase.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                    isDefault: true
+                ) {
+                    controller.beginVoiceEnrollment()
+                }
+            } else {
+                Text(controller.voiceShowCheckmark
+                    ? "Your voice profile and passphrase are saved."
+                    : (controller.voicePipeline.didRecognizePassphrase
+                        ? "Passphrase recognized. Keep speaking to finish voice enrollment."
+                        : "Read the passphrase shown above."))
+                    .font(GlanceTheme.Font.passwordCaption)
+                    .foregroundStyle(GlanceTheme.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            if let voiceError = controller.voiceError {
+                Text(voiceError)
+                    .font(GlanceTheme.Font.passwordCaption)
+                    .foregroundStyle(GlanceTheme.statusDenied)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .onboardingContentPadding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(GlanceTheme.panel)
+        .overlay(alignment: .topTrailing) {
+            if !controller.voiceShowCheckmark {
+                EnrollmentCloseButton {
+                    controller.back()
+                }
+                .padding(OnboardingMetrics.enrollCloseButtonEdgePadding)
+            }
+        }
+    }
+}
+
 private struct EnrollmentCloseButton: View {
     let action: () -> Void
     @State private var isHovering = false
@@ -448,8 +649,6 @@ private struct EnrollmentTooFarChevron: View {
 
 // MARK: - 9. Name
 
-/// Asks who was just captured — for a recapture, pre-filled with the existing name so
-/// this doubles as rename.
 struct NameStepView: View {
     @Bindable var controller: OnboardingController
 
@@ -459,12 +658,12 @@ struct NameStepView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Name this face")
+            Text("Name this profile")
                 .font(GlanceTheme.Font.title)
                 .foregroundStyle(GlanceTheme.textPrimary)
                 .padding(.leading, 4)
 
-            Text("Used to tell enrolled faces apart when more than one person is set up on this Mac.")
+            Text("Used to tell enrolled profiles apart when more than one person is set up on this Mac.")
                 .font(GlanceTheme.Font.passwordCaption)
                 .foregroundStyle(GlanceTheme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -531,14 +730,14 @@ struct PasswordStepView: View {
                     .foregroundStyle(GlanceTheme.statusDenied)
             }
 
-            // Spacer(minLength: 0)
+            Spacer(minLength: 2)
 
             HStack(spacing: 10) {
                 PillButton(title: "Back", style: .secondary) {
                     controller.back()
                 }
                 PillButton(
-                    title: controller.isSavingPassword ? "Saving…" : "Confirm",
+                    title: "Finish",
                     isEnabled: !password.isEmpty && !controller.isSavingPassword,
                     isDefault: true
                 ) {
@@ -557,16 +756,20 @@ struct PasswordStepView: View {
 struct CompleteStepView: View {
     var body: some View {
         HStack(spacing: 12) {
-            Text("You're all set")
-                .font(GlanceTheme.Font.title)
-                .foregroundStyle(GlanceTheme.textPrimary)
-            Spacer(minLength: 4)
-            AnimatedCheckmark(color: .white, lineWidth: 5)
-                .frame(width: 20, height: 15)
+            AnimatedCheckmark(color: GlanceTheme.accent, lineWidth: 5)
+                .frame(width: 28, height: 28)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Setup Complete")
+                    .font(GlanceTheme.Font.rowTitle)
+                    .foregroundStyle(GlanceTheme.textPrimary)
+                Text("FaceAuth is now active")
+                    .font(GlanceTheme.Font.rowDetail)
+                    .foregroundStyle(GlanceTheme.textSecondary)
+            }
         }
-        .onboardingContentHorizontalPadding()
-        .padding(.top, 18)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .onboardingContentPadding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .background(GlanceTheme.panel)
     }
 }

@@ -186,8 +186,8 @@ private enum DetectionDistanceLevel: Int, CaseIterable {
     var minimumFaceWidth: Float {
         switch self {
         case .close: return 0.23
-        case .standard: return 0.19
-        case .far: return 0.15
+        case .standard: return 0.14
+        case .far: return 0.10
         }
     }
 

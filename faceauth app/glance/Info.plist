@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>FaceAuth requires microphone access to enroll and verify your Voice ID.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>FaceAuth uses on-device speech recognition to verify your Voice ID passphrase.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>FaceAuth requires camera access to enroll and recognize your face for unlocking.</string>
 	<key>SUAutomaticallyUpdate</key>
 	<false/>
 	<key>SUEnableInstallerLauncherService</key>

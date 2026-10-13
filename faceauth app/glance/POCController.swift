@@ -90,20 +90,28 @@ final class POCController {
     /// buffer before returning. When `requireAuthoritativeLock` is true (the
     /// auto-trigger path), refuses to inject unless the CGSession dictionary
     /// confirms the screen is actually locked.
-    func injectStoredPassword(requireAuthoritativeLock: Bool = false) async {
+    func injectStoredPassword(requireAuthoritativeLock: Bool = false) async -> Bool {
+        if case .failure(let error) = TrustedNetworkManager.authorizationResult(
+            isEnabled: GlanceSettings.shared.trustedNetworksEnabled,
+            trustedNetworks: GlanceSettings.shared.trustedNetworks
+        ) {
+            statusMessage = error.localizedDescription
+            return false
+        }
+
         guard KeystrokeInjector.isAccessibilityTrusted() else {
             statusMessage = "Accessibility not granted — open System Settings and enable FaceAuth."
-            return
+            return false
         }
         guard SecureCredentialManager.isSessionUnlocked else {
             statusMessage = "Session locked — authenticate with Touch ID first."
-            return
+            return false
         }
 
         if requireAuthoritativeLock {
             guard LockMonitor.isScreenActuallyLocked() else {
                 statusMessage = "Skipped: CGSession reports screen is not actually locked."
-                return
+                return false
             }
         }
 
@@ -115,8 +123,10 @@ final class POCController {
                 try KeystrokeInjector.typeAndReturn(bytes)
             }.value
             statusMessage = "Injected stored password + Return at \(Date().formatted(date: .omitted, time: .standard))"
+            return true
         } catch {
             statusMessage = "Injection failed: \(error.localizedDescription)"
+            return false
         }
     }
 }

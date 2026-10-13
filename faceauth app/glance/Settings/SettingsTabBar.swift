@@ -117,12 +117,20 @@ private struct SettingsTabGlyph: View {
                 Image(systemName: name)
                     .font(.system(size: SettingsMetrics.tabGlyphSize, weight: .medium))
             case .asset(let name):
-                Image(name)
-                    .renderingMode(.template)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: SettingsMetrics.tabGlyphSize + 1, height: SettingsMetrics.tabGlyphSize + 1)
-                    .offset(y: 1)
+                if name == "appicon" {
+                    Image(name)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: SettingsMetrics.tabGlyphSize + 2, height: SettingsMetrics.tabGlyphSize + 2)
+                        .clipShape(RoundedRectangle(cornerRadius: 3.5, style: .continuous))
+                } else {
+                    Image(name)
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: SettingsMetrics.tabGlyphSize + 1, height: SettingsMetrics.tabGlyphSize + 1)
+                        .offset(y: 1)
+                }
             }
         }
         // Fixed box so glyphs of different widths space evenly along the bar.

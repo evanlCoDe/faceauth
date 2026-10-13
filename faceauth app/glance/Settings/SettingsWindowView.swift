@@ -148,6 +148,8 @@ struct SettingsWindowView: View {
                 GeneralSettingsPage(coordinator: environment.faceUnlockCoordinator)
             case .yourFace:
                 YourFaceSettingsPage(environment: environment)
+            case .yourVoice:
+                YourVoiceSettingsPage(environment: environment)
             case .password:
                 PasswordSettingsPage(pocController: environment.pocController)
             case .camera:

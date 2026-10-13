@@ -2,12 +2,12 @@
 //  OnboardingController.swift
 //  glance
 //
-//  State machine behind the notch-hosted guided onboarding flow: permissions, guided
-//  nine-pose face enrollment, and password setup. Reuses the same camera/detection/
-//  embedding/storage pieces as the Face Lab debug tab rather than reimplementing them.
+//  State machine behind the notch-hosted guided onboarding flow: permissions, selected
+//  face/voice enrollment, and password setup. Reuses the same camera/detection/embedding/
+//  storage pieces as the Face Lab debug tab rather than reimplementing them.
 //
-//  Still not milestone G: finishing onboarding stores an encrypted password and a face
-//  template, but nothing here triggers an unlock.
+//  Still not milestone G: finishing onboarding stores the selected authentication data
+//  and an encrypted password, but nothing here triggers an unlock.
 //
 
 import Foundation
@@ -15,16 +15,19 @@ import Observation
 import AVFoundation
 import AppKit
 import SwiftUI
+import Speech
 
 /// `String`-backed so `GlanceSettings.onboardingResumeStep` can persist it directly by name.
 enum OnboardingStep: String, CaseIterable {
-    case intro
     case eula
+    case selectUnlockMethod
+    case intro
     case permissions
     case securityNotice
     case preSetup
     case selectCamera
     case enroll
+    case enrollVoice
     case name
     case password
     case complete
@@ -36,11 +39,11 @@ enum OnboardingStep: String, CaseIterable {
     }
 
     /// Whether this step shows the Back/primary button pair; enroll is close-control
-    /// only, and complete/intro/eula have just one side or specialized buttons.
+    /// only, and complete/intro have just one side.
     var showsBackButton: Bool {
         switch self {
-        case .securityNotice, .permissions, .preSetup, .selectCamera, .name, .password: return true
-        case .intro, .eula, .enroll, .complete: return false
+        case .selectUnlockMethod, .securityNotice, .permissions, .preSetup, .selectCamera, .name, .password: return true
+        case .eula, .intro, .enroll, .enrollVoice, .complete: return false
         }
     }
 
@@ -50,8 +53,8 @@ enum OnboardingStep: String, CaseIterable {
     /// whose prerequisites no longer exist.
     var resumeTarget: OnboardingStep {
         switch self {
-        case .intro, .eula, .securityNotice, .permissions, .preSetup, .selectCamera, .complete: return self
-        case .enroll, .name, .password: return .preSetup
+        case .enroll, .enrollVoice, .name, .password: return .preSetup
+        case .eula, .selectUnlockMethod, .intro, .securityNotice, .permissions, .preSetup, .selectCamera, .complete: return self
         }
     }
 }
@@ -148,6 +151,7 @@ enum CameraPermissionState {
 final class OnboardingController {
     let camera = CameraManager()
     let pipeline = FaceRecognitionPipeline()
+    let voicePipeline = VoiceIDPipeline()
     private let store = FaceEnrollmentStore.shared
     private let sweepWindow = EnrollmentSweepWindowController()
 
@@ -177,6 +181,7 @@ final class OnboardingController {
     /// True when started by `startEnrollmentOnly()` — shows only the guided pose-capture
     /// step and saves samples directly instead of continuing to the password step.
     private let isEnrollmentOnly: Bool
+    private let isVoiceEnrollmentOnly: Bool
 
     /// True when started by `startPasswordOnly()` — jumps straight to `.password` and
     /// treats Back as "cancel" rather than a setup flow that isn't running.
@@ -190,7 +195,10 @@ final class OnboardingController {
 
     /// True only for the genuine first-run flow (also true when replayed via Face Lab's
     /// "Start Onboarding" debug button). Gates whether `step`'s `didSet` persists a resume point.
-    private var isFirstRunFlow: Bool { !isEnrollmentOnly && !isPasswordOnly && !isPostUpdateNotice }
+    private var isFirstRunFlow: Bool { !isEnrollmentOnly && !isVoiceEnrollmentOnly && !isPasswordOnly && !isPostUpdateNotice }
+
+    var isFaceUnlockSelected = GlanceSettings.shared.isFaceUnlockEnabled
+    var isVoiceUnlockSelected = GlanceSettings.shared.isVoiceUnlockEnabled
 
     /// Whether the intro's one-time light sweep already played this session. Lives here
     /// rather than as `@State` on `IntroStepView` because that view is torn down and
@@ -235,17 +243,22 @@ final class OnboardingController {
         let controller = OnboardingController()
         controller.pendingName = defaultName
         controller.onFirstRunComplete = onFirstRunComplete
-        controller.step = step ?? .intro
-        if controller.step == .permissions {
+        let initialStep = GlanceSettings.shared.hasAcceptedEULA ? (step ?? .intro) : .eula
+        if initialStep != .intro {
+            controller.step = initialStep
+        }
+        if initialStep == .permissions {
             controller.startPermissionsPolling()
         }
         NotchOverlayController.shared.presentOnboarding(controller)
     }
 
-    /// Marks the EULA as accepted, persisting the setting and transitioning to `.permissions`.
     func acceptEULA() {
         GlanceSettings.shared.hasAcceptedEULA = true
-        advance()
+        navDirection = .forward
+        withAnimation(OnboardingMetrics.stepAnimation) {
+            step = .selectUnlockMethod
+        }
     }
 
     /// Entry point used by Settings' "Set up Face Unlock" / "Redo Face Enrollment" — presents
@@ -263,6 +276,17 @@ final class OnboardingController {
                 target: existing.map { .replacing($0.id) } ?? .newIdentity,
                 prefillName: existing?.name ?? defaultName
             )
+        }
+
+    }
+
+    static func startVoiceEnrollmentOnly(passphrase: String? = nil) {
+        Task { @MainActor in
+            guard await unlockForEnrollment(reason: "Authenticate to enroll your voice profile") else { return }
+            let controller = OnboardingController(isVoiceEnrollmentOnly: true)
+            controller.voicePassphrase = passphrase ?? ""
+            controller.step = .enrollVoice
+            NotchOverlayController.shared.presentOnboarding(controller)
         }
     }
 
@@ -343,7 +367,13 @@ final class OnboardingController {
 
     private(set) var accessibilityGranted = false
     private(set) var cameraPermission: CameraPermissionState = .notDetermined
+    private(set) var microphonePermission: CameraPermissionState = .notDetermined
     var bothPermissionsGranted: Bool { accessibilityGranted && cameraPermission == .granted }
+    var allPermissionsGranted: Bool {
+        accessibilityGranted
+            && (!isFaceUnlockSelected || cameraPermission == .granted)
+            && (!isVoiceUnlockSelected || microphonePermission == .granted)
+    }
 
     private var permissionsPollTask: Task<Void, Never>?
 
@@ -363,20 +393,19 @@ final class OnboardingController {
     /// Hold off accepting captures this long once the camera comes up, so the first
     /// samples aren't taken mid-blink. Detection still runs during this window.
     private let initialCaptureDelay: Duration = .seconds(1.5)
-    /// Enrollment wants a closer face than unlock's bystander cutoff — sitting back in a
-    /// chair is still enough to unlock, but too far for a reliable template.
+    /// Enrollment wants a closer face than unlock's bystander cutoff
     private var enrollmentMinimumFaceWidth: Float {
         max(FaceRecognitionPipeline.minimumProminentFaceWidth, 0.2)
     }
 
     // Pose-matching bands, in radians. Yaw: left turn is positive, matching the mirrored
     // preview. Pitch's sign is the opposite of the initial guess — see `pitchMatches` below.
-    private let yawInnerThreshold: Float = 0.25
+    private let yawInnerThreshold: Float = 0.24
     private let yawCenterTolerance: Float = 0.18
-    private let yawOuterCap: Float = 1.2
-    private let pitchInnerThreshold: Float = 0.20
+    private let yawOuterCap: Float = 0.51
+    private let pitchInnerThreshold: Float = 0.17
     private let pitchCenterTolerance: Float = 0.15
-    private let pitchOuterCap: Float = 0.9
+    private let pitchOuterCap: Float = 0.37
     /// If a pose takes longer than this, matching bands widen by `stallWidenFactor` so an
     /// unusual camera angle can't permanently strand the user.
     private let stallTimeout: Duration = .seconds(12)
@@ -390,7 +419,27 @@ final class OnboardingController {
     /// Whether the last-seen face read as too small to enroll reliably — swaps the pose
     /// instruction for a "move closer" prompt while true.
     private(set) var isTooFar = false
+    /// An extreme head turn is not useful enrollment data. Keep this separate from
+    /// `isTooFar`, which describes face distance rather than pose.
+    private(set) var excessiveTurn: ExcessiveTurn?
     private(set) var enrollmentComplete = false
+
+    enum ExcessiveTurn: Equatable {
+        case left, topLeft, up, topRight, right, bottomRight, down, bottomLeft
+
+        var instruction: String {
+            switch self {
+            case .left: return "Too far left"
+            case .topLeft: return "Too far toward the top left"
+            case .up: return "Too far up"
+            case .topRight: return "Too far toward the top right"
+            case .right: return "Too far right"
+            case .bottomRight: return "Too far toward the bottom right"
+            case .down: return "Too far down"
+            case .bottomLeft: return "Too far toward the bottom left"
+            }
+        }
+    }
 
     /// Sectors already captured — read by EnrollmentRingView to decide which
     /// ticks are lit.
@@ -439,6 +488,7 @@ final class OnboardingController {
     /// completion line.
     var enrollmentInstruction: String {
         if enrollmentComplete { return "Face captured" }
+        if let excessiveTurn { return excessiveTurn.instruction }
         if isTooFar { return "Bring your face closer" }
         return currentPose?.instruction ?? ""
     }
@@ -457,7 +507,7 @@ final class OnboardingController {
     /// Live head direction, or `nil` when there's nothing to point at. Axes are normalized
     /// against the current pose's thresholds, so `progress` hits 1 as the pose starts matching.
     var headTurn: HeadTurn? {
-        guard step == .enroll, !enrollmentComplete, faceDetected, !isTooFar,
+        guard step == .enroll, !enrollmentComplete, faceDetected, !isTooFar, excessiveTurn == nil,
               let pose = currentPose, pose != .center,
               let yaw = currentYaw, let pitch = currentPitch else { return nil }
 
@@ -501,11 +551,13 @@ final class OnboardingController {
 
     init(
         isEnrollmentOnly: Bool = false,
+        isVoiceEnrollmentOnly: Bool = false,
         isPasswordOnly: Bool = false,
         isPostUpdateNotice: Bool = false,
         enrollmentTarget: EnrollmentTarget = .newIdentity
     ) {
         self.isEnrollmentOnly = isEnrollmentOnly
+        self.isVoiceEnrollmentOnly = isVoiceEnrollmentOnly
         self.isPasswordOnly = isPasswordOnly
         self.isPostUpdateNotice = isPostUpdateNotice
         self.enrollmentTarget = enrollmentTarget
@@ -514,6 +566,8 @@ final class OnboardingController {
             step = .enroll
             // Deferred a tick for the same reason `advance()` defers it — see comment there.
             Task { @MainActor [weak self] in self?.beginEnrollment() }
+        } else if isVoiceEnrollmentOnly {
+            step = .enrollVoice
         } else if isPasswordOnly {
             // No deferral needed: the password step starts nothing heavy.
             step = .password
@@ -533,13 +587,18 @@ final class OnboardingController {
                 step = .complete
             } else {
                 switch step {
-                case .intro: step = .eula
-                case .eula: step = .permissions
+                case .eula: break // advances only after explicit acceptance
+                case .selectUnlockMethod:
+                    GlanceSettings.shared.isFaceUnlockEnabled = isFaceUnlockSelected
+                    GlanceSettings.shared.isVoiceUnlockEnabled = isVoiceUnlockSelected
+                    step = .intro
+                case .intro: step = .permissions
                 case .permissions: step = .securityNotice
                 case .securityNotice: step = .preSetup
-                case .preSetup: step = .selectCamera
+                case .preSetup: step = isFaceUnlockSelected ? .selectCamera : .enrollVoice
                 case .selectCamera: step = .enroll
                 case .enroll: break // advances automatically on completion
+                case .enrollVoice: break // standalone voice enrollment completes automatically
                 case .name: break // handled by confirmName()
                 case .password: break // handled by finish(password:)
                 case .complete: break
@@ -578,6 +637,25 @@ final class OnboardingController {
             return
         }
         switch step {
+        case .enrollVoice where isVoiceEnrollmentOnly:
+            teardown()
+            NotchOverlayController.shared.dismissOnboarding()
+        case .enrollVoice:
+            voiceEnrollmentGeneration &+= 1
+            isPreparingVoiceCapture = false
+            voicePipeline.stopEnrollmentCapture()
+            pendingVoiceFeatureVector = nil
+            pendingVoicePassphrase = nil
+            voiceCaptureStarted = false
+            voiceProgress = 0
+            voiceShowCheckmark = false
+            voiceError = nil
+            if isFaceUnlockSelected {
+                resetEnrollmentState()
+                withAnimation(OnboardingMetrics.stepAnimation) { step = .selectCamera }
+            } else {
+                withAnimation(OnboardingMetrics.stepAnimation) { step = .preSetup }
+            }
         case .enroll where isEnrollmentOnly:
             // Nothing precedes enrollment in add/recapture flows — Close is a cancel.
             teardown()
@@ -589,17 +667,29 @@ final class OnboardingController {
             sweepWindow.dismiss()
             withAnimation(OnboardingMetrics.stepAnimation) { step = .selectCamera }
         case .password:
-            // Deliberately *without* resetting: samples and typed name survive so a typo
-            // fix doesn't mean re-doing nine poses.
+            // Keep completed captures so password corrections don't require re-enrollment.
             nameError = nil
-            withAnimation(OnboardingMetrics.stepAnimation) { step = .name }
+            if isFaceUnlockSelected {
+                withAnimation(OnboardingMetrics.stepAnimation) { step = .name }
+            } else {
+                pendingVoiceFeatureVector = nil
+                pendingVoicePassphrase = nil
+                voiceCaptureStarted = false
+                voiceProgress = 0
+                voiceShowCheckmark = false
+                voiceError = nil
+                withAnimation(OnboardingMetrics.stepAnimation) { step = .enrollVoice }
+            }
         case .name where isEnrollmentOnly:
             // Nothing precedes naming in add/recapture flows — Back is a cancel.
             teardown()
             NotchOverlayController.shared.dismissOnboarding()
         case .name:
-            // `.enroll` can't be resumed halfway, so backing past it discards the capture.
+            // `.enroll` can't be resumed halfway, so backing past it discards both captures.
             resetEnrollmentState()
+            pendingVoiceFeatureVector = nil
+            voiceProgress = 0
+            voiceShowCheckmark = false
             withAnimation(OnboardingMetrics.stepAnimation) { step = .selectCamera }
         default:
             guard let previous = step.previous else { return }
@@ -620,6 +710,7 @@ final class OnboardingController {
         matchStreak = 0
         poseHoldStartedAt = nil
         isTooFar = false
+        excessiveTurn = nil
         enrollmentComplete = false
         guideVisible = false
         cameraPreviewVisible = true
@@ -635,6 +726,7 @@ final class OnboardingController {
         poseStartedAt = .now
         captureReadyAt = .now + initialCaptureDelay
         poseHoldStartedAt = nil
+        excessiveTurn = nil
         sweepWindow.present(for: self)
         Task { await camera.start() }
     }
@@ -644,8 +736,19 @@ final class OnboardingController {
     func teardown() {
         stopPermissionsPolling()
         camera.stop()
+        voicePipeline.stopEnrollmentCapture()
         sweepWindow.dismiss()
     }
+
+    private(set) var voiceProgress = 0.0
+    private(set) var voiceShowCheckmark = false
+    private(set) var voiceError: String?
+    private var pendingVoiceFeatureVector: [Float]?
+    private var pendingVoicePassphrase: String?
+    var voicePassphrase = ""
+    private(set) var voiceCaptureStarted = false
+    private(set) var isPreparingVoiceCapture = false
+    private var voiceEnrollmentGeneration = 0
 
     // MARK: - Permissions
 
@@ -672,6 +775,11 @@ final class OnboardingController {
         case .notDetermined: cameraPermission = .notDetermined
         default: cameraPermission = .denied
         }
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized: microphonePermission = .granted
+        case .notDetermined: microphonePermission = .notDetermined
+        default: microphonePermission = .denied
+        }
     }
 
     private var hasPromptedAccessibility = false
@@ -695,6 +803,147 @@ final class OnboardingController {
                 openSystemSettings(pane: "Privacy_Camera")
             }
         }
+    }
+
+    func grantMicrophone() {
+        Task {
+            if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined {
+                _ = await AVCaptureDevice.requestAccess(for: .audio)
+                refreshPermissions()
+            } else {
+                openSystemSettings(pane: "Privacy_Microphone")
+            }
+        }
+    }
+
+    func beginVoiceEnrollment() {
+        let passphrase = voicePassphrase.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard step == .enrollVoice, !voiceCaptureStarted, !isPreparingVoiceCapture else { return }
+        guard !passphrase.isEmpty else {
+            voiceError = "Enter a voice passphrase before recording."
+            return
+        }
+
+        voiceEnrollmentGeneration &+= 1
+        let generation = voiceEnrollmentGeneration
+        isPreparingVoiceCapture = true
+        voiceError = nil
+        voiceProgress = 0
+        voiceShowCheckmark = false
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer {
+                if self.voiceEnrollmentGeneration == generation {
+                    self.isPreparingVoiceCapture = false
+                }
+            }
+            guard self.voiceEnrollmentGeneration == generation,
+                  self.step == .enrollVoice
+            else { return }
+            var granted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+            if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined {
+                granted = await AVCaptureDevice.requestAccess(for: .audio)
+            }
+            guard self.voiceEnrollmentGeneration == generation,
+                  self.step == .enrollVoice
+            else { return }
+            self.refreshPermissions()
+            guard granted else {
+                self.voiceError = "Microphone access is required. Enable it in System Settings > Privacy & Security > Microphone."
+                return
+            }
+
+            let speechStatus: SFSpeechRecognizerAuthorizationStatus
+            switch SFSpeechRecognizer.authorizationStatus() {
+            case .authorized:
+                speechStatus = .authorized
+            case .notDetermined:
+                speechStatus = await VoiceIDPipeline.requestSpeechRecognitionAuthorization()
+            case .denied:
+                speechStatus = .denied
+            case .restricted:
+                speechStatus = .restricted
+            @unknown default:
+                speechStatus = .denied
+            }
+            guard self.voiceEnrollmentGeneration == generation,
+                  self.step == .enrollVoice
+            else { return }
+            guard speechStatus == .authorized else {
+                self.voiceError = "Speech Recognition access is required to verify your passphrase. Enable it in System Settings > Privacy & Security > Speech Recognition."
+                return
+            }
+            guard self.voiceEnrollmentGeneration == generation,
+                  self.step == .enrollVoice
+            else { return }
+
+            do {
+                try self.voicePipeline.startEnrollmentCapture(
+                    passphrase: passphrase,
+                    onProgress: { [weak self] progress in self?.voiceProgress = progress },
+                    onComplete: { [weak self] vector in self?.completeVoiceEnrollment(vector) }
+                )
+                self.voicePassphrase = passphrase
+                self.voiceCaptureStarted = true
+            } catch {
+                self.voiceError = "Couldn't start voice capture: \(error.localizedDescription)"
+            }
+        }
+    }
+
+    private func completeVoiceEnrollment(_ featureVector: [Float]) {
+        if isVoiceEnrollmentOnly {
+            do {
+                try saveVoiceEnrollment(featureVector, name: nil, passphrase: voicePassphrase)
+                GlanceSettings.shared.isVoiceUnlockEnabled = true
+            } catch {
+                voiceError = "Couldn't save voice profile: \(error.localizedDescription)"
+                voiceCaptureStarted = false
+                voiceProgress = 0
+                return
+            }
+        } else {
+            pendingVoiceFeatureVector = featureVector
+            pendingVoicePassphrase = voicePassphrase
+        }
+
+        voicePipeline.stopEnrollmentCapture()
+        voiceCaptureStarted = false
+        voiceProgress = 1
+        voiceShowCheckmark = true
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(1.5))
+            guard let self, self.step == .enrollVoice else { return }
+            if self.isVoiceEnrollmentOnly {
+                self.teardown()
+                NotchOverlayController.shared.dismissOnboarding()
+            } else {
+                self.navDirection = .forward
+                withAnimation(OnboardingMetrics.stepAnimation) {
+                    self.step = self.isFaceUnlockSelected ? .name : .password
+                }
+            }
+        }
+    }
+
+    private func saveVoiceEnrollment(_ featureVector: [Float], name: String?, passphrase: String) throws {
+        var profiles = try SecureVoiceStore.load()
+        if let firstProfile = profiles.first {
+            profiles[0] = VoiceProfile(
+                id: firstProfile.id,
+                name: name ?? firstProfile.name,
+                featureVector: featureVector,
+                passphrase: passphrase,
+                createdAt: firstProfile.createdAt
+            )
+        } else {
+            profiles.append(VoiceProfile(
+                name: name ?? Self.defaultName,
+                featureVector: featureVector,
+                passphrase: passphrase
+            ))
+        }
+        try SecureVoiceStore.save(profiles)
     }
 
     private func openSystemSettings(pane: String) {
@@ -809,6 +1058,7 @@ final class OnboardingController {
             matchStreak = 0
             poseHoldStartedAt = nil
             isTooFar = false
+            excessiveTurn = nil
             return
         case .tooFar:
             faceDetected = true
@@ -817,6 +1067,7 @@ final class OnboardingController {
             matchStreak = 0
             poseHoldStartedAt = nil
             isTooFar = true
+            excessiveTurn = nil
             return
         case .ready(let result):
             guard let yaw = result.face.yaw, let pitch = result.face.pitch else {
@@ -826,12 +1077,19 @@ final class OnboardingController {
                 matchStreak = 0
                 poseHoldStartedAt = nil
                 isTooFar = false
+                excessiveTurn = nil
                 return
             }
             faceDetected = true
             currentYaw = yaw
             currentPitch = pitch
             isTooFar = false
+            excessiveTurn = excessiveTurnDirection(yaw: yaw, pitch: pitch)
+            guard excessiveTurn == nil else {
+                matchStreak = 0
+                poseHoldStartedAt = nil
+                return
+            }
             await processMatchedEnrollFrame(result, yaw: yaw, pitch: pitch, pose: pose)
         }
     }
@@ -856,7 +1114,8 @@ final class OnboardingController {
         let alignmentOK = result.alignmentTier == .fivePoint
         let widened = ContinuousClock.now - poseStartedAt > stallTimeout
         let poseOK = poseMatches(yaw: yaw, pitch: pitch, pose: pose, widened: widened)
-        guard qualityOK, alignmentOK, !isTooFar, poseOK else {
+        guard qualityOK, alignmentOK, !isTooFar,
+              excessiveTurnDirection(yaw: yaw, pitch: pitch) == nil, poseOK else {
             matchStreak = 0
             poseHoldStartedAt = nil
             return
@@ -909,6 +1168,32 @@ final class OnboardingController {
         }
     }
 
+    /// Reports the dominant axis when a user has gone beyond enrollment's safe pose
+    /// envelope. At these angles, Vision's embedding is unlikely to be a useful,
+    /// repeatable sample, so capture is explicitly rejected before the hold timer runs.
+    private func excessiveTurnDirection(yaw: Float, pitch: Float) -> ExcessiveTurn? {
+        let yawOvershoot = abs(yaw) / yawOuterCap
+        let pitchOvershoot = abs(pitch) / pitchOuterCap
+        guard max(yawOvershoot, pitchOvershoot) >= 1 else { return nil }
+
+        let yawExceeded = yawOvershoot >= 1
+        let pitchExceeded = pitchOvershoot >= 1
+        if yawExceeded, pitchExceeded {
+            // Vision uses positive yaw for a left turn and negative pitch for an upward turn.
+            switch (yaw > 0, pitch < 0) {
+            case (true, true): return .topLeft
+            case (false, true): return .topRight
+            case (false, false): return .bottomRight
+            case (true, false): return .bottomLeft
+            }
+        }
+
+        if yawOvershoot >= pitchOvershoot {
+            return yaw > 0 ? .left : .right
+        }
+        return pitch < 0 ? .up : .down
+    }
+
     /// Confirmed empirically: Vision reports negative pitch for "looking up" and positive
     /// for "looking down" — the opposite of the initial guess.
     private func pitchMatches(_ pitch: Float, band: EnrollmentPose.PitchBand, factor: Float) -> Bool {
@@ -920,7 +1205,7 @@ final class OnboardingController {
     }
 
     /// Runs the camera-complete sequence (instructions fade, preview fades, checkmark
-    /// draws) then auto-advances to naming. Samples stay in memory here.
+    /// draws) then auto-advances to voice capture or naming. Samples stay in memory here.
     private func finishEnrollment() async {
         enrollmentComplete = true
         sweepWindow.dismiss()
@@ -1007,6 +1292,10 @@ final class OnboardingController {
     // MARK: - Password
 
     func finish(password: String) async -> Bool {
+        // The default Confirm button and the SecureField's Return handler can
+        // arrive back-to-back. Keep password replacement and any enrollment
+        // commit single-flight even before SwiftUI has redrawn the disabled UI.
+        guard !isSavingPassword else { return false }
         let trimmed = password
         guard !trimmed.isEmpty else {
             passwordError = "Enter a password."
@@ -1017,7 +1306,7 @@ final class OnboardingController {
 
         do {
             try await Task.detached(priority: .userInitiated) {
-                try SecureCredentialManager.unlockSession(reason: "Set up FaceAuth")
+                try SecureCredentialManager.unlockSession(reason: "Set up Glance")
             }.value
 
             // Only now that the session key exists can samples be encrypted and saved.
@@ -1033,6 +1322,20 @@ final class OnboardingController {
                     return false
                 }
                 try commitEnrollment(name: name)
+            }
+            if let pendingVoiceFeatureVector {
+                let voiceName = isFaceUnlockSelected
+                    ? pendingName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    : nil
+                guard let pendingVoicePassphrase else {
+                    throw NSError(
+                        domain: "OnboardingController",
+                        code: 1,
+                        userInfo: [NSLocalizedDescriptionKey: "The voice passphrase is missing. Re-enroll Voice ID before finishing setup."]
+                    )
+                }
+                try saveVoiceEnrollment(pendingVoiceFeatureVector, name: voiceName, passphrase: pendingVoicePassphrase)
+                GlanceSettings.shared.isVoiceUnlockEnabled = true
             }
 
             try await Task.detached(priority: .userInitiated) {

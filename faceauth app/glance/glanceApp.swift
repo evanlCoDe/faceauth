@@ -32,11 +32,6 @@ struct glanceApp: App {
                     delegate.bindOpenWindowAction { open(id: "settings") }
                 }
         }
-        // Deliberately no `.windowResizability(.contentSize)`: it kept re-deriving the window size from the titlebar band,
-        // growing the window whenever that band's height changed. Size is set once by WindowConfiguringView instead.
-        //
-        // Creates the window at its final size from the start. WindowConfiguringView only applies the size a runloop after
-        // the window first draws, so without this the first frame showed SwiftUI's own guess (much wider, much shorter).
         .defaultSize(SettingsMetrics.windowSize)
         .windowStyle(.hiddenTitleBar)
         .defaultPosition(.center)
@@ -72,16 +67,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// Accessory before the Dock binds this launch to a persistent tile — starting `.regular` made the pinned icon bounce and
     /// get replaced by a Recents tile the moment the Dock icon was later hidden/shown.
     func applicationWillFinishLaunching(_ notification: Notification) {
+        #if DEBUG
+        GlanceSettings.shared.resetToDefaults()
+        #endif
         NSApp.setActivationPolicy(.accessory)
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        // Custom mark, not an SF Symbol; `isTemplate` is cheap insurance against a plain black-square render.
         let icon = NSImage(named: "MenuBarIcon")
         icon?.isTemplate = true
-        // A single-scale vector asset reports its design size with no scaling metadata, so left unset this renders ~10x too
-        // large; sized to match the standard menu bar glyph height, width following the asset's own aspect ratio.
         if let iconSize = icon?.size, iconSize.height > 0 {
             let menuBarHeight: CGFloat = 16
             icon?.size = NSSize(width: menuBarHeight * iconSize.width / iconSize.height, height: menuBarHeight)
@@ -89,7 +84,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         item.button?.image = icon
 
         let menu = NSMenu()
-        // Refreshes `sessionMenuItem` right before the menu displays — see `menuNeedsUpdate` below.
         menu.delegate = self
 
         let sessionItem = NSMenuItem(title: "", action: #selector(toggleSession), keyEquivalent: "")
@@ -111,11 +105,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         updateSessionMenuItem()
 
-        // SwiftUI can flip the app back to `.regular` while installing scenes even with `.suppressed`; re-assert accessory.
         NSApp.setActivationPolicy(.accessory)
 
-        // `object: nil` deliberately — the Settings window may not exist yet (SwiftUI creates scene content lazily), and this
-        // still matches it by identity in the handler below once it does close.
         NotificationCenter.default.addObserver(
             self, selector: #selector(windowWillClose(_:)),
             name: NSWindow.willCloseNotification, object: nil
@@ -125,7 +116,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             if GlanceSettings.shared.hasAcknowledgedSecurityNotice {
                 startUpdaterIfNeeded()
             } else {
-                // Upgraded from a version before the notice existed — show it once, standalone.
                 presentPostUpdateSecurityNotice()
             }
         } else {
@@ -133,9 +123,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    /// First-run gate: onboarding lives entirely in the notch, so this stays accessory. Called once at launch if onboarding
-    /// isn't done, and again from `revealSettingsWindow()` if the user reaches Settings mid-flow. Closing any main window here
-    /// is defense in depth against SwiftUI's `.suppressed` scene timing not being guaranteed.
     private func presentOnboardingGate() {
         for window in NSApp.windows where window.canBecomeMain {
             window.close()
@@ -144,39 +131,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         OnboardingController.startFlow(
             resumingAt: GlanceSettings.shared.onboardingResumeStep,
             onFirstRunComplete: { [weak self] in
-                // First time Settings should appear, which also brings the Dock icon back.
                 self?.revealSettingsWindow()
                 self?.startUpdaterIfNeeded()
             }
         )
     }
 
-    /// One-time catch-up for users who completed onboarding before the security-notice step
-    /// existed — same accessory/window-closing treatment as `presentOnboardingGate()`, but
-    /// resumes straight into the updater afterward instead of revealing Settings, since setup
-    /// itself is already done.
     private func presentPostUpdateSecurityNotice() {
         for window in NSApp.windows where window.canBecomeMain {
             window.close()
         }
         NSApp.setActivationPolicy(.accessory)
-        // Reachable repeatedly — every gated menu action re-enters here while unacknowledged.
-        // A fresh `startPostUpdateNotice()` would just replace the one already on screen.
         guard NotchOverlayController.shared.phase != .onboarding else { return }
         OnboardingController.startPostUpdateNotice { [weak self] in
             self?.startUpdaterIfNeeded()
         }
     }
 
-    /// Reachable from launch (onboarding already done) or from first-run completion — `hasStartedUpdater` collapses both into "exactly once."
     private func startUpdaterIfNeeded() {
         guard !hasStartedUpdater else { return }
         hasStartedUpdater = true
         environment.updater.start()
     }
 
-    /// Hides the Dock icon once no `canBecomeMain` window is left (`revealSettingsWindow()` brings it back) — excludes non-main
-    /// windows like the lock-screen notch overlay, and backs off while Sparkle's update window is showing.
     @objc private func windowWillClose(_ notification: Notification) {
         guard let closingWindow = notification.object as? NSWindow, closingWindow.canBecomeMain else { return }
         guard !environment.updater.isPresentingUpdateUI else { return }
@@ -185,7 +162,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.setActivationPolicy(.accessory)
     }
 
-    /// Fires right before the menu opens — simpler than keeping an `NSMenuItem` reactively bound to `isSessionUnlocked`.
     func menuNeedsUpdate(_ menu: NSMenu) {
         updateSessionMenuItem()
     }
@@ -200,7 +176,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         )
     }
 
-    /// Locking is immediate; unlocking prompts Touch ID, so this can't be a plain synchronous action for that branch.
     @objc private func toggleSession() {
         guard !isBlockedByPostUpdateNotice else {
             presentPostUpdateSecurityNotice()
@@ -213,32 +188,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    /// Keeps the process alive after the window closes so it can still react to the screen locking (e.g. for face unlock).
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
     }
 
-    /// A Dock click must not create the Settings window — that produced a duplicate Recents icon. If already open, the default
-    /// reopen behavior just brings it forward.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         return flag
     }
 
-    /// Menu bar "Settings" — the only user-facing way to open the window after onboarding.
     @objc private func openSettingsWindow() {
         revealSettingsWindow()
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    /// True whenever an updated user hasn't acknowledged the post-update security notice yet.
-    /// Checked by every menu-bar action that would otherwise let them use the app — Settings,
-    /// locking/unlocking — before the notice has been seen.
     private var isBlockedByPostUpdateNotice: Bool {
         GlanceSettings.shared.hasCompletedOnboarding && !GlanceSettings.shared.hasAcknowledgedSecurityNotice
     }
 
-    /// Restores the Dock icon before bringing the window forward — doing it after the window is already key can leave the icon
-    /// out of sync. During onboarding this only ensures the notch flow is up; it doesn't open Settings or show a Dock icon.
     private func revealSettingsWindow() {
         if isBlockedByPostUpdateNotice {
             presentPostUpdateSecurityNotice()
@@ -246,8 +212,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return
         }
         guard GlanceSettings.shared.hasCompletedOnboarding else {
-            // Re-present rather than restart: a fresh startFlow() would throw away the in-session step already navigated to,
-            // since it only knows the last step written to disk.
             if NotchOverlayController.shared.phase != .onboarding {
                 presentOnboardingGate()
             }
@@ -258,18 +222,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if let openSettingsWindowAction {
             openSettingsWindowAction()
         } else {
-            // `body` hasn't run yet somehow — falls back to a direct walk, which only works if a window instance still exists.
             for window in NSApp.windows where window.canBecomeMain {
                 window.makeKeyAndOrderFront(nil)
             }
         }
-        // Coming from `.accessory` there's no user gesture to activate the app, so without this Settings appears inactive and
-        // won't take focus until the user Cmd-Tabs away and back.
         makeSettingsKeyAndActive()
     }
 
-    /// Two runloop hops: `openWindow(id:)` hasn't created the `NSWindow` on this turn, and `WindowConfiguringView` configures it
-    /// on the next — waiting one extra cycle orders front after the window actually exists.
     private func makeSettingsKeyAndActive() {
         NSApp.activate(ignoringOtherApps: true)
         DispatchQueue.main.async { [weak self] in

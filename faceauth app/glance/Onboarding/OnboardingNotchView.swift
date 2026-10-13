@@ -16,6 +16,8 @@ struct OnboardingNotchView: View {
             switch controller.step {
             case .eula:
                 EULAStepView(controller: controller)
+            case .selectUnlockMethod:
+                SelectUnlockMethodStepView(controller: controller)
             case .intro:
                 IntroStepView(controller: controller)
             case .permissions:
@@ -28,6 +30,8 @@ struct OnboardingNotchView: View {
                 SelectCameraStepView(controller: controller)
             case .enroll:
                 EnrollStepView(controller: controller)
+            case .enrollVoice:
+                VoiceEnrollStepView(controller: controller)
             case .name:
                 NameStepView(controller: controller)
             case .password:

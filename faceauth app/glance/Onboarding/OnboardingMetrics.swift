@@ -27,31 +27,37 @@ enum OnboardingMetrics {
     /// The camera/enrollment step's width — deliberately independent of `panelWidth`.
     static let enrollPanelWidth: CGFloat = 320
 
-    static let notchEULAHeight: CGFloat = 310
-    static let pillEULAHeight: CGFloat = 310
-    static let notchIntroHeight: CGFloat = 175
-    static let pillIntroHeight: CGFloat = 175
-    static let notchPermissionsHeight: CGFloat = 245
-    static let pillPermissionsHeight: CGFloat = 245
-    static let notchSecurityNoticeHeight: CGFloat = 295
-    static let pillSecurityNoticeHeight: CGFloat = 295
-    static let notchPreSetupHeight: CGFloat = 220
-    static let pillPreSetupHeight: CGFloat = 220
-    static let notchSelectCameraHeight: CGFloat = 228
-    static let pillSelectCameraHeight: CGFloat = 228
-    static let notchEnrollHeight: CGFloat = 344
-    static let pillEnrollHeight: CGFloat = 350
-    static let notchNameHeight: CGFloat = 230
-    static let pillNameHeight: CGFloat = 230
-    static let notchPasswordHeight: CGFloat = 260
-    static let pillPasswordHeight: CGFloat = 260
-    static let notchCompleteHeight: CGFloat = 95
-    static let pillCompleteHeight: CGFloat = 95
+    static let notchEULAHeight: CGFloat = 338
+    static let pillEULAHeight: CGFloat = 320
+    static let notchSelectUnlockMethodHeight: CGFloat = 298
+    static let pillSelectUnlockMethodHeight: CGFloat = 275
+    static let notchIntroHeight: CGFloat = 195
+    static let pillIntroHeight: CGFloat = 185
+    static let notchPermissionsHeight: CGFloat = 350
+    static let pillPermissionsHeight: CGFloat = 327
+    static let notchSecurityNoticeHeight: CGFloat = 325
+    static let pillSecurityNoticeHeight: CGFloat = 305
+    static let notchPreSetupHeight: CGFloat = 250
+    static let pillPreSetupHeight: CGFloat = 230
+    static let notchSelectCameraHeight: CGFloat = 258
+    static let pillSelectCameraHeight: CGFloat = 238
+    static let notchEnrollHeight: CGFloat = 375
+    static let pillEnrollHeight: CGFloat = 360
+    static let notchEnrollVoiceHeight: CGFloat = 440
+    static let pillEnrollVoiceHeight: CGFloat = 420
+    static let notchNameHeight: CGFloat = 260
+    static let pillNameHeight: CGFloat = 240
+    static let notchPasswordHeight: CGFloat = 290
+    static let pillPasswordHeight: CGFloat = 270
+    static let notchCompleteHeight: CGFloat = 115
+    static let pillCompleteHeight: CGFloat = 105
 
     static func panelHeight(for step: OnboardingStep, style: NotchPanelStyle) -> CGFloat {
         switch (step, style) {
         case (.eula, .notch): return notchEULAHeight
         case (.eula, .pill): return pillEULAHeight
+        case (.selectUnlockMethod, .notch): return notchSelectUnlockMethodHeight
+        case (.selectUnlockMethod, .pill): return pillSelectUnlockMethodHeight
         case (.intro, .notch): return notchIntroHeight
         case (.intro, .pill): return pillIntroHeight
         case (.permissions, .notch): return notchPermissionsHeight
@@ -64,6 +70,8 @@ enum OnboardingMetrics {
         case (.selectCamera, .pill): return pillSelectCameraHeight
         case (.enroll, .notch): return notchEnrollHeight
         case (.enroll, .pill): return pillEnrollHeight
+        case (.enrollVoice, .notch): return notchEnrollVoiceHeight
+        case (.enrollVoice, .pill): return pillEnrollVoiceHeight
         case (.name, .notch): return notchNameHeight
         case (.name, .pill): return pillNameHeight
         case (.password, .notch): return notchPasswordHeight
@@ -74,13 +82,13 @@ enum OnboardingMetrics {
     }
 
     static func panelSize(for step: OnboardingStep, style: NotchPanelStyle) -> CGSize {
-        let width = step == .enroll ? enrollPanelWidth : panelWidth
+        let width = (step == .enroll || step == .enrollVoice) ? enrollPanelWidth : panelWidth
         return CGSize(width: width, height: panelHeight(for: step, style: style))
     }
 
     static func panelBottomRadius(for step: OnboardingStep) -> CGFloat {
         switch step {
-        case .enroll: return 51.5
+        case .enroll, .enrollVoice: return 51.5
         default: return 55
         }
     }
@@ -93,29 +101,21 @@ enum OnboardingMetrics {
         switch style {
         case .notch:
             return [
-                notchEULAHeight, notchIntroHeight, notchPermissionsHeight, notchSecurityNoticeHeight, notchPreSetupHeight,
-                notchSelectCameraHeight, notchEnrollHeight, notchNameHeight, notchPasswordHeight, notchCompleteHeight,
+                notchEULAHeight, notchSelectUnlockMethodHeight, notchIntroHeight, notchPermissionsHeight, notchSecurityNoticeHeight, notchPreSetupHeight,
+                notchSelectCameraHeight, notchEnrollHeight, notchEnrollVoiceHeight, notchNameHeight, notchPasswordHeight, notchCompleteHeight,
             ].max() ?? notchEnrollHeight
         case .pill:
             return [
-                pillEULAHeight, pillIntroHeight, pillPermissionsHeight, pillSecurityNoticeHeight, pillPreSetupHeight,
-                pillSelectCameraHeight, pillEnrollHeight, pillNameHeight, pillPasswordHeight, pillCompleteHeight,
+                pillEULAHeight, pillSelectUnlockMethodHeight, pillIntroHeight, pillPermissionsHeight, pillSecurityNoticeHeight, pillPreSetupHeight,
+                pillSelectCameraHeight, pillEnrollHeight, pillEnrollVoiceHeight, pillNameHeight, pillPasswordHeight, pillCompleteHeight,
             ].max() ?? pillEnrollHeight
         }
     }
 
     // MARK: - Content insets, per style — EDIT HERE
-    //
-    // Independent top/left/right/bottom insets for onboarding step content — does NOT
-    // apply to scan/unlock content (see `NotchGeometry.notchContentPadding*` for that).
 
-    /// Deliberately generous in notch style: the physical notch's camera
-    /// housing overlaps the very top of the panel, so title/text content
-    /// needs real clearance below it or it reads as clipped.
-    static let titleTopInset: CGFloat = 50
-    /// Pill style has no housing to clear — the panel floats free of the
-    /// screen edge — so the same inset just leaves content sitting low.
-    static let pillTitleTopInset: CGFloat = 32
+    static let titleTopInset: CGFloat = 78
+    static let pillTitleTopInset: CGFloat = 42
 
     static let notchContentLeadingInset: CGFloat = 28
     static let notchContentTrailingInset: CGFloat = 28
@@ -154,39 +154,24 @@ enum OnboardingMetrics {
     static let statusDotSize: CGFloat = 16
 
     // MARK: - Camera / tick ring
-    //
-    // The preview is kept smaller than the ring so the tick marks stay
-    // visible around its edge instead of being covered by the video.
 
     static let cameraCircleDiameter: CGFloat = 185
     static let tickRingOuterDiameter: CGFloat = 200
 
-    /// 10 ticks per 45deg sector x 8 sectors = 80 ticks tiling the ring.
     static let tickCount = 80
     static let ticksPerSector = 10
-    /// Width of the live turn indicator, in ticks — under a sector's 10 so it reads as a pointer.
     static let turnIndicatorTickSpan = 6
-    /// Indicator stretch at full intensity — short of `tickLengthLit` so it never reads as captured.
     static let turnIndicatorLengthBoost: CGFloat = 5
     static let tickLengthUnlit: CGFloat = 12
     static let tickLengthLit: CGFloat = 20
     static let tickWidth: CGFloat = 2.4
-    /// Stroke width of the solid ring the ticks merge into on completion. Its own
-    /// constant rather than reusing `tickLengthLit`, so it can be tuned independently.
     static let completionRingWidth: CGFloat = 14
-    /// How far inside the lit ticks' outer tips the completion ring's outer edge sits —
-    /// without this it reads as slightly too large once the ticks vanish.
     static let completionRingRadiusInset: CGFloat = 8
-    /// Width ticks expand to when they merge into the completion ring.
     static var tickWidthComplete: CGFloat {
         2 * .pi * (tickRingOuterDiameter / 2) / CGFloat(tickCount) * 1.2
     }
-    /// Per-tick stagger so a captured sector fills as a sweep rather than
-    /// snapping all ten ticks at once.
     static let tickStagger: Double = 0.008
 
-    /// Diameter reserved for the camera + ring, including room for lit
-    /// ticks that grow outward from `tickRingOuterDiameter`.
     static var enrollCameraClusterDiameter: CGFloat {
         tickRingOuterDiameter + tickLengthLit * 2
     }
@@ -197,8 +182,6 @@ enum OnboardingMetrics {
     static let previewFadeOut: Double = 0.4
     static let checkmarkDelay: Double = 0.2
     static let checkmarkDrawDuration: Double = 0.28
-    /// How long the checkmark holds after the nine poses before the panel
-    /// moves on to the naming step.
     static let cameraCompleteToNameDelay: Double = 3.0
     static let completeScreenDismissDelay: Double = 3.0
 
@@ -206,13 +189,10 @@ enum OnboardingMetrics {
 
     static let enrollInstructionBottomPadding: CGFloat = 30
     static let enrollInstructionHorizontalPadding: CGFloat = 20
-    static let enrollCameraTopPaddingNotch: CGFloat = 40
-    static let enrollCameraTopPaddingPill: CGFloat = 30
+    static let enrollCameraTopPaddingNotch: CGFloat = 68
+    static let enrollCameraTopPaddingPill: CGFloat = 40
 
     static let enrollCloseButtonSize: CGFloat = 28
-    /// Inset from the panel's top and trailing edges — independent of
-    /// enroll content padding so the control sits on the window chrome,
-    /// not the camera cluster.
     static let enrollCloseButtonEdgePadding: CGFloat = 18
 
     static let enrollTooFarChevronSize: CGFloat = 32
@@ -221,35 +201,21 @@ enum OnboardingMetrics {
 
     // MARK: - Enrollment direction sweep
 
-    /// Pause between the last streak of a cycle finishing and the next
-    /// cycle starting, so the motion reads as a repeated cue rather than
-    /// a continuous wash of light.
     static let sweepLoopGap: Double = 1
-    /// Caps the stacked streak opacities so the camera preview stays
-    /// visually dominant even when several ribbons overlap.
     static let sweepMasterOpacity: Double = 0.6
     static let sweepFadeIn: Double = 0.5
     static let sweepFadeOut: Double = 0.35
     static let sweepDirectionCrossfade: Double = 0.25
-    /// Beat of stillness after a pose change before the next sweep plays.
     static let sweepPoseDelay: Double = 0.36
 
-    /// How long `presentOnce(direction:)` waits before tearing its window down — sized to
-    /// the slowest streak in `EnrollmentDirectionSweep.makeSpecs()` plus a small buffer.
     static let introSweepAutoDismissDelay: Double = 1.6
 }
 
 extension View {
-    /// All four content-edge insets for a step view, sized to whichever silhouette the
-    /// panel is currently wearing. Reads style from the environment so every step view
-    /// stays a plain `(controller) -> View`.
     func onboardingContentPadding() -> some View {
         modifier(OnboardingContentPadding())
     }
 
-    /// Just the left/right insets — for steps (like `.complete`) that use
-    /// their own top/bottom spacing instead of the standard title/content
-    /// insets.
     func onboardingContentHorizontalPadding() -> some View {
         modifier(OnboardingContentHorizontalPadding())
     }

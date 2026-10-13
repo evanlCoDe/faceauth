@@ -16,14 +16,26 @@ enum AutoLockInterval: Int, CaseIterable, Identifiable {
     case sevenDays = 7
     case fourteenDays = 14
     case thirtyDays = 30
+    case never = 0
 
     var id: Int { rawValue }
 
-    var title: String { rawValue == 1 ? "1 day" : "\(rawValue) days" }
+    var title: String {
+        switch self {
+        case .oneDay: return "1 day"
+        case .sevenDays: return "7 days"
+        case .fourteenDays: return "14 days"
+        case .thirtyDays: return "30 days"
+        case .never: return "Never"
+        }
+    }
 
-    var duration: TimeInterval { TimeInterval(rawValue) * 24 * 60 * 60 }
+    var duration: TimeInterval? {
+        guard self != .never else { return nil }
+        return TimeInterval(rawValue) * 24 * 60 * 60
+    }
 
-    /// Position in `allCases`, used to drive the discrete 4-stop slider.
+    /// Position in `allCases`, used to drive the discrete slider.
     var sliderIndex: Double {
         Double(Self.allCases.firstIndex(of: self) ?? 0)
     }
@@ -120,6 +132,7 @@ final class GlanceSettings {
 
     private enum Key {
         static let isFaceUnlockEnabled = "GlanceSettings.isFaceUnlockEnabled"
+        static let isVoiceUnlockEnabled = "GlanceSettings.isVoiceUnlockEnabled"
         static let matchThreshold = "GlanceSettings.matchThreshold"
         static let livenessChecksEnabled = "GlanceSettings.livenessChecksEnabled"
         static let livenessMode = "GlanceSettings.livenessMode"
@@ -137,6 +150,8 @@ final class GlanceSettings {
         static let preferredDisplayID = "GlanceSettings.preferredDisplayID"
         static let preferredDisplayName = "GlanceSettings.preferredDisplayName"
         static let autoLockIntervalDays = "GlanceSettings.autoLockIntervalDays"
+        static let trustedNetworksEnabled = "GlanceSettings.trustedNetworksEnabled"
+        static let trustedNetworks = "GlanceSettings.trustedNetworks"
         static let defaultCameraID = "GlanceSettings.defaultCameraID"
         static let builtInDisplayCameraID = "GlanceSettings.builtInDisplayCameraID"
         static let externalDisplayCameraID = "GlanceSettings.externalDisplayCameraID"
@@ -150,6 +165,9 @@ final class GlanceSettings {
 
     var isFaceUnlockEnabled: Bool {
         didSet { defaults.set(isFaceUnlockEnabled, forKey: Key.isFaceUnlockEnabled) }
+    }
+    var isVoiceUnlockEnabled: Bool {
+        didSet { defaults.set(isVoiceUnlockEnabled, forKey: Key.isVoiceUnlockEnabled) }
     }
     var matchThreshold: Float {
         didSet { defaults.set(matchThreshold, forKey: Key.matchThreshold) }
@@ -197,9 +215,6 @@ final class GlanceSettings {
     /// setter refuses to store an empty set (see `UnlockTrigger`).
     var unlockTriggers: Set<UnlockTrigger> {
         didSet {
-            // Belt-and-braces behind the picker's own min-one rule. This
-            // reassignment re-enters didSet once, then terminates since the
-            // corrected value is never itself empty.
             if unlockTriggers.isEmpty {
                 unlockTriggers = oldValue.isEmpty ? Set(UnlockTrigger.allCases) : oldValue
             }
@@ -214,9 +229,6 @@ final class GlanceSettings {
     /// `NotchOverlayController.scanTimeoutDuration`.
     var faceDetectionSeconds: Int {
         didSet {
-            // Only reassign when clamping actually changes the value —
-            // unconditional reassignment would recurse infinitely, since the
-            // slider only ever produces already-in-range values.
             let clamped = min(max(faceDetectionSeconds, Self.faceDetectionRange.lowerBound),
                                Self.faceDetectionRange.upperBound)
             guard clamped == faceDetectionSeconds else {
@@ -253,6 +265,18 @@ final class GlanceSettings {
     var autoLockInterval: AutoLockInterval {
         didSet { defaults.set(autoLockInterval.rawValue, forKey: Key.autoLockIntervalDays) }
     }
+    var trustedNetworksEnabled: Bool {
+        didSet { defaults.set(trustedNetworksEnabled, forKey: Key.trustedNetworksEnabled) }
+    }
+    var trustedNetworks: [TrustedWiFiNetwork] {
+        didSet {
+            guard let data = try? JSONEncoder().encode(trustedNetworks) else {
+                assertionFailure("Couldn't encode trusted Wi-Fi networks.")
+                return
+            }
+            defaults.set(data, forKey: Key.trustedNetworks)
+        }
+    }
     /// Device `uniqueID`s, not device objects — devices can disconnect/
     /// reconnect between launches, but their unique ID is stable.
     var defaultCameraID: String? {
@@ -283,45 +307,33 @@ final class GlanceSettings {
     var onboardingResumeStep: OnboardingStep? {
         didSet { defaults.set(onboardingResumeStep?.rawValue, forKey: Key.onboardingResumeStep) }
     }
-    /// Gates the one-time post-update notice for users who completed onboarding before the
-    /// security-disclaimer step existed. Set alongside `hasCompletedOnboarding` for anyone
-    /// finishing normal onboarding (which now includes that step), and separately by
-    /// `OnboardingController.startPostUpdateNotice()` once the standalone catch-up notice is
-    /// acknowledged. Defaults `false`, so an upgrading 1.0 install (where this key has never
-    /// been written) correctly triggers the catch-up flow once.
     var hasAcknowledgedSecurityNotice: Bool {
         didSet { defaults.set(hasAcknowledgedSecurityNotice, forKey: Key.hasAcknowledgedSecurityNotice) }
     }
 
     private init() {
-        // Enabled by default — onboarding already enrolled a face and set a
-        // password specifically to use Face Unlock.
         isFaceUnlockEnabled = defaults.object(forKey: Key.isFaceUnlockEnabled) as? Bool ?? true
-        // Matches `MatchConfidenceLevel.standard` — see RecognitionSettingsPage.swift.
+        isVoiceUnlockEnabled = defaults.object(forKey: Key.isVoiceUnlockEnabled) as? Bool ?? false
         matchThreshold = defaults.object(forKey: Key.matchThreshold) as? Float ?? 0.66
         livenessChecksEnabled = defaults.object(forKey: Key.livenessChecksEnabled) as? Bool ?? true
-        // Light by default — Heavy requires a blink/pose/depth signal a
-        // still, non-blinking user may never produce, while Light still
-        // catches the main attack (a photo on a phone screen).
         livenessMode = defaults.string(forKey: Key.livenessMode)
             .flatMap(LivenessMode.init(rawValue:)) ?? .light
-        // Matches `DetectionDistanceLevel.standard` — see RecognitionSettingsPage.swift.
-        minimumFaceWidth = defaults.object(forKey: Key.minimumFaceWidth) as? Float ?? 0.21
+        let storedMinimumFaceWidth = defaults.object(forKey: Key.minimumFaceWidth) as? Float
+        if storedMinimumFaceWidth == 0.21 {
+            // Migrate the former default to the wider detection distance.
+            defaults.set(0.14, forKey: Key.minimumFaceWidth)
+        }
+        minimumFaceWidth = storedMinimumFaceWidth == 0.21 ? 0.14 : storedMinimumFaceWidth ?? 0.14
 
-        // Resolve the stored style first, `.none` included, then split it
-        // into the pick + the on/off flag the UI now works in.
         let storedStyle: UnlockAnimationStyle
         if let raw = defaults.string(forKey: Key.unlockAnimationStyle),
            let style = UnlockAnimationStyle(rawValue: raw) {
             storedStyle = style
         } else if let legacy = defaults.object(forKey: Key.playUnlockAnimation) as? Bool {
-            // Migrate the oldest on/off toggle: off → none, on → original.
             storedStyle = legacy ? .original : .none
         } else {
             storedStyle = .original
         }
-        // A stored `.none` becomes "off, remembering .original" so
-        // switching back on has something to restore.
         unlockAnimationStyle = storedStyle == .none ? .original : storedStyle
         showUnlockAnimation = defaults.object(forKey: Key.showUnlockAnimation) as? Bool
             ?? (storedStyle != .none)
@@ -329,11 +341,8 @@ final class GlanceSettings {
         faceIDColor = defaults.string(forKey: Key.faceIDColor)
             .flatMap(FaceIDColor.init(rawValue:)) ?? .blue
 
-        // On wake/lock by default, not on space — `.onSpace` needs Input
-        // Monitoring, which a fresh install shouldn't request unprompted.
         let storedTriggers = (defaults.array(forKey: Key.unlockTriggers) as? [String])?
             .compactMap { raw -> UnlockTrigger? in
-                // "onActivity" was merged into "onWake"; keep old installs working.
                 if raw == "onActivity" { return .onWake }
                 return UnlockTrigger(rawValue: raw)
             }
@@ -348,10 +357,15 @@ final class GlanceSettings {
         preferredDisplayID = defaults.string(forKey: Key.preferredDisplayID)
         preferredDisplayName = defaults.string(forKey: Key.preferredDisplayName)
 
-        // Defaults to 7 days — long enough not to nag daily users, short
-        // enough not to leave an abandoned session live indefinitely.
         autoLockInterval = (defaults.object(forKey: Key.autoLockIntervalDays) as? Int)
             .flatMap(AutoLockInterval.init(rawValue:)) ?? .sevenDays
+        trustedNetworksEnabled = defaults.object(forKey: Key.trustedNetworksEnabled) as? Bool ?? false
+        if let data = defaults.data(forKey: Key.trustedNetworks),
+           let networks = try? JSONDecoder().decode([TrustedWiFiNetwork].self, from: data) {
+            trustedNetworks = networks
+        } else {
+            trustedNetworks = []
+        }
         defaultCameraID = defaults.string(forKey: Key.defaultCameraID)
         builtInDisplayCameraID = defaults.string(forKey: Key.builtInDisplayCameraID)
         externalDisplayCameraID = defaults.string(forKey: Key.externalDisplayCameraID)
@@ -362,8 +376,51 @@ final class GlanceSettings {
             .flatMap(OnboardingStep.init(rawValue:))
         hasAcknowledgedSecurityNotice = defaults.object(forKey: Key.hasAcknowledgedSecurityNotice) as? Bool ?? false
 
-        // Push into the nonisolated mirror immediately, or FaceRecognitionPipeline
-        // would keep its own default until the slider is first touched.
         FaceRecognitionPipeline.minimumProminentFaceWidth = minimumFaceWidth
+    }
+
+    /// Resets all settings, stored credentials, face profiles, and voice profiles to a clean slate.
+    func resetToDefaults() {
+        if let bundleID = Bundle.main.bundleIdentifier {
+            defaults.removePersistentDomain(forName: bundleID)
+        }
+        defaults.synchronize()
+
+        isFaceUnlockEnabled = true
+        isVoiceUnlockEnabled = false
+        matchThreshold = 0.66
+        livenessChecksEnabled = true
+        livenessMode = .light
+        minimumFaceWidth = 0.14
+        unlockAnimationStyle = .original
+        showUnlockAnimation = true
+        faceIDColor = .blue
+        unlockTriggers = [.onWake, .onLock]
+        retryOnHover = true
+        faceDetectionSeconds = 5
+        autoRetryOnce = false
+        hapticFeedbackEnabled = true
+        preferredDisplayID = nil
+        preferredDisplayName = nil
+        autoLockInterval = .sevenDays
+        trustedNetworksEnabled = false
+        trustedNetworks = []
+        defaultCameraID = nil
+        builtInDisplayCameraID = nil
+        externalDisplayCameraID = nil
+        hasCompletedOnboarding = false
+        hasAcceptedEULA = false
+        onboardingResumeStep = nil
+        hasAcknowledgedSecurityNotice = false
+
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let directory = appSupport.appendingPathComponent("glance", isDirectory: true)
+        try? FileManager.default.removeItem(at: directory)
+
+        SecureFaceStore.deleteAll()
+        SecureVoiceStore.deleteAll()
+        KeychainManager.deleteAll()
+        SecureCredentialManager.lockSession()
+        FaceEnrollmentStore.shared.reloadIfUnlocked()
     }
 }

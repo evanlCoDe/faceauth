@@ -17,14 +17,22 @@ enum ScanMedia: Equatable {
     case idle
     case success
     case failure
+    case voiceListening
+    case voiceSuccess
+    case voiceFailure
 
     var videoResourceName: String? {
         switch self {
         case .idle: return nil
         case .success: return "unlockanimation"
         case .failure: return "unsuccessfulunlockanimation"
+        case .voiceListening: return "voice"
+        case .voiceSuccess: return "voiceunlock"
+        case .voiceFailure: return "voicelock"
         }
     }
+
+    var loops: Bool { self == .voiceListening }
 }
 
 struct ScanAnimationView: NSViewRepresentable {
@@ -43,6 +51,7 @@ struct ScanAnimationView: NSViewRepresentable {
 
 final class ScanAnimationHostView: NSView {
     private var player: AVPlayer?
+    private var playerLooper: AVPlayerLooper?
     private let playerLayer = AVPlayerLayer()
     private let stillImageLayer = CALayer()
     private var currentMedia: ScanMedia?
@@ -97,7 +106,14 @@ final class ScanAnimationHostView: NSView {
         }
 
         teardownPlayer()
-        let newPlayer = AVPlayer(url: url)
+        let newPlayer: AVPlayer
+        if media.loops {
+            let queuePlayer = AVQueuePlayer()
+            playerLooper = AVPlayerLooper(player: queuePlayer, templateItem: AVPlayerItem(url: url))
+            newPlayer = queuePlayer
+        } else {
+            newPlayer = AVPlayer(url: url)
+        }
         // This can play at the lock screen — never make noise.
         newPlayer.isMuted = true
         // Leaves the player paused on its final frame rather than rewinding.
@@ -140,6 +156,7 @@ final class ScanAnimationHostView: NSView {
         readyObservation = nil
         fallbackRevealWorkItem?.cancel()
         player?.pause()
+        playerLooper = nil
         player = nil
         playerLayer.player = nil
     }

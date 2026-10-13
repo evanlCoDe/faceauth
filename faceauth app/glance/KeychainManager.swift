@@ -42,8 +42,7 @@ enum KeychainManager {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecUseDataProtectionKeychain as String: true
+            kSecMatchLimit as String: kSecMatchLimitOne
         ]
         let status = SecItemCopyMatching(query as CFDictionary, nil)
         return status == errSecSuccess
@@ -56,8 +55,7 @@ enum KeychainManager {
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
             kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecUseDataProtectionKeychain as String: true
+            kSecMatchLimit as String: kSecMatchLimitOne
         ]
         if let context {
             query[kSecUseAuthenticationContext as String] = context
@@ -82,8 +80,7 @@ enum KeychainManager {
         let deleteQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecUseDataProtectionKeychain as String: true
+            kSecAttrAccount as String: account
         ]
         SecItemDelete(deleteQuery as CFDictionary)
 
@@ -91,8 +88,7 @@ enum KeychainManager {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
-            kSecValueData as String: data,
-            kSecUseDataProtectionKeychain as String: true
+            kSecValueData as String: data
         ]
         if let accessControl {
             addQuery[kSecAttrAccessControl as String] = accessControl
@@ -108,13 +104,20 @@ enum KeychainManager {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
-            kSecAttrAccount as String: account,
-            kSecUseDataProtectionKeychain as String: true
+            kSecAttrAccount as String: account
         ]
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw KeychainError.osStatus(status)
         }
+    }
+
+    nonisolated static func deleteAll() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service
+        ]
+        SecItemDelete(query as CFDictionary)
     }
 
     /// `.userPresence` requires Touch ID or device password, with no separate no-hardware handling needed.

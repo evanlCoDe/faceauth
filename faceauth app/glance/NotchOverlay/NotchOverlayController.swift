@@ -176,16 +176,22 @@ final class NotchOverlayController {
     /// Shows the idle still; auto-collapses silently (no failure animation) after
     /// `scanTimeoutDuration` if nothing resolves it.
     func beginScanning() {
+        beginScanning(timeout: scanTimeoutDuration, media: .idle)
+    }
+
+    /// Voice scans end on sustained microphone silence rather than an elapsed scan window.
+    func beginScanning(timeout: Duration?, media: ScanMedia = .idle) {
         resolveTask?.cancel(); resolveTask = nil
         scanTimeoutTask?.cancel()
         geometry = windowController.currentGeometry
         activeUnlockStyle = GlanceSettings.shared.effectiveUnlockAnimationStyle
-        content = .scan(.idle)
+        content = .scan(media)
         phase = .scanning
         updateInteractivity()
 
+        guard let timeout else { return }
         scanTimeoutTask = Task { [weak self] in
-            try? await Task.sleep(for: self?.scanTimeoutDuration ?? .seconds(5))
+            try? await Task.sleep(for: timeout)
             guard let self, !Task.isCancelled, self.phase == .scanning else { return }
             await self.collapse()
         }
@@ -281,7 +287,16 @@ final class NotchOverlayController {
         // Unlock Animation → None just skips the success/failure video; phase and
         // retry behavior are unaffected. Reads the cycle's captured style, not live settings.
         let shouldAnimate = activeUnlockStyle != .none
-        content = shouldAnimate ? .scan(success ? .success : .failure) : .scan(.idle)
+        let voiceOnly = GlanceSettings.shared.isVoiceUnlockEnabled && !GlanceSettings.shared.isFaceUnlockEnabled
+        let media: ScanMedia
+        if shouldAnimate, voiceOnly {
+            media = success ? .voiceSuccess : .voiceFailure
+        } else if shouldAnimate {
+            media = success ? .success : .failure
+        } else {
+            media = .idle
+        }
+        content = .scan(media)
         phase = success ? .success : .failure
         updateInteractivity()
 

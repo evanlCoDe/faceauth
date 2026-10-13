@@ -11,6 +11,7 @@ import SwiftUI
 enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
     case general
     case yourFace
+    case yourVoice
     case password
     case camera
     case recognition
@@ -23,6 +24,7 @@ enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .general: return "General"
         case .yourFace: return "Face"
+        case .yourVoice: return "Voice"
         case .password: return "Password"
         case .camera: return "Camera"
         case .recognition: return "Recognition"
@@ -31,12 +33,12 @@ enum SettingsTab: String, CaseIterable, Identifiable, Hashable {
         }
     }
 
-    /// `.yourFace` uses a custom mark — SF Symbols has no equivalent.
-    /// Every other tab is a built-in symbol; see `SettingsTabIcon`.
+    /// Every tab uses an SF Symbol; see `SettingsTabIcon`.
     var icon: SettingsTabIcon {
         switch self {
         case .general: return .system("gearshape.fill")
-        case .yourFace: return .asset("YourFaceIcon")
+        case .yourFace: return .system("faceid")
+        case .yourVoice: return .system("mic.fill")
         case .password: return .system("lock.fill")
         case .camera: return .system("video.fill")
         case .recognition: return .system("sparkle")
