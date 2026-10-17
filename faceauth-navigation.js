@@ -439,7 +439,7 @@
     switcher.setAttribute('aria-label', 'Product switcher');
     switcher.innerHTML = `
       <span class="faceauth-product-indicator" data-radius="999" aria-hidden="true"></span>
-      <button class="faceauth-product-option is-active" type="button" data-product="face" aria-pressed="true">FaceAuth for Mac</button>
+      <button class="faceauth-product-option is-active" type="button" data-product="face" aria-pressed="true">FaceID for Mac</button>
       <span class="faceauth-product-separator" aria-hidden="true"></span>
       <button class="faceauth-product-option" type="button" data-product="voice" aria-pressed="false">VoiceID for Mac</button>`;
     document.body.insertAdjacentElement('afterbegin', switcher);
