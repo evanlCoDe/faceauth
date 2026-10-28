@@ -61,6 +61,324 @@
         pointer-events: none;
       }
 
+      .download-counter {
+        position: fixed;
+        top: max(18px, env(safe-area-inset-top));
+        right: max(24px, env(safe-area-inset-right));
+        z-index: 45;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 8px 12px;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 999px;
+        background: rgba(255,255,255,0.76);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        color: var(--text);
+        font-size: 0.78rem;
+        line-height: 1;
+        white-space: nowrap;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 0;
+        font-family: inherit;
+        cursor: pointer;
+        transition: box-shadow 0.18s ease, background-color 0.18s ease;
+      }
+
+      .download-counter:hover,
+      .download-counter:focus-visible {
+        box-shadow: 0 7px 22px rgba(0,0,0,0.1);
+      }
+
+      .download-counter:active {
+        transform: scale(0.97);
+      }
+
+      .download-counter:focus-visible,
+      .download-map-close:focus-visible,
+      .map-country:focus-visible {
+        outline: 3px solid rgba(0,128,255,0.55);
+        outline-offset: 3px;
+      }
+
+      .download-counter-number {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+
+      .download-counter-label {
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      html[data-theme="dark"] .download-counter {
+        border-color: rgba(255,255,255,0.1);
+        background: rgba(28,30,34,0.78);
+      }
+
+      .download-map-overlay {
+        z-index: 100;
+        padding: 18px;
+        background: rgba(12,15,20,0.38);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+
+      .download-map-dialog {
+        position: relative;
+        width: min(100%, 980px);
+        max-height: min(92svh, 860px);
+        overflow: auto;
+        padding: clamp(22px, 4vw, 40px);
+        border: 1px solid rgba(255,255,255,0.65);
+        border-radius: 30px;
+        background: rgba(255,255,255,0.92);
+        box-shadow: 0 28px 90px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.8);
+        transform: translateY(8px) scale(0.98);
+        transition: transform 0.22s ease;
+      }
+
+      .download-map-overlay.is-open .download-map-dialog {
+        transform: translateY(0) scale(1);
+      }
+
+      .download-map-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 18px;
+      }
+
+      .download-map-eyebrow {
+        color: var(--blue);
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .download-map-title {
+        margin-top: 5px;
+        font-size: clamp(1.8rem, 4vw, 2.55rem);
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+      }
+
+      .download-map-dialog .assistant-window-controls {
+        top: 13px;
+        left: 13px;
+      }
+
+      .download-map-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .download-map-stat {
+        min-width: 0;
+        padding: 14px 16px;
+        border: 1px solid rgba(0,0,0,0.055);
+        border-radius: 17px;
+        background: rgba(248,250,252,0.78);
+      }
+
+      .download-map-stat-label {
+        color: var(--muted);
+        font-size: 0.76rem;
+      }
+
+      .download-map-stat-value {
+        margin-top: 3px;
+        color: var(--text);
+        font-size: clamp(1rem, 2.5vw, 1.28rem);
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .download-map-wrap {
+        position: relative;
+        margin-top: 20px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.055);
+        border-radius: 20px;
+        background: linear-gradient(145deg, rgba(247,250,255,0.95), rgba(241,246,252,0.75));
+      }
+
+      .download-world-map {
+        display: block;
+        width: 100%;
+        height: auto;
+        min-height: 170px;
+      }
+
+      .map-country {
+        fill: #e6ebf1;
+        stroke: rgba(255,255,255,0.95);
+        stroke-width: 0.7;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+        transition: fill 0.16s ease, stroke 0.16s ease, transform 0.16s ease, filter 0.16s ease;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+
+      .map-country.has-downloads {
+        cursor: pointer;
+      }
+
+      .map-country.has-downloads[data-tier="high"] { fill: #147de1; }
+      .map-country.has-downloads[data-tier="medium"] { fill: #65aaf0; }
+      .map-country.has-downloads[data-tier="low"] { fill: #a7cff7; }
+
+      .map-country.has-downloads:hover,
+      .map-country.has-downloads:focus-visible,
+      .map-country.has-downloads.is-active {
+        fill: #007aff;
+        stroke: #fff;
+        filter: drop-shadow(0 1px 2px rgba(0,75,160,0.3));
+        transform: scale(1.045);
+      }
+
+      .download-map-tooltip {
+        position: absolute;
+        z-index: 2;
+        display: none;
+        max-width: calc(100% - 24px);
+        padding: 7px 10px;
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 10px;
+        background: rgba(20,24,31,0.88);
+        box-shadow: 0 5px 16px rgba(0,0,0,0.14);
+        color: #fff;
+        font-size: 0.78rem;
+        line-height: 1.35;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+
+      .download-map-tooltip.is-visible {
+        display: block;
+      }
+
+      .download-map-country-detail {
+        min-height: 24px;
+        margin: 12px 2px 0;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .download-map-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      .download-map-country-select {
+        max-width: 100%;
+        padding: 8px 32px 8px 11px;
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 10px;
+        background: rgba(255,255,255,0.82);
+        color: var(--text);
+        font: inherit;
+        font-size: 0.8rem;
+      }
+
+      .download-map-country-select:focus-visible {
+        outline: 3px solid rgba(0,128,255,0.45);
+        outline-offset: 2px;
+      }
+
+      html[data-theme="dark"] .download-map-dialog {
+        border-color: rgba(255,255,255,0.12);
+        background: rgba(29,31,35,0.94);
+      }
+
+      html[data-theme="dark"] .download-map-close,
+      html[data-theme="dark"] .download-map-stat,
+      html[data-theme="dark"] .download-map-country-select {
+        border-color: rgba(255,255,255,0.1);
+        background: rgba(255,255,255,0.055);
+        color: #f5f6f7;
+      }
+
+      html[data-theme="dark"] .download-map-stat-value {
+        color: #f5f6f7;
+      }
+
+      html[data-theme="dark"] .download-map-wrap {
+        border-color: rgba(255,255,255,0.1);
+        background: linear-gradient(145deg, #252a31, #1d2229);
+      }
+
+      html[data-theme="dark"] .map-country {
+        fill: #3b424c;
+        stroke: #252a31;
+      }
+
+      html[data-theme="dark"] .map-country.has-downloads[data-tier="high"] { fill: #1683ef; }
+      html[data-theme="dark"] .map-country.has-downloads[data-tier="medium"] { fill: #347fca; }
+      html[data-theme="dark"] .map-country.has-downloads[data-tier="low"] { fill: #4a7298; }
+
+      @media (max-width: 600px) {
+        .download-map-overlay {
+          align-items: flex-end;
+          padding: 8px;
+        }
+
+        .download-map-dialog {
+          width: 100%;
+          max-height: min(92svh, 860px);
+          padding: 22px 18px max(22px, env(safe-area-inset-bottom));
+          border-radius: 26px;
+        }
+
+        .download-map-summary {
+          gap: 7px;
+          margin-top: 20px;
+        }
+
+        .download-map-stat {
+          padding: 11px 9px;
+          border-radius: 13px;
+        }
+
+        .download-map-stat-label {
+          font-size: 0.68rem;
+        }
+
+        .download-world-map {
+          min-height: 120px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .download-counter,
+        .download-map-dialog,
+        .download-map-close,
+        .map-country {
+          transition: none !important;
+          transform: none !important;
+          filter: none !important;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .download-counter {
+          top: max(12px, env(safe-area-inset-top));
+          right: max(12px, env(safe-area-inset-right));
+          gap: 5px;
+          padding: 7px 10px;
+          font-size: 0.72rem;
+        }
+      }
+
       .nav-inner {
         position: relative;
         isolation: isolate;
@@ -1379,6 +1697,17 @@
         visibility: visible;
       }
 
+      .download-map-overlay {
+        z-index: 1100;
+        transition: opacity 0.22s ease, visibility 0s linear 0.22s;
+      }
+
+      .download-map-overlay.is-open {
+        opacity: 1;
+        visibility: visible;
+        transition-delay: 0s;
+      }
+
       .beta-modal {
         width: min(100%, 480px);
         padding: 34px;
@@ -1861,13 +2190,19 @@
         transition: opacity 0.12s ease, visibility 0.12s ease;
       }
 
-      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-controls:hover .assistant-window-control::after,
-      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-controls:hover .assistant-window-control::before {
+      :is(#assistant-panel, .faceauth-settings-popup, .download-map-dialog) .assistant-window-controls:hover .assistant-window-control::after,
+      :is(#assistant-panel, .faceauth-settings-popup, .download-map-dialog) .assistant-window-controls:hover .assistant-window-control::before {
         opacity: 0.72;
         visibility: visible;
       }
 
-      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close::after {
+      .download-map-dialog .assistant-window-control-close::before,
+      .download-map-dialog .assistant-window-control-close::after {
+        opacity: 0.72;
+        visibility: visible;
+      }
+
+      :is(#assistant-panel, .faceauth-settings-popup, .download-map-dialog) .assistant-window-control-close::after {
         width: 8px;
         height: 1px;
         content: "";
@@ -1875,7 +2210,7 @@
         transform: rotate(45deg);
       }
 
-      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close::before {
+      :is(#assistant-panel, .faceauth-settings-popup, .download-map-dialog) .assistant-window-control-close::before {
         width: 8px;
         height: 1px;
         content: "";
@@ -1905,17 +2240,17 @@
         transform: rotate(45deg);
       }
 
-      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close {
+      :is(#assistant-panel, .faceauth-settings-popup, .download-map-dialog) .assistant-window-control-close {
         background-color: #ff6159 !important;
         background-image: none !important;
       }
 
-      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close:active:hover {
+      :is(#assistant-panel, .faceauth-settings-popup, .download-map-dialog) .assistant-window-control-close:active:hover {
         background-color: #bf4942 !important;
       }
 
-      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close:active:hover::before,
-      :is(#assistant-panel, .faceauth-settings-popup) .assistant-window-control-close:active:hover::after {
+      :is(#assistant-panel, .faceauth-settings-popup, .download-map-dialog) .assistant-window-control-close:active:hover::before,
+      :is(#assistant-panel, .faceauth-settings-popup, .download-map-dialog) .assistant-window-control-close:active:hover::after {
         background: #190000 !important;
       }
 
@@ -2367,6 +2702,10 @@
     </style>
   </head>
   <body>
+    <button class="download-counter" type="button" aria-label="12,000+ downloads. Open the example country distribution map.">
+      <span class="download-counter-number" aria-hidden="true">12,000+</span>
+      <span class="download-counter-label" aria-hidden="true">Downloads</span>
+    </button>
     <nav>
       <svg class="liquid-filter-defs" aria-hidden="true" focusable="false">
         <defs>
@@ -2993,6 +3332,44 @@
 
       })();
     </script>
+    <div class="modal-overlay download-map-overlay" id="download-map-overlay" aria-hidden="true">
+      <section class="download-map-dialog" role="dialog" aria-modal="true" aria-labelledby="download-map-title">
+        <div class="download-map-header">
+          <div>
+            <p class="download-map-eyebrow">Global reach</p>
+            <h2 class="download-map-title" id="download-map-title">Downloads by country</h2>
+          </div>
+          <div class="assistant-window-controls" role="group" aria-label="Download map window controls">
+            <button class="assistant-window-control assistant-window-control-close download-map-close" type="button" aria-label="Close download map"></button>
+          </div>
+        </div>
+        <div class="download-map-summary" aria-label="Illustrative map summary">
+          <div class="download-map-stat">
+            <p class="download-map-stat-label">Example downloads</p>
+            <p class="download-map-stat-value download-map-total">13,500+</p>
+          </div>
+          <div class="download-map-stat">
+            <p class="download-map-stat-label">Countries represented</p>
+            <p class="download-map-stat-value download-map-country-count">20</p>
+          </div>
+          <div class="download-map-stat">
+            <p class="download-map-stat-label">Distribution</p>
+            <p class="download-map-stat-value">Worldwide</p>
+          </div>
+        </div>
+        <div class="download-map-wrap">
+          <svg class="download-world-map" viewBox="0 0 1000 500" role="group" aria-label="World map. Select a blue country to view example download counts."></svg>
+          <div class="download-map-tooltip" role="tooltip" aria-live="polite"></div>
+        </div>
+        <p class="download-map-country-detail" aria-live="polite">Select a highlighted country to see its sample count.</p>
+        <div class="download-map-controls">
+          <label class="download-map-stat-label" for="download-map-country-select">Choose a country</label>
+          <select class="download-map-country-select" id="download-map-country-select">
+            <option value="">Select…</option>
+          </select>
+        </div>
+      </section>
+    </div>
     <div class="modal-overlay" id="official-download-overlay" aria-hidden="true">
       <section class="beta-modal" role="dialog" aria-modal="true" aria-labelledby="official-download-title">
         <div class="beta-modal-state" id="official-download-unavailable-state">
@@ -4258,5 +4635,29 @@
     </script>
     <script src="faceauth-navigation.js?v=20261002-2"></script>
     <script src="language-selector.js?v=20261001-28"></script>
+    <script src="faceauth-world-map-paths.js?v=20261027-1"></script>
+    <script src="faceauth-world-map.js?v=20261027-1"></script>
+    <script>
+      (() => {
+        const counter = document.querySelector('.download-counter-number');
+        if (!counter || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const target = 12000;
+        const duration = 1800;
+        const formatter = new Intl.NumberFormat('en-US');
+        const start = performance.now();
+        counter.textContent = '0';
+
+        const countUp = (now) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const easedProgress = 1 - Math.pow(1 - progress, 3);
+          counter.textContent = `${formatter.format(Math.round(target * easedProgress))}${progress === 1 ? '+' : ''}`;
+
+          if (progress < 1) requestAnimationFrame(countUp);
+        };
+
+        requestAnimationFrame(countUp);
+      })();
+    </script>
   </body>
 </html>
