@@ -6,6 +6,7 @@
     <script src="appearance-theme.js?v=20261001-13"></script>
     <title>FaceAuth — Face ID for Mac</title>
     <link rel="stylesheet" href="faceauth-navigation.css?v=20261002-4" />
+    <link rel="stylesheet" href="generated/liquid-glass-logo.css" />
     <link rel="icon" type="image/svg+xml" href="logo.svg?v=20260921-1" />
     <link rel="apple-touch-icon" href="logo.svg?v=20260921-1" />
     <style>
@@ -580,10 +581,23 @@
         text-align: center;
       }
 
-      .hero-logo-wrap {
+      #top .hero-logo-wrap,
+      #voiceid-top .hero-logo-wrap {
         display: flex;
         justify-content: center;
+        width: min(100%, 480px);
         margin-bottom: 18px;
+        margin-left: auto;
+        margin-right: auto;
+        background: transparent;
+      }
+
+      #top .hero-logo-wrap > #faceauth-liquid-glass-logo,
+      #voiceid-top .hero-logo-wrap > #voiceid-liquid-glass-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
       }
 
       .hero-logo {
@@ -2702,8 +2716,8 @@
     </style>
   </head>
   <body>
-    <button class="download-counter" type="button" aria-label="12,000+ downloads. Open the example country distribution map.">
-      <span class="download-counter-number" aria-hidden="true">12,000+</span>
+    <button class="download-counter" type="button" aria-label="13,500+ downloads. Open the example country distribution map.">
+      <span class="download-counter-number" aria-hidden="true">13,500+</span>
       <span class="download-counter-label" aria-hidden="true">Downloads</span>
     </button>
     <nav>
@@ -2736,7 +2750,9 @@
     <main>
       <section class="hero" id="top">
         <div class="hero-logo-wrap">
-          <img src="faceauth-logo-transparent.png" alt="FaceAuth logo" class="hero-logo" />
+          <div id="faceauth-liquid-glass-logo">
+            <img src="faceauth-hero-logo.png" alt="FaceAuth logo" class="hero-logo" />
+          </div>
         </div>
         <h1>Your face.<br />Your<img src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" class="hero-apple-icon" alt="Apple logo" />Mac.</h1>
         <div class="eyebrow">Face ID for Mac</div>
@@ -3101,7 +3117,16 @@
         };
 
         const voiceHeroLogo = voiceMain.querySelector('.hero-logo');
-        if (voiceHeroLogo) voiceHeroLogo.src = 'voiceid_white.png';
+        if (voiceHeroLogo) {
+          const voiceLogoMount = document.createElement('div');
+          voiceLogoMount.id = 'voiceid-liquid-glass-logo';
+          const voiceLogoFallback = document.createElement('img');
+          voiceLogoFallback.src = 'voiceid-hero-logo.png';
+          voiceLogoFallback.alt = 'VoiceID logo';
+          voiceLogoFallback.className = 'hero-logo';
+          voiceLogoMount.append(voiceLogoFallback);
+          voiceHeroLogo.closest('.hero-logo-wrap').replaceChildren(voiceLogoMount);
+        }
         setHTML('.hero h1', 'Your voice.<br />Your<img src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" class="hero-apple-icon" alt="Apple logo" />Mac.');
         setText('.hero .eyebrow', 'Voice ID for Mac');
         setText('.hero-subtitle', 'A simple, private way to unlock your Mac using your voice. Built to feel like it belongs on macOS.');
@@ -4642,7 +4667,7 @@
         const counter = document.querySelector('.download-counter-number');
         if (!counter || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        const target = 12000;
+        const target = 13500;
         const duration = 1800;
         const formatter = new Intl.NumberFormat('en-US');
         const start = performance.now();
@@ -4659,5 +4684,6 @@
         requestAnimationFrame(countUp);
       })();
     </script>
+    <script type="module" src="generated/liquid-glass-logo.js"></script>
   </body>
 </html>
