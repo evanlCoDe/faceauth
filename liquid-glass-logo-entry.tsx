@@ -1,6 +1,7 @@
 import { createRef } from "react";
 import { createRoot } from "react-dom/client";
 import { LiquidGlassLogo, type LiquidGlassLogoHandle } from "./components/liquid-glass-logo";
+import CreditCard from "./components/shared-assets/credit-card/credit-card";
 
 const logos = [
   { id: "faceauth-liquid-glass-logo", logo: "./faceauth-hero-logo.png", label: "FaceAuth logo" },
@@ -27,6 +28,11 @@ logos.forEach(({ id, logo, label, ref }) => {
     />,
   );
 });
+
+const creditCardMount = document.getElementById("faceauth-free-card");
+if (creditCardMount) {
+  createRoot(creditCardMount).render(<CreditCard type="gray-strip" />);
+}
 
 window.addEventListener("faceauth-product-change", () => {
   const activeLogoId = document.body.classList.contains("faceauth-voiceid-active")

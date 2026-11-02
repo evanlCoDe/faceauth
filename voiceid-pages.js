@@ -4,9 +4,7 @@
   const pageName = location.pathname.split('/').pop();
   const pageTitle = {
     'faq.html': 'VoiceID — Frequently Asked Questions',
-    'support.html': 'VoiceID — Support',
-    'release-notes.html': 'VoiceID — Release Notes',
-    'release-notes-web.html': 'VoiceID — Web Release Notes'
+    'support.html': 'VoiceID — Support'
   }[pageName];
   if (!pageTitle) return;
 
@@ -40,7 +38,7 @@
   });
   document.querySelectorAll('a[href]').forEach((link) => {
     const href = link.getAttribute('href') || '';
-    if (!/^(faq|support|release-notes|release-notes-web)\.html(?:$|[?#])/.test(href)) return;
+    if (!/^(faq|support)\.html(?:$|[?#])/.test(href)) return;
     const url = new URL(href, location.href);
     url.searchParams.set('product', 'voice');
     link.href = `${url.pathname.split('/').pop()}${url.search}${url.hash}`;
@@ -58,8 +56,6 @@
     pageCopy.append(appleIcon, document.createTextNode(' Mac.'));
   } else if (pageCopy && pageName === 'support.html') {
     pageCopy.textContent = 'Voice authentication support for Mac.';
-  } else if (pageCopy && pageName === 'release-notes.html') {
-    pageCopy.textContent = 'Stay up to date with VoiceID for Mac as development continues.';
   }
 
   const node = (tag, text) => {
@@ -134,53 +130,6 @@
       node('h2', 'When will VoiceID be available?'),
       node('p', 'VoiceID for Mac is currently in development. Join the VoiceID waitlist from the main page for availability updates.')
     );
-  } else if (pageName === 'release-notes.html') {
-    const notes = document.querySelector('.legal-content');
-    if (!notes) return;
-    notes.replaceChildren(
-      node('h2', 'VoiceID for Mac — In Development'),
-      node('p', 'VoiceID is being developed as a private, voice-based way to unlock your Mac. It is not yet available for download.'),
-      node('h3', 'App Release Notes'),
-      node('h4', 'Voice Authentication'),
-      (() => {
-        const list = document.createElement('ul');
-        [
-          'Developing voice recognition for enrolled speakers.',
-          'Designing voice enrollment and controls for multiple identities.',
-          'Building toward live-speech verification and on-device processing.',
-          'Keeping the normal Mac password available as a fallback.'
-        ].forEach((item) => list.appendChild(node('li', item)));
-        return list;
-      })(),
-      node('h3', 'Availability'),
-      node('p', 'VoiceID for Mac remains in development. Availability and supported Mac requirements will be announced when they are confirmed.')
-    );
-  } else if (pageName === 'release-notes-web.html') {
-    const copy = document.querySelector('main.page > .copy');
-    if (copy) copy.textContent = 'Voice authentication for Mac.';
-    const supportingCopy = document.querySelectorAll('main.page > .copy')[1];
-    if (supportingCopy) supportingCopy.textContent = 'Stay up to date with improvements to the VoiceID for Mac website.';
-    const meta = document.querySelector('.release-meta');
-    if (meta) {
-      meta.querySelector('p')?.replaceChildren(document.createTextNode('VoiceID for Mac Website'));
-    }
-    const list = document.querySelector('.release-list');
-    if (!list) return;
-    list.setAttribute('aria-label', 'VoiceID website release updates');
-    const updates = [
-      ['VoiceID Product Switcher', 'Added a FaceAuth for Mac and VoiceID for Mac switcher while preserving the shared website experience.'],
-      ['VoiceID Section', 'Added a VoiceID for Mac section describing voice authentication, privacy goals, voice identities, and current development status.'],
-      ['VoiceID AI', 'Updated the shared assistant with VoiceID-specific labels, suggested questions, and answers about voice recognition and authentication.'],
-      ['VoiceID Media', 'Added VoiceID-specific preview media for expanded and minimal interface states.'],
-      ['VoiceID Help Content', 'Added VoiceID-specific FAQ, Support, and Release Notes content for voice enrollment, microphone setup, privacy, and availability.']
-    ];
-    list.replaceChildren();
-    updates.forEach(([heading, description]) => {
-      const article = document.createElement('article');
-      article.className = 'release-item';
-      article.append(node('h3', heading), node('p', description));
-      list.appendChild(article);
-    });
   }
 
   document.querySelectorAll('#beta-modal-overlay').forEach((overlay) => {

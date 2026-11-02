@@ -1,3 +1,5 @@
+@import url("generated/soap-bubble-settings.css?v=20261101-2");
+
 @property --faceauth-glass-foreground {
   syntax: "<color>";
   inherits: true;
@@ -709,6 +711,15 @@ body.faceauth-nav-enabled {
   padding: 0 10px;
 }
 
+.faceauth-settings-popup .soap-bubble-toggle-host {
+  display: flex;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+}
+
 .faceauth-settings-popup .liquid-glass-setting {
   display: flex;
   flex-direction: column;
@@ -729,44 +740,11 @@ body.faceauth-nav-enabled {
   position: relative;
   height: 18px;
   margin: 0 3px;
-  touch-action: none;
   user-select: none;
 }
 
-.faceauth-settings-popup .liquid-glass-slider-track {
-  position: absolute;
-  inset: 5px 0;
-  overflow: hidden;
-  border: 1px solid rgba(72, 80, 92, 0.14);
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(128, 132, 138, 0.2), rgba(128, 132, 138, 0.48));
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.48), 0 1px 2px rgba(17, 25, 38, 0.08);
-  backdrop-filter: blur(8px) saturate(135%);
-  -webkit-backdrop-filter: blur(8px) saturate(135%);
-}
-
-.faceauth-settings-popup .liquid-glass-slider-thumb {
-  position: absolute;
-  top: 50%;
-  left: 62%;
-  width: 18px;
-  height: 18px;
-  border: 1px solid rgba(72, 80, 92, 0.16);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transform: translate(-50%, -50%);
-  cursor: grab;
-  touch-action: none;
-  transition: left 45ms linear, width 160ms cubic-bezier(0.22, 1, 0.36, 1), transform 160ms cubic-bezier(0.22, 1, 0.36, 1), border-radius 160ms ease, box-shadow 160ms ease;
-}
-
-.faceauth-settings-popup .liquid-glass-slider.is-dragging .liquid-glass-slider-thumb {
-  width: 26px;
-  border-radius: 999px;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.94);
-  cursor: grabbing;
-  transform: translate(-50%, -50%) scaleX(var(--liquid-glass-drag-stretch, 1.1));
+.faceauth-settings-popup .soap-bubble-slider-host {
+  width: 100%;
 }
 
 .faceauth-settings-popup .liquid-glass-slider-labels {
@@ -879,70 +857,6 @@ body.faceauth-nav-enabled {
 
 .faceauth-settings-popup .appearance-setting-label {
   font-weight: 400;
-}
-
-.faceauth-settings-popup .appearance-switch {
-  position: relative;
-  flex: none;
-  width: 44px;
-  height: 26px;
-  padding: 0;
-  border: 1px solid rgba(72, 80, 92, 0.16);
-  border-radius: 999px;
-  background: rgba(72, 80, 92, 0.16);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.52), inset 0 -1px 1px rgba(27, 34, 44, 0.08);
-  backdrop-filter: blur(8px) saturate(135%);
-  -webkit-backdrop-filter: blur(8px) saturate(135%);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: background-color 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
-}
-
-.faceauth-settings-popup .appearance-switch.is-night {
-  border-color: rgba(52, 199, 89, 0.9);
-  background: rgba(52, 199, 89, 0.86);
-}
-
-.faceauth-settings-popup .appearance-switch.is-on {
-  border-color: rgba(52, 199, 89, 0.9);
-  background: rgba(52, 199, 89, 0.86);
-}
-
-.faceauth-settings-popup .appearance-switch:focus-visible {
-  outline: 2px solid rgba(0, 128, 255, 0.62);
-  outline-offset: 3px;
-}
-
-.faceauth-settings-popup .appearance-switch-thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.faceauth-settings-popup .liquid-glass-toggle .appearance-switch-thumb {
-  will-change: transform;
-  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.faceauth-settings-popup :is(.appearance-switch.is-night, .appearance-switch.is-on) .appearance-switch-thumb {
-  transform: translateX(18px);
-}
-
-.faceauth-settings-popup .liquid-glass-toggle.is-on .appearance-switch-thumb {
-  transform: translateX(18px);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .faceauth-settings-popup .appearance-switch,
-  .faceauth-settings-popup .appearance-switch-thumb {
-    transition-duration: 0.01ms;
-  }
 }
 
 html.liquid-glass-disabled #faceauth-site-nav .lg-layer,
@@ -1147,35 +1061,9 @@ html[data-theme="dark"] .faceauth-settings-popup :is(.language-back, .language-r
   color: rgba(242, 244, 247, 0.76) !important;
 }
 
-html[data-theme="dark"] .faceauth-settings-popup .appearance-switch {
-  border-color: rgba(255, 255, 255, 0.2) !important;
-  background: rgba(255, 255, 255, 0.14) !important;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), inset 0 -1px 1px rgba(0, 0, 0, 0.2) !important;
-}
-
-html[data-theme="dark"] .faceauth-settings-popup .appearance-switch.is-night {
-  border-color: rgba(52, 199, 89, 0.9) !important;
-  background: rgba(52, 199, 89, 0.78) !important;
-}
-
-html[data-theme="dark"] .faceauth-settings-popup .appearance-switch.is-on {
-  border-color: rgba(52, 199, 89, 0.9) !important;
-  background: rgba(52, 199, 89, 0.78) !important;
-}
-
 html[data-theme="dark"] .faceauth-settings-popup .language-submenu-header {
   background: rgba(255, 255, 255, 0.035) !important;
   border-bottom-color: rgba(255, 255, 255, 0.12) !important;
-}
-
-html[data-theme="dark"] .faceauth-settings-popup .liquid-glass-slider-track {
-  border-color: rgba(255, 255, 255, 0.22) !important;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.34));
-}
-
-html[data-theme="dark"] .faceauth-settings-popup .liquid-glass-slider-thumb {
-  border-color: rgba(255, 255, 255, 0.34) !important;
-  background: rgba(247, 249, 252, 0.96);
 }
 
 html[data-theme="dark"] .faceauth-settings-popup .liquid-glass-slider-labels {

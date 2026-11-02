@@ -9,7 +9,6 @@
     'FAQ': ['FAQ', '常见问题', '常見問題', 'Preguntas frecuentes', 'अक्सर पूछे जाने वाले प्रश्न', 'FAQ', 'Perguntas frequentes', 'Часто задаваемые вопросы', 'よくある質問', '자주 묻는 질문'],
     'Download': ['Download', '下载', '下載', 'Descargar', 'डाउनलोड', 'Télécharger', 'Baixar', 'Скачать', 'ダウンロード', '다운로드'],
     'FaceAuth — Face ID for Mac': ['FaceAuth — Face ID for Mac', 'FaceAuth — Mac용 Face ID', 'FaceAuth — Mac 用 Face ID', 'FaceAuth — Face ID para Mac', 'FaceAuth — Mac के लिए Face ID', 'FaceAuth — Face ID pour Mac', 'FaceAuth — Face ID para Mac', 'FaceAuth — Face ID для Mac', 'FaceAuth — Mac用Face ID', 'FaceAuth — Mac용 Face ID'],
-    'FaceAuth — Release Notes': ['FaceAuth — Release Notes', 'FaceAuth — 发行说明', 'FaceAuth — 版本說明', 'FaceAuth — Notas de versión', 'FaceAuth — रिलीज़ नोट्स', 'FaceAuth — Notes de version', 'FaceAuth — Notas de versão', 'FaceAuth — Примечания к выпуску', 'FaceAuth — リリースノート', 'FaceAuth — 릴리스 노트'],
     'Frequently Asked Questions': ['Frequently Asked Questions', '常见问题', '常見問題', 'Preguntas frecuentes', 'अक्सर पूछे जाने वाले प्रश्न', 'Questions fréquemment posées', 'Perguntas frequentes', 'Часто задаваемые вопросы', 'よくある質問', '자주 묻는 질문'],
     'End User License Agreement': ['End User License Agreement', '最终用户许可协议', '最終使用者授權合約', 'Acuerdo de licencia de usuario final', 'अंतिम उपयोगकर्ता लाइसेंस समझौता', 'Contrat de licence utilisateur final', 'Contrato de licença de usuário final', 'Лицензионное соглашение конечного пользователя', 'エンドユーザーライセンス契約', '최종 사용자 라이선스 계약'],
     'Need help with FaceAuth?': ['Need help with FaceAuth?', '需要 FaceAuth 帮助吗？', '需要 FaceAuth 協助嗎？', '¿Necesitas ayuda con FaceAuth?', 'FaceAuth में सहायता चाहिए?', 'Besoin d’aide avec FaceAuth ?', 'Precisa de ajuda com o FaceAuth?', 'Нужна помощь с FaceAuth?', 'FaceAuthについてお困りですか？', 'FaceAuth에 도움이 필요하신가요?'],
@@ -36,10 +35,7 @@
     'Privacy Policy': ['Privacy Policy', '隐私政策', '隱私權政策', 'Política de privacidad', 'गोपनीयता नीति', 'Politique de confidentialité', 'Política de privacidade', 'Политика конфиденциальности', 'プライバシーポリシー', '개인정보 처리방침'],
     'EULA': ['EULA', '最终用户许可协议', '最終使用者授權合約', 'Acuerdo de licencia de usuario final', 'अंतिम उपयोगकर्ता लाइसेंस समझौता', 'Contrat de licence utilisateur final', 'Contrato de licença de usuário final', 'Лицензионное соглашение', 'エンドユーザーライセンス契約', '최종 사용자 라이선스 계약'],
     'Support': ['Support', '支持', '支援', 'Soporte', 'सहायता', 'Assistance', 'Suporte', 'Поддержка', 'サポート', '지원'],
-    'Release Notes': ['Release Notes', '发行说明', '版本說明', 'Notas de versión', 'रिलीज़ नोट्स', 'Notes de version', 'Notas de versão', 'Примечания к выпуску', 'リリースノート', '릴리스 노트'],
     'September 2026': ['September 2026', '2026 年 9 月', '2026 年 9 月', 'Septiembre de 2026', 'सितंबर 2026', 'Septembre 2026', 'Setembro de 2026', 'Сентябрь 2026', '2026年9月', '2026년 9월'],
-    'App Release Notes': ['App Release Notes', '应用版本说明', '應用版本說明', 'Notas de la aplicación', 'ऐप रिलीज़ नोट्स', 'Notes de version de l’app', 'Notas de versão do app', 'Примечания к выпуску приложения', 'アプリのリリースノート', '앱 릴리스 노트'],
-    'Web Release Notes': ['Web Release Notes', '网站版本说明', '網站版本說明', 'Notas de la web', 'वेब रिलीज़ नोट्स', 'Notes de version web', 'Notas de versão da web', 'Примечания к выпуску сайта', 'Webのリリースノート', '웹 릴리스 노트'],
     'Interface & App Refinements': ['Interface & App Refinements', '界面与应用改进', '介面與應用改進', 'Refinamientos de interfaz y app', 'इंटरफ़ेस और ऐप सुधार', 'Améliorations de l’interface et de l’app', 'Ajustes de interface e app', 'Улучшения интерфейса и приложения', 'インターフェイスとアプリの改善', '인터페이스 및 앱 개선'],
     'Fixed several layout and UI consistency issues across the app.': ['Fixed several layout and UI consistency issues across the app.', '修复了应用中多处布局和界面一致性问题。', '修正了應用程式中的多個版面和介面一致性問題。', 'Se corrigieron varios problemas de diseño y consistencia visual en la app.', 'ऐप में कई लेआउट और UI स्थिरता की समस्याओं को ठीक किया गया।', 'Plusieurs problèmes de mise en page et de cohérence de l’interface ont été corrigés dans l’application.', 'Corrigimos vários problemas de layout e consistência da interface no app.', 'Исправлено несколько проблем с компоновкой и единообразием интерфейса в приложении.', 'アプリ全体のレイアウトやUIの一貫性に関する複数の問題を修正しました。', '앱 전반에서 여러 레이아웃 및 UI 일관성 문제를 수정했습니다.'],
     'Refined spacing, alignment, and visual presentation for a cleaner experience.': ['Refined spacing, alignment, and visual presentation for a cleaner experience.', '优化了间距、对齐和视觉呈现，让体验更干净一致。', '優化了間距、對齊和視覺呈現，讓體驗更乾淨一致。', 'Se refinó el espaciado, la alineación y la presentación visual para una experiencia más limpia.', 'स्पेसिंग, अलाइनमेंट और विज़ुअल प्रजेंटेशन को बेहतर बनाकर सफ़ाईपूर्ण अनुभव किया गया।', 'L’espacement, l’alignement et la présentation visuelle ont été affinés pour une expérience plus nette.', 'Ajustamos o espaçamento, alinhamento e apresentação visual para uma experiência mais limpa.', 'Отточены интервалы, выравнивание и визуальное оформление для более чистого восприятия.', '余白、配置、視覚表現を整え、よりすっきりした体験に調整しました。', '간격, 정렬, 시각적 표현을 다듬어 더 깔끔한 경험을 만들었습니다.'],
@@ -262,7 +258,7 @@
   };
 
   const setSettingsRowsHidden = (popup, hidden) => {
-    popup?.querySelectorAll('.language-toggle, .appearance-toggle, .scroll-smoothing-toggle').forEach((toggle) => {
+    popup?.querySelectorAll('.language-toggle, .appearance-toggle, .scroll-smoothing-toggle > .soap-bubble-toggle').forEach((toggle) => {
       if (hidden) {
         toggle.setAttribute('aria-hidden', 'true');
         toggle.tabIndex = -1;
@@ -631,33 +627,24 @@
   };
 
   const updateScrollingSetting = (setting) => {
-    const toggle = setting.querySelector('.scroll-smoothing-toggle');
-    const isEnabled = window.faceAuthScrolling?.ultraSmoothEnabled !== false;
+    const toggle = setting.querySelector('.soap-bubble-toggle-host');
     setting.querySelector('.settings-switch-label').textContent = translated('Ultra Smooth Scrolling');
-    toggle.classList.toggle('is-on', isEnabled);
-    toggle.setAttribute('aria-checked', String(isEnabled));
     toggle.setAttribute('aria-label', translated('Ultra Smooth Scrolling'));
   };
 
   const updateMotionBlurSetting = (setting) => {
-    const toggle = setting.querySelector('.motion-blur-toggle');
-    const isEnabled = window.faceAuthMotionBlur?.enabled === true;
+    const toggle = setting.querySelector('.soap-bubble-toggle-host');
     setting.querySelector('.settings-switch-label').textContent = translated('Pro Motion');
-    toggle.classList.toggle('is-on', isEnabled);
-    toggle.setAttribute('aria-checked', String(isEnabled));
     toggle.setAttribute('aria-label', translated('Pro Motion'));
   };
 
   const updateAppearanceSelector = (selector) => {
-    const toggle = selector.querySelector('.appearance-switch');
-    const selectedMode = window.faceAuthAppearance?.mode || 'day';
+    const toggle = selector.querySelector('.soap-bubble-toggle-host');
     const appearanceLabel = selector.querySelector('.appearance-toggle .appearance-setting-label');
     if (appearanceLabel) appearanceLabel.textContent = translated('Appearance');
     selector.querySelector('.appearance-setting-row .appearance-setting-label').textContent = translated('Dark');
     const back = selector.querySelector('.settings-panel-back');
     if (back) back.setAttribute('aria-label', translated('Go Back'));
-    toggle.classList.toggle('is-night', selectedMode === 'night');
-    toggle.setAttribute('aria-checked', String(selectedMode === 'night'));
     toggle.setAttribute('aria-label', translated('Dark'));
   };
 
@@ -690,12 +677,9 @@
     const settingCopy = document.createElement('span');
     settingCopy.className = 'appearance-setting-copy';
     settingCopy.append(createSettingsIcon('<path d="M20.1 15.6A8.8 8.8 0 0 1 8.4 3.9 8.8 8.8 0 1 0 20.1 15.6Z"/>'), label);
-    const darkSwitch = document.createElement('button');
-    darkSwitch.className = 'appearance-switch';
-    darkSwitch.type = 'button';
-    darkSwitch.setAttribute('role', 'switch');
-    darkSwitch.setAttribute('aria-checked', 'false');
-    darkSwitch.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
+    const darkSwitch = document.createElement('div');
+    darkSwitch.className = 'soap-bubble-toggle-host';
+    darkSwitch.dataset.settingToggle = 'appearance';
     setting.append(settingCopy, darkSwitch);
     menu.append(header, setting);
     selector.append(toggle, menu);
@@ -714,11 +698,6 @@
         popup.classList.remove('has-submenu');
         setSettingsRowsHidden(popup, false);
       }
-    });
-    darkSwitch.addEventListener('click', () => {
-      const nextMode = window.faceAuthAppearance?.mode === 'night' ? 'day' : 'night';
-      window.faceAuthAppearance?.setMode(nextMode);
-      updateAppearanceSelector(selector);
     });
     back.addEventListener('click', () => returnToAppearanceRow(selector, true));
     updateAppearanceSelector(selector);
@@ -740,20 +719,12 @@
       createSettingsIcon('<path d="M3 8h11a2.5 2.5 0 1 0-2.5-2.5"/><path d="M2 12h17a2.5 2.5 0 1 1-2.5 2.5"/><path d="M4 16h8"/>'),
       label
     );
-    const toggle = document.createElement('button');
-    toggle.className = 'appearance-switch scroll-smoothing-toggle';
-    toggle.type = 'button';
-    toggle.setAttribute('role', 'switch');
-    toggle.setAttribute('aria-checked', 'true');
-    toggle.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
+    const toggle = document.createElement('div');
+    toggle.className = 'soap-bubble-toggle-host scroll-smoothing-toggle';
+    toggle.dataset.settingToggle = 'scrolling';
     row.append(settingCopy, toggle);
     setting.append(row);
     container.append(setting);
-    toggle.addEventListener('click', () => {
-      const isEnabled = window.faceAuthScrolling?.ultraSmoothEnabled !== false;
-      window.faceAuthScrolling?.setUltraSmoothEnabled(!isEnabled);
-      updateScrollingSetting(setting);
-    });
     updateScrollingSetting(setting);
     return setting;
   };
@@ -774,19 +745,12 @@
       createSettingsIcon('<circle cx="16" cy="4.5" r="1.8"/><path d="m13.2 8-2.6 3.6 3.2 1.8.8 5.1m-4-6.9-3.8.7-2 3m8.2-5.3 3.7 1.2 2.2 2.1m-8.3 0-3.3 2.8-1.5 2.4"/>'),
       label
     );
-    const toggle = document.createElement('button');
-    toggle.className = 'appearance-switch motion-blur-toggle';
-    toggle.type = 'button';
-    toggle.setAttribute('role', 'switch');
-    toggle.setAttribute('aria-checked', 'false');
-    toggle.innerHTML = '<span class="appearance-switch-thumb" aria-hidden="true"></span>';
+    const toggle = document.createElement('div');
+    toggle.className = 'soap-bubble-toggle-host';
+    toggle.dataset.settingToggle = 'motion-blur';
     row.append(settingCopy, toggle);
     setting.append(row);
     container.append(setting);
-    toggle.addEventListener('click', () => {
-      window.faceAuthMotionBlur?.setEnabled(!window.faceAuthMotionBlur.enabled);
-      updateMotionBlurSetting(setting);
-    });
     updateMotionBlurSetting(setting);
   };
 
@@ -799,72 +763,12 @@
     const label = document.createElement('span');
     label.className = 'liquid-glass-label';
     label.textContent = translated('Liquid Glass');
+    label.id = 'liquid-glass-intensity-label';
     const slider = document.createElement('div');
-    slider.className = 'liquid-glass-slider';
-    slider.setAttribute('aria-hidden', 'true');
-    slider.innerHTML = '<span class="liquid-glass-slider-track"></span><span class="liquid-glass-slider-thumb"></span>';
-    const thumb = slider.querySelector('.liquid-glass-slider-thumb');
-    let currentIntensity = window.faceAuthNavigationGlass?.intensity ?? 0.25;
-    let activePointerId = null;
-    let pointerOffset = 0;
-    let previousPointerX = 0;
-
-    const renderThumbPosition = (intensity) => {
-      currentIntensity = Math.min(1, Math.max(0, intensity));
-      const thumbRadius = (thumb.offsetHeight || 18) / 2;
-      thumb.style.left = `calc(${currentIntensity * 100}% - ${thumbRadius}px)`;
-    };
-
-    const setThumbPosition = (clientX, offset = pointerOffset) => {
-      const track = slider.getBoundingClientRect();
-      const thumbRadius = thumb.offsetHeight / 2;
-      const travel = Math.max(0, track.width - thumbRadius * 2);
-      const nextLeft = Math.min(travel, Math.max(0, clientX - offset - track.left - thumbRadius));
-      const intensity = travel ? nextLeft / travel : 0;
-      renderThumbPosition(intensity);
-      window.faceAuthNavigationGlass?.setIntensity(currentIntensity, false);
-    };
-
-    renderThumbPosition(currentIntensity);
-
-    const finishDrag = (event) => {
-      if (event.pointerId !== activePointerId) return;
-      window.faceAuthNavigationGlass?.setIntensity(currentIntensity);
-      activePointerId = null;
-      slider.classList.remove('is-dragging');
-      thumb.style.removeProperty('--liquid-glass-drag-stretch');
-      if (slider.hasPointerCapture(event.pointerId)) slider.releasePointerCapture(event.pointerId);
-    };
-
-    slider.addEventListener('pointerdown', (event) => {
-      if (activePointerId !== null || !event.target.closest('.liquid-glass-slider-track') || (event.pointerType === 'mouse' && event.button !== 0)) return;
-      setThumbPosition(event.clientX, 0);
-      window.faceAuthNavigationGlass?.setIntensity(currentIntensity);
-    });
-    thumb.addEventListener('pointerdown', (event) => {
-      if (activePointerId !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
-      const thumbBounds = thumb.getBoundingClientRect();
-      activePointerId = event.pointerId;
-      pointerOffset = event.clientX - (thumbBounds.left + thumbBounds.width / 2);
-      previousPointerX = event.clientX;
-      slider.classList.add('is-dragging');
-      slider.setPointerCapture(event.pointerId);
-      event.preventDefault();
-    });
-    slider.addEventListener('pointermove', (event) => {
-      if (event.pointerId !== activePointerId) return;
-      setThumbPosition(event.clientX);
-      const movement = Math.abs(event.clientX - previousPointerX);
-      const stretch = Math.min(1.4, 1.1 + movement * 0.035);
-      thumb.style.setProperty('--liquid-glass-drag-stretch', String(stretch));
-      previousPointerX = event.clientX;
-    });
-    slider.addEventListener('pointerup', finishDrag);
-    slider.addEventListener('pointercancel', finishDrag);
-    slider.addEventListener('lostpointercapture', finishDrag);
-    window.addEventListener('faceauth-navigation-glass-intensity-change', (event) => {
-      if (activePointerId === null && Number.isFinite(event.detail?.intensity)) renderThumbPosition(event.detail.intensity);
-    });
+    slider.className = 'liquid-glass-slider soap-bubble-slider-host';
+    slider.dataset.settingSlider = 'intensity';
+    slider.setAttribute('aria-label', translated('Liquid Glass'));
+    slider.setAttribute('aria-labelledby', label.id);
     const endpoints = document.createElement('div');
     endpoints.className = 'liquid-glass-slider-labels';
     endpoints.setAttribute('aria-hidden', 'true');
@@ -882,70 +786,12 @@
     const label = document.createElement('span');
     label.className = 'liquid-glass-label';
     label.textContent = translated('Liquid Glass Strength');
+    label.id = 'liquid-glass-strength-label';
     const slider = document.createElement('div');
-    slider.className = 'liquid-glass-slider liquid-glass-strength-slider';
-    slider.setAttribute('aria-hidden', 'true');
-    slider.innerHTML = '<span class="liquid-glass-slider-track"></span><span class="liquid-glass-slider-thumb"></span>';
-    const thumb = slider.querySelector('.liquid-glass-slider-thumb');
-    let currentStrength = window.faceAuthNavigationGlass?.strength ?? 1;
-    let activePointerId = null;
-    let pointerOffset = 0;
-    let previousPointerX = 0;
-
-    const renderThumbPosition = (strength) => {
-      currentStrength = Math.min(1, Math.max(0, strength));
-      const thumbRadius = (thumb.offsetHeight || 18) / 2;
-      thumb.style.left = `calc(${currentStrength * 100}% - ${thumbRadius}px)`;
-    };
-
-    const setThumbPosition = (clientX, offset = pointerOffset) => {
-      const track = slider.getBoundingClientRect();
-      const thumbRadius = thumb.offsetHeight / 2;
-      const travel = Math.max(0, track.width - thumbRadius * 2);
-      const nextLeft = Math.min(travel, Math.max(0, clientX - offset - track.left - thumbRadius));
-      renderThumbPosition(travel ? nextLeft / travel : 0);
-      window.faceAuthNavigationGlass?.setStrength(currentStrength, false);
-    };
-
-    renderThumbPosition(currentStrength);
-
-    const finishDrag = (event) => {
-      if (event.pointerId !== activePointerId) return;
-      window.faceAuthNavigationGlass?.setStrength(currentStrength);
-      activePointerId = null;
-      slider.classList.remove('is-dragging');
-      thumb.style.removeProperty('--liquid-glass-drag-stretch');
-      if (slider.hasPointerCapture(event.pointerId)) slider.releasePointerCapture(event.pointerId);
-    };
-
-    slider.addEventListener('pointerdown', (event) => {
-      if (activePointerId !== null || !event.target.closest('.liquid-glass-slider-track') || (event.pointerType === 'mouse' && event.button !== 0)) return;
-      setThumbPosition(event.clientX, 0);
-      window.faceAuthNavigationGlass?.setStrength(currentStrength);
-    });
-    thumb.addEventListener('pointerdown', (event) => {
-      if (activePointerId !== null || (event.pointerType === 'mouse' && event.button !== 0)) return;
-      const thumbBounds = thumb.getBoundingClientRect();
-      activePointerId = event.pointerId;
-      pointerOffset = event.clientX - (thumbBounds.left + thumbBounds.width / 2);
-      previousPointerX = event.clientX;
-      slider.classList.add('is-dragging');
-      slider.setPointerCapture(event.pointerId);
-      event.preventDefault();
-    });
-    slider.addEventListener('pointermove', (event) => {
-      if (event.pointerId !== activePointerId) return;
-      setThumbPosition(event.clientX);
-      const movement = Math.abs(event.clientX - previousPointerX);
-      thumb.style.setProperty('--liquid-glass-drag-stretch', String(Math.min(1.4, 1.1 + movement * 0.035)));
-      previousPointerX = event.clientX;
-    });
-    slider.addEventListener('pointerup', finishDrag);
-    slider.addEventListener('pointercancel', finishDrag);
-    slider.addEventListener('lostpointercapture', finishDrag);
-    window.addEventListener('faceauth-navigation-glass-strength-change', (event) => {
-      if (activePointerId === null && Number.isFinite(event.detail?.strength)) renderThumbPosition(event.detail.strength);
-    });
+    slider.className = 'liquid-glass-slider soap-bubble-slider-host';
+    slider.dataset.settingSlider = 'strength';
+    slider.setAttribute('aria-label', translated('Liquid Glass Strength'));
+    slider.setAttribute('aria-labelledby', label.id);
 
     const endpoints = document.createElement('div');
     endpoints.className = 'liquid-glass-slider-labels';

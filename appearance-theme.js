@@ -3,6 +3,7 @@
   const scrollStorageKey = 'faceauth-ultra-smooth-scrolling';
   const liquidGlassStorageKey = 'faceauth-liquid-glass';
   const liquidGlassStrengthStorageKey = 'faceauth-liquid-glass-strength';
+  const liquidGlassIntensityStorageKey = 'faceauth-navigation-glass-intensity';
   const motionBlurStorageKey = 'faceauth-motion-blur';
   const defaultNavigationGlassIntensity = 0.25;
   const transitionDuration = 420;
@@ -35,6 +36,13 @@
     const storedStrength = Number(localStorage.getItem(liquidGlassStrengthStorageKey));
     if (localStorage.getItem(liquidGlassStrengthStorageKey) !== null && Number.isFinite(storedStrength)) {
       navigationGlassStrength = Math.min(1, Math.max(0, storedStrength));
+    }
+  } catch {}
+
+  try {
+    const storedIntensity = Number(localStorage.getItem(liquidGlassIntensityStorageKey));
+    if (localStorage.getItem(liquidGlassIntensityStorageKey) !== null && Number.isFinite(storedIntensity)) {
+      navigationGlassIntensity = Math.min(1, Math.max(0, storedIntensity));
     }
   } catch {}
 
@@ -326,7 +334,7 @@
     root.style.setProperty('--faceauth-glass-scrollbar-edge-opacity', String(0.08 + navigationGlassStrength * 0.42));
   };
 
-  const setNavigationGlassIntensity = (intensity) => {
+  const setNavigationGlassIntensity = (intensity, persist = true) => {
     const value = Number(intensity);
     if (!Number.isFinite(value)) return;
     navigationGlassIntensity = Math.min(1, Math.max(0, value));
@@ -334,6 +342,11 @@
     window.dispatchEvent(new CustomEvent('faceauth-navigation-glass-intensity-change', {
       detail: { intensity: navigationGlassIntensity }
     }));
+    if (persist) {
+      try {
+        localStorage.setItem(liquidGlassIntensityStorageKey, String(navigationGlassIntensity));
+      } catch {}
+    }
   };
 
   const setNavigationGlassStrength = (strength, persist = true) => {
@@ -358,8 +371,8 @@
     get strength() {
       return navigationGlassStrength;
     },
-    setIntensity(intensity) {
-      setNavigationGlassIntensity(intensity);
+    setIntensity(intensity, persist) {
+      setNavigationGlassIntensity(intensity, persist);
     },
     setStrength(strength, persist) {
       setNavigationGlassStrength(strength, persist);
@@ -370,6 +383,6 @@
   setUltraSmoothScrolling(ultraSmoothScrolling, false);
   setMotionBlurEnabled(motionBlurEnabled, false);
   setLiquidGlassEnabled(liquidGlassEnabled, false);
-  setNavigationGlassIntensity(navigationGlassIntensity);
+  setNavigationGlassIntensity(navigationGlassIntensity, false);
   setNavigationGlassStrength(navigationGlassStrength, false);
 })();

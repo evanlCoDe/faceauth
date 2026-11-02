@@ -17,5 +17,10 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["components/**/*.ts", "components/**/*.tsx", "liquid-glass-logo-entry.tsx"]
+  "include": [
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "liquid-glass-logo-entry.tsx",
+    "soap-bubble-settings-entry.tsx"
+  ]
 }

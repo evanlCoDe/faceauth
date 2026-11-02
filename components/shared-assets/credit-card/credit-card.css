@@ -1,0 +1,213 @@
+.faceauth-credit-card {
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 410px);
+  aspect-ratio: 1.586;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.62);
+  border-radius: clamp(20px, 3vw, 28px);
+  background:
+    radial-gradient(ellipse at 18% 0%, rgb(255 255 255 / 0.92), transparent 48%),
+    linear-gradient(142deg, #f3f4f5 0%, #d9dce0 43%, #c4c8ce 100%);
+  box-shadow:
+    0 28px 55px -30px rgb(26 33 43 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.82),
+    inset 0 -1px 0 rgb(60 67 77 / 0.14);
+  color: #242830;
+  transform: perspective(900px) rotateX(0) rotateY(0);
+  transition: transform 450ms cubic-bezier(0.2, 0.75, 0.25, 1), box-shadow 450ms ease;
+}
+
+.faceauth-credit-card::before,
+.faceauth-credit-card::after {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+}
+
+.faceauth-credit-card::before {
+  inset: -45% -20% auto;
+  height: 85%;
+  background: linear-gradient(115deg, transparent 26%, rgb(255 255 255 / 0.62) 49%, transparent 68%);
+  opacity: 0.58;
+  transform: rotate(-8deg);
+}
+
+.faceauth-credit-card::after {
+  right: -15%;
+  bottom: -42%;
+  width: 75%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.38), transparent 70%);
+}
+
+.faceauth-credit-card:hover {
+  box-shadow:
+    0 34px 65px -28px rgb(26 33 43 / 0.56),
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 -1px 0 rgb(60 67 77 / 0.14);
+  transform: perspective(900px) rotateX(2deg) rotateY(-3deg) translateY(-4px);
+}
+
+.faceauth-credit-card__stripe {
+  position: absolute;
+  top: 20%;
+  right: 0;
+  left: 0;
+  height: 18%;
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+  border-bottom: 1px solid rgb(0 0 0 / 0.1);
+  background: linear-gradient(180deg, #777b82, #676b72 52%, #777b82);
+  box-shadow: 0 2px 6px rgb(22 27 34 / 0.14);
+}
+
+.faceauth-credit-card__content {
+  position: absolute;
+  inset: 9% 9% 8%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.faceauth-credit-card__topline,
+.faceauth-credit-card__bottomline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.faceauth-credit-card__brand {
+  font-size: clamp(1.05rem, 3vw, 1.32rem);
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  text-shadow: 0 1px rgb(255 255 255 / 0.6);
+}
+
+.faceauth-credit-card__mark {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 34px;
+  height: 24px;
+}
+
+.faceauth-credit-card__mark i {
+  width: 21px;
+  height: 21px;
+  border: 1px solid rgb(73 79 87 / 0.25);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.28);
+}
+
+.faceauth-credit-card__mark i + i {
+  margin-left: -9px;
+  background: rgb(105 112 121 / 0.23);
+}
+
+.faceauth-credit-card__chip {
+  position: relative;
+  display: grid;
+  width: 13%;
+  min-width: 39px;
+  max-width: 48px;
+  aspect-ratio: 1.27;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgb(87 91 96 / 0.34);
+  border-radius: 7px;
+  background: linear-gradient(135deg, #c8c8c5 0%, #9da0a0 48%, #c6c7c4 100%);
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 0.72), 0 1px 2px rgb(33 37 42 / 0.12);
+}
+
+.faceauth-credit-card__chip::before,
+.faceauth-credit-card__chip::after,
+.faceauth-credit-card__chip span {
+  position: absolute;
+  border: 1px solid rgb(86 89 92 / 0.4);
+  content: "";
+}
+
+.faceauth-credit-card__chip::before {
+  inset: 0 33%;
+  border-top: 0;
+  border-bottom: 0;
+}
+
+.faceauth-credit-card__chip::after {
+  inset: 32% 0;
+  border-right: 0;
+  border-left: 0;
+}
+
+.faceauth-credit-card__chip span {
+  inset: 32%;
+  border-radius: 2px;
+}
+
+.faceauth-credit-card__bottomline {
+  align-items: flex-end;
+}
+
+.faceauth-credit-card__number {
+  font-size: clamp(0.66rem, 2vw, 0.8rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 550;
+  letter-spacing: 0.075em;
+  white-space: nowrap;
+}
+
+.faceauth-credit-card__expiry {
+  color: rgb(36 40 48 / 0.68);
+  font-size: 0.54rem;
+  font-weight: 650;
+  letter-spacing: 0.15em;
+}
+
+html[data-theme="dark"] .faceauth-credit-card {
+  border-color: rgb(255 255 255 / 0.26);
+  background:
+    radial-gradient(ellipse at 18% 0%, rgb(255 255 255 / 0.26), transparent 48%),
+    linear-gradient(142deg, #555a62 0%, #383d45 48%, #292e36 100%);
+  box-shadow:
+    0 30px 60px -30px rgb(0 0 0 / 0.78),
+    inset 0 1px 0 rgb(255 255 255 / 0.32),
+    inset 0 -1px 0 rgb(0 0 0 / 0.36);
+  color: #f4f5f7;
+}
+
+html[data-theme="dark"] .faceauth-credit-card:hover {
+  box-shadow:
+    0 36px 68px -28px rgb(0 0 0 / 0.82),
+    inset 0 1px 0 rgb(255 255 255 / 0.38),
+    inset 0 -1px 0 rgb(0 0 0 / 0.36);
+}
+
+html[data-theme="dark"] .faceauth-credit-card__brand {
+  text-shadow: 0 1px rgb(0 0 0 / 0.24);
+}
+
+html[data-theme="dark"] .faceauth-credit-card__mark i {
+  border-color: rgb(255 255 255 / 0.28);
+  background: rgb(255 255 255 / 0.2);
+}
+
+html[data-theme="dark"] .faceauth-credit-card__mark i + i {
+  background: rgb(210 215 222 / 0.25);
+}
+
+html[data-theme="dark"] .faceauth-credit-card__expiry {
+  color: rgb(244 245 247 / 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faceauth-credit-card {
+    transition: none;
+  }
+
+  .faceauth-credit-card:hover {
+    transform: none;
+  }
+}
