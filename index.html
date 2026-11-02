@@ -1738,8 +1738,8 @@
         line-height: 1.5;
       }
 
-      #voiceid-main .free-for-life-section {
-        display: none;
+      body.faceauth-voiceid-active > #voiceid-main .free-for-life-section {
+        display: block;
       }
 
       html[data-theme="dark"] .free-for-life-panel {
@@ -3386,6 +3386,31 @@
         }
         const supportEmail = voiceMain.querySelector('.support-block a[href^="mailto:"]');
         if (supportEmail) supportEmail.textContent = 'Contact VoiceID Support';
+
+        const voiceCardMount = voiceMain.querySelector('#voiceid-faceauth-free-card');
+        if (voiceCardMount) {
+          voiceCardMount.innerHTML = `
+            <div class="faceauth-credit-card faceauth-credit-card--gray-strip" role="img" aria-label="VoiceID credit card with a magnetic stripe and chip">
+              <div class="faceauth-credit-card__stripe" aria-hidden="true"></div>
+              <div class="faceauth-credit-card__content">
+                <div class="faceauth-credit-card__topline">
+                  <span class="faceauth-credit-card__brand">VoiceID</span>
+                  <span class="faceauth-credit-card__mark" aria-hidden="true">
+                    <i></i>
+                    <i></i>
+                  </span>
+                </div>
+                <div class="faceauth-credit-card__chip" aria-hidden="true">
+                  <span></span>
+                </div>
+                <div class="faceauth-credit-card__bottomline">
+                  <span class="faceauth-credit-card__number" aria-hidden="true">•••• &nbsp; •••• &nbsp; •••• &nbsp; 2048</span>
+                  <span class="faceauth-credit-card__expiry" aria-hidden="true">MEMBER</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }
 
         const voiceVideoLoop = (video) => {
           video.addEventListener('ended', () => {
