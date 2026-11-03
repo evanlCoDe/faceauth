@@ -442,7 +442,21 @@
       <button class="faceauth-product-option is-active" type="button" data-product="face" aria-pressed="true">FaceID for Mac</button>
       <span class="faceauth-product-separator" aria-hidden="true"></span>
       <button class="faceauth-product-option" type="button" data-product="voice" aria-pressed="false">VoiceID for Mac</button>`;
-    document.body.insertAdjacentElement('afterbegin', switcher);
+    const controls = document.createElement('div');
+    controls.className = 'faceauth-product-controls';
+    const searchButtonHost = document.createElement('div');
+    searchButtonHost.id = 'faceauth-product-search-button-host';
+    searchButtonHost.className = 'faceauth-product-search-host';
+    controls.append(switcher, searchButtonHost);
+    document.body.insertAdjacentElement('afterbegin', controls);
+    const searchGlassObserver = new MutationObserver(() => {
+      const searchSurface = searchButtonHost.querySelector('.faceauth-site-search');
+      if (!searchSurface || targets.has(searchButtonHost)) return;
+      searchButtonHost.dataset.radius = '999';
+      applyGlass(searchButtonHost, navigationGlassConfig);
+      searchGlassObserver.disconnect();
+    });
+    searchGlassObserver.observe(searchButtonHost, { childList: true });
 
     const indicator = switcher.querySelector('.faceauth-product-indicator');
     const options = Array.from(switcher.querySelectorAll('.faceauth-product-option'));

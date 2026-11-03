@@ -1,4 +1,4 @@
-@import url("generated/soap-bubble-settings.css?v=20261101-2");
+@import url("generated/soap-bubble-settings.css?v=20261102-6");
 
 @property --faceauth-glass-foreground {
   syntax: "<color>";
@@ -863,13 +863,14 @@ html.liquid-glass-disabled #faceauth-site-nav .lg-layer,
 html.liquid-glass-disabled .faceauth-glass-notice .lg-layer,
 html.liquid-glass-disabled .faceauth-settings-button .lg-layer,
 html.liquid-glass-disabled .faceauth-product-switcher .lg-layer,
+html.liquid-glass-disabled .faceauth-product-search-host .lg-layer,
 html.liquid-glass-disabled .faceauth-settings-popup .lg-layer,
 html.liquid-glass-disabled .assistant-toggle .lg-layer {
   display: none !important;
 }
 
 html.liquid-glass-disabled #faceauth-site-nav .nav-inner,
-html.liquid-glass-disabled :is(.faceauth-settings-button, .faceauth-product-switcher, .faceauth-settings-popup, .faceauth-glass-notice) {
+html.liquid-glass-disabled :is(.faceauth-settings-button, .faceauth-product-switcher, .faceauth-product-search-host, .faceauth-settings-popup, .faceauth-glass-notice) {
   border-color: rgba(72, 80, 92, 0.16) !important;
   box-shadow: 0 8px 24px rgba(17, 25, 38, 0.12) !important;
   backdrop-filter: blur(16px) saturate(135%) !important;
@@ -880,7 +881,7 @@ html.liquid-glass-disabled #faceauth-site-nav .nav-inner {
   background: rgba(255, 255, 255, 0.52) !important;
 }
 
-html.liquid-glass-disabled :is(.faceauth-settings-button, .faceauth-product-switcher, .faceauth-settings-popup, .faceauth-glass-notice) {
+html.liquid-glass-disabled :is(.faceauth-settings-button, .faceauth-product-switcher, .faceauth-product-search-host, .faceauth-settings-popup, .faceauth-glass-notice) {
   background-color: rgba(255, 255, 255, 0.76) !important;
 }
 
@@ -911,7 +912,7 @@ html[data-theme="dark"].liquid-glass-disabled #faceauth-site-nav .nav-inner {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
 }
 
-html[data-theme="dark"].liquid-glass-disabled :is(.faceauth-settings-button, .faceauth-product-switcher, .faceauth-settings-popup, .faceauth-glass-notice) {
+html[data-theme="dark"].liquid-glass-disabled :is(.faceauth-settings-button, .faceauth-product-switcher, .faceauth-product-search-host, .faceauth-settings-popup, .faceauth-glass-notice) {
   background-color: rgba(30, 35, 43, 0.88) !important;
   border-color: rgba(255, 255, 255, 0.16) !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
@@ -1033,6 +1034,12 @@ html[data-theme="dark"] .nav-inner {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
+}
+
+html[data-theme="dark"] .faceauth-product-search-host {
+  background: rgba(27, 32, 40, 0.34);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 html[data-theme="dark"] #faceauth-site-nav .glass-nav-link {
@@ -1282,6 +1289,7 @@ html[data-theme="dark"] :is(.faceauth-settings-button, .faceauth-product-switche
 html.faceauth-safari-glass #faceauth-site-nav .lg-refract,
 html.faceauth-safari-glass .faceauth-settings-button .lg-refract,
 html.faceauth-safari-glass .faceauth-product-switcher .lg-refract,
+html.faceauth-safari-glass .faceauth-product-search-host .lg-refract,
 html.faceauth-safari-glass .faceauth-settings-popup .lg-refract,
 html.faceauth-safari-glass .assistant-panel .lg-refract,
 html.faceauth-safari-glass .assistant-toggle .lg-refract {
@@ -1317,6 +1325,7 @@ html.faceauth-safari-glass #faceauth-site-nav .lg-tint {
 html.faceauth-safari-glass .assistant-panel .lg-tint,
 html.faceauth-safari-glass .faceauth-settings-button .lg-tint,
 html.faceauth-safari-glass .faceauth-product-switcher .lg-tint,
+html.faceauth-safari-glass .faceauth-product-search-host .lg-tint,
 html.faceauth-safari-glass .faceauth-settings-popup .lg-tint,
 html.faceauth-safari-glass .assistant-toggle .lg-tint {
   overflow: hidden;
@@ -1332,6 +1341,8 @@ html.faceauth-safari-glass .faceauth-settings-button .lg-tint::before,
 html.faceauth-safari-glass .faceauth-settings-button .lg-tint::after,
 html.faceauth-safari-glass .faceauth-product-switcher .lg-tint::before,
 html.faceauth-safari-glass .faceauth-product-switcher .lg-tint::after,
+html.faceauth-safari-glass .faceauth-product-search-host .lg-tint::before,
+html.faceauth-safari-glass .faceauth-product-search-host .lg-tint::after,
 html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::before,
 html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::after {
   content: "";
@@ -1343,6 +1354,7 @@ html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::after {
 html.faceauth-safari-glass #faceauth-site-nav .lg-tint::before,
 html.faceauth-safari-glass .faceauth-settings-button .lg-tint::before,
 html.faceauth-safari-glass .faceauth-product-switcher .lg-tint::before,
+html.faceauth-safari-glass .faceauth-product-search-host .lg-tint::before,
 html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::before,
 html.faceauth-safari-glass .assistant-panel .lg-tint::before,
 html.faceauth-safari-glass .assistant-toggle .lg-tint::before {
@@ -1378,6 +1390,7 @@ html.faceauth-safari-glass .assistant-toggle .lg-tint::before {
 html.faceauth-safari-glass #faceauth-site-nav .lg-tint::after,
 html.faceauth-safari-glass .faceauth-settings-button .lg-tint::after,
 html.faceauth-safari-glass .faceauth-product-switcher .lg-tint::after,
+html.faceauth-safari-glass .faceauth-product-search-host .lg-tint::after,
 html.faceauth-safari-glass .faceauth-settings-popup .lg-tint::after,
 html.faceauth-safari-glass .assistant-panel .lg-tint::after,
 html.faceauth-safari-glass .assistant-toggle .lg-tint::after {
@@ -1398,8 +1411,8 @@ html.faceauth-safari-glass .assistant-toggle .lg-tint::after {
   mix-blend-mode: screen;
 }
 
-html.faceauth-safari-glass :is(#faceauth-site-nav, .faceauth-glass-notice, .assistant-panel, .assistant-toggle, .faceauth-settings-button, .faceauth-product-switcher, .faceauth-settings-popup) .lg-tint::before,
-html.faceauth-safari-glass :is(#faceauth-site-nav, .faceauth-glass-notice, .assistant-panel, .assistant-toggle, .faceauth-settings-button, .faceauth-product-switcher, .faceauth-settings-popup) .lg-tint::after,
+html.faceauth-safari-glass :is(#faceauth-site-nav, .faceauth-glass-notice, .assistant-panel, .assistant-toggle, .faceauth-settings-button, .faceauth-product-switcher, .faceauth-product-search-host, .faceauth-settings-popup) .lg-tint::before,
+html.faceauth-safari-glass :is(#faceauth-site-nav, .faceauth-glass-notice, .assistant-panel, .assistant-toggle, .faceauth-settings-button, .faceauth-product-switcher, .faceauth-product-search-host, .faceauth-settings-popup) .lg-tint::after,
 html.faceauth-mobile-device .faceauth-glass-notice .lg-tint::before,
 html.faceauth-mobile-device .faceauth-glass-notice .lg-tint::after {
   opacity: var(--faceauth-glass-specular-opacity,1);
@@ -1708,7 +1721,17 @@ html.faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner {
   backdrop-filter: none !important;
 }
 
+html.faceauth-navigation-glass-intensity .faceauth-product-search-host {
+  background-color: rgba(128, 128, 128, var(--faceauth-nav-glass-light-opacity, 0.323125)) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 html[data-theme="dark"].faceauth-navigation-glass-intensity #faceauth-site-nav .nav-inner {
+  background-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) !important;
+}
+
+html[data-theme="dark"].faceauth-navigation-glass-intensity .faceauth-product-search-host {
   background-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) !important;
 }
 
@@ -1716,7 +1739,7 @@ html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceau
   background-color: rgba(128, 128, 128, var(--faceauth-nav-glass-light-opacity, 0.323125)) !important;
 }
 
-html[data-theme="dark"].faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceauth-settings-button, .faceauth-product-switcher, .faceauth-settings-popup, .faceauth-glass-notice) {
+html[data-theme="dark"].faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) :is(.faceauth-settings-button, .faceauth-product-switcher, .faceauth-product-search-host, .faceauth-settings-popup, .faceauth-glass-notice) {
   background-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) !important;
 }
 
@@ -1726,6 +1749,8 @@ html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-s
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-button :where(*),
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-product-switcher,
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-product-switcher :where(*),
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-product-search-host,
+html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-product-search-host :where(*),
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-popup,
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .faceauth-settings-popup *,
 html.faceauth-navigation-glass-intensity:not(.liquid-glass-disabled) .assistant-panel,
@@ -1776,24 +1801,171 @@ html[data-theme="dark"].faceauth-navigation-glass-intensity {
   scrollbar-color: rgba(27, 32, 40, var(--faceauth-nav-glass-dark-opacity, 0.33)) transparent;
 }
 
-.faceauth-product-switcher {
+.faceauth-product-controls {
   position: fixed;
   top: calc(12px + env(safe-area-inset-top));
   left: 50%;
   z-index: 1002;
   display: flex;
   align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 80px - env(safe-area-inset-left) - env(safe-area-inset-right));
+  transform: translateX(-50%);
+  transition: transform 340ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.faceauth-product-switcher {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
   gap: 2px;
   width: max-content;
-  max-width: calc(100vw - 88px - env(safe-area-inset-left) - env(safe-area-inset-right));
+  max-width: calc(100vw - 140px - env(safe-area-inset-left) - env(safe-area-inset-right));
   padding: 4px;
   border: 1px solid rgba(72, 80, 92, 0.12);
   border-radius: 999px;
   background: rgba(128, 128, 128, 0.1);
   box-shadow: 0 8px 22px rgba(17, 25, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.16);
   color: #343943;
-  transform: translateX(-50%);
   -webkit-tap-highlight-color: transparent;
+}
+
+.faceauth-product-search-host {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  isolation: isolate;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(72, 80, 92, 0.12);
+  border-radius: 999px;
+  background: rgba(128, 128, 128, 0.1);
+  box-shadow: 0 8px 22px rgba(17, 25, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  color: #343943;
+  transition: width 340ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.faceauth-product-search-host[data-expanded="true"] {
+  width: min(260px, max(44px, calc(50vw - 34px))) !important;
+}
+
+.faceauth-site-search {
+  position: relative;
+  width: 100%;
+  height: 44px;
+}
+
+.faceauth-site-search > .soap-bubble-icon-button,
+.faceauth-site-search > .faceauth-site-search-trigger,
+.faceauth-site-search > .faceauth-site-search-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.faceauth-site-search-trigger {
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 140ms ease,
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 140ms;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.faceauth-site-search-trigger svg {
+  width: 22px;
+  height: 22px;
+}
+
+.faceauth-site-search-trigger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -4px;
+}
+
+.faceauth-site-search[data-expanded="true"] .faceauth-site-search-trigger {
+  opacity: 0;
+  transform: scale(0.72);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.faceauth-site-search-field {
+  z-index: 1;
+  opacity: 0;
+  transform: translateX(-8px) scale(0.97);
+  transform-origin: left center;
+  transition:
+    opacity 160ms ease,
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 340ms;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.faceauth-site-search[data-expanded="true"] .faceauth-site-search-field {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  transition:
+    opacity 180ms ease 45ms,
+    transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.faceauth-site-search .soap-bubble-search {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.faceauth-search-match-fallback,
+::highlight(faceauth-search-match) {
+  border-radius: 0.18em;
+  background-color: rgb(255 214 10 / 62%);
+  color: #171b22;
+  text-decoration: underline 2px rgb(232 144 0 / 85%);
+  text-underline-offset: 0.12em;
+}
+
+.faceauth-search-match-fallback {
+  padding: 0 0.04em;
+}
+
+.faceauth-site-search .soap-bubble-surface-canvas {
+  display: none;
+}
+
+.faceauth-product-search-host > .lg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.faceauth-product-search-host > .lg-refract {
+  background: transparent;
+}
+
+.faceauth-product-search-host .soap-bubble-icon-button {
+  color: inherit;
+}
+
+.faceauth-product-search-host > .lg-tint {
+  background: transparent;
 }
 
 .faceauth-product-switcher > .lg-layer {
@@ -1866,6 +2038,33 @@ html[data-theme="dark"].faceauth-navigation-glass-intensity {
   background: currentColor;
   opacity: 0.2;
   pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .faceauth-product-controls[data-search-open="true"] {
+    transform: translateX(calc(-50% - min(134px, calc(25vw - 13px))));
+  }
+
+  .faceauth-product-controls[data-search-open="true"] .faceauth-product-option {
+    padding: 0 4px;
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .faceauth-product-option {
+    padding: 0 10px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faceauth-product-controls,
+  .faceauth-product-search-host,
+  .faceauth-site-search-trigger,
+  .faceauth-site-search-field {
+    transition-duration: 0.01ms;
+  }
 }
 
 .faceauth-product-indicator {
