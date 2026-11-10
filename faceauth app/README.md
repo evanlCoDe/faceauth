@@ -182,4 +182,4 @@ recognition.
 
 ## License
 
-[MIT](LICENSE) © Jonathan Zhou
+[MIT](LICENSE) © Evan Lin
