@@ -7,6 +7,7 @@
     <title>FaceAuth — Face ID for Mac</title>
     <link rel="stylesheet" href="faceauth-navigation.css?v=20261102-9" />
     <link rel="stylesheet" href="generated/liquid-glass-logo.css" />
+    <link rel="stylesheet" href="generated/faceid-refracted-text.css" />
     <link rel="icon" type="image/svg+xml" href="logo.svg?v=20260921-1" />
     <link rel="apple-touch-icon" href="logo.svg?v=20260921-1" />
     <style>
@@ -624,6 +625,32 @@
         margin: 0 auto;
       }
 
+      .hero-refracted-title {
+        display: block;
+      }
+
+      .hero-refracted-line {
+        display: block;
+        line-height: 0.96;
+        white-space: nowrap;
+      }
+
+      .hero-refracted-line--second {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+      }
+
+      .hero-refracted-line--second .refracted-text:first-child {
+        margin-right: 0.1em;
+      }
+
+      .hero-refracted-line--second .hero-apple-icon {
+        flex: 0 0 auto;
+        margin-right: 0.05em;
+      }
+
       .hero-subtitle {
         max-width: 700px;
         margin: 26px auto 0;
@@ -997,35 +1024,6 @@
         overflow: hidden;
       }
 
-      .scroll-zoom-section {
-        height: 160svh;
-        max-width: 1140px;
-        margin: 24px auto 0;
-        padding: 0 20px;
-      }
-
-      .scroll-zoom-frame {
-        position: sticky;
-        top: 8svh;
-        width: 100%;
-        aspect-ratio: 921 / 740;
-        margin-inline: auto;
-        overflow: hidden;
-        border-radius: 36px;
-      }
-
-      .scroll-zoom-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: center;
-        transform: scale(1);
-        transform-origin: center;
-        filter: none !important;
-        transition: none !important;
-        will-change: transform;
-      }
-
       .unlock-flow {
         width: 100%;
         max-width: 1280px;
@@ -1191,12 +1189,6 @@
       }
 
       @media (max-width: 760px) {
-        .scroll-zoom-section {
-          height: 140svh;
-          margin-top: 18px;
-          padding-inline: 24px;
-        }
-
         .unlock-flow {
           margin-top: 18px;
           padding-inline: 24px;
@@ -2890,7 +2882,7 @@
             <img src="faceauth-hero-logo.png" alt="FaceAuth logo" class="hero-logo" />
           </div>
         </div>
-        <h1>Your face.<br />Your<img src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" class="hero-apple-icon" alt="Apple logo" />Mac.</h1>
+        <h1>Your Face.<br />Your<img src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" class="hero-apple-icon" alt="Apple logo" />Mac.</h1>
         <div class="eyebrow">Face ID for Mac</div>
         <p class="hero-subtitle">A simple, private way to unlock your Mac using your face. Built to feel like it belongs on macOS.</p>
 
@@ -3015,12 +3007,6 @@
           </div>
           <img class="identities-image" src="identities.png" alt="FaceAuth identities settings" />
         </article>
-      </section>
-
-      <section class="scroll-zoom-section" aria-label="FaceAuth on Mac">
-        <div class="scroll-zoom-frame">
-          <img class="scroll-zoom-image" src="faceauth-scroll-feature.png" alt="FaceAuth settings on a Mac desktop" />
-        </div>
       </section>
 
       <section class="unlock-flow" aria-label="A more natural way to unlock">
@@ -3276,7 +3262,8 @@
           voiceLogoMount.append(voiceLogoFallback);
           voiceHeroLogo.closest('.hero-logo-wrap').replaceChildren(voiceLogoMount);
         }
-        setHTML('.hero h1', 'Your voice.<br />Your<img src="ChatGPT Image Sep 18, 2026, 08_46_49 AM.png" class="hero-apple-icon" alt="Apple logo" />Mac.');
+
+        
         setText('.hero .eyebrow', 'Voice ID for Mac');
         setText('.hero-subtitle', 'A simple, private way to unlock your Mac using your voice. Built to feel like it belongs on macOS.');
         setText('.scroll-intro-copy[data-about-target]', 'The world’s first Voice ID for Mac');
@@ -4753,33 +4740,6 @@
         scrollTextElements.forEach((element) => scrollTextObserver.observe(element));
       }
 
-      const scrollZoomSections = document.querySelectorAll('.scroll-zoom-section');
-      if (!reducedMotion && scrollZoomSections.length) {
-        let scrollZoomAnimationFrame = null;
-        const updateScrollZoom = () => {
-          scrollZoomAnimationFrame = null;
-          const viewportHeight = window.innerHeight;
-          const stickyTop = viewportHeight * 0.08;
-
-          scrollZoomSections.forEach((section) => {
-            const image = section.querySelector('.scroll-zoom-image');
-            const frame = section.querySelector('.scroll-zoom-frame');
-            if (!image || !frame) return;
-
-            const scrollRange = Math.max(1, section.offsetHeight - frame.offsetHeight - stickyTop);
-            const progress = Math.min(1, Math.max(0, -section.getBoundingClientRect().top / scrollRange));
-            image.style.transform = `scale(${1 + progress * 0.6})`;
-          });
-        };
-        const scheduleScrollZoom = () => {
-          if (scrollZoomAnimationFrame !== null) return;
-          scrollZoomAnimationFrame = requestAnimationFrame(updateScrollZoom);
-        };
-
-        window.addEventListener('scroll', scheduleScrollZoom, { passive: true });
-        window.addEventListener('resize', scheduleScrollZoom);
-        updateScrollZoom();
-      }
     </script>
     <script>
       (() => {
@@ -4888,5 +4848,6 @@
       })();
     </script>
     <script type="module" src="generated/liquid-glass-logo.js"></script>
+    <script type="module" src="generated/faceid-refracted-text.js"></script>
   </body>
 </html>

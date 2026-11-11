@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit && vite build && vite build --config vite.settings.config.ts"
+    "build": "tsc --noEmit && vite build && vite build --config vite.settings.config.ts && vite build --config vite.refracted.config.ts"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
